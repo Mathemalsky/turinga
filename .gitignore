@@ -1,0 +1,39 @@
+# no bin or build folders
+bin/
+Linux*/
+build*/
+debug/
+release/
+
+# no documentation
+doc/
+
+# no binaries (objects, libraries/mex, executables)
+*.o
+*.so
+*.a
+*.out
+
+*.obj
+*.lib
+*.dll
+*.mex*
+
+*.exe
+
+# no cachegrind output
+cachegrind.out.*
+
+# no assembler output
+*.s
+
+# no kompressed files
+*.7z
+
+# no executable in "auxilaries"
+auxilaries/random
+auxilaries/Rotors*
+
+# no build artifacts from IDEs
+*.user
+
