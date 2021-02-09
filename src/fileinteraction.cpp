@@ -8,14 +8,6 @@
 #include "mainerror.hpp"
 #include "measurement.hpp"
 
-// write the vector into the given file
-void write_bytes(const Bytes& bytes, std::ostream& myfile) {
-  for (const Byte& byte : bytes) {  // Iterator through the entire vector
-    myfile.write(
-      reinterpret_cast<const char*>(&byte), sizeof(byte));  // writes the Data into the file
-  }
-}
-
 void write_rotorShifts(Byte* bytes, size_t size, std::ostream& myfile) {
   Byte byte;
   for(size_t i=0; i<size; ++i) {
@@ -24,12 +16,6 @@ void write_rotorShifts(Byte* bytes, size_t size, std::ostream& myfile) {
   }
 }
 
-// Read the given file into the Vector
-void read_bytes(Bytes& bytes, std::istream& myfile) {
-  for (Byte& byte : bytes) {
-    myfile.read(reinterpret_cast<char*>(&byte), sizeof(byte));  // read a Byte from file
-  }
-}
 Byte* read_rotorShifts(size_t size, std::istream& myfile) {
   Byte* bytes = (Byte*) malloc(MAX_KEYLENGTH);
   Byte byte;
@@ -121,44 +107,6 @@ void writeTuringaKey(const std::string filename, const TuringaKey& key) {
             << ">.\n";
 }
 
-// load the rotors
-/*
-Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {
-  std::string prefix(rotDirectory);
-  prefix += "/rotor_";
-  std::string suffix, filename;
-  if (key.direction == 0) {
-    suffix = ".txt";
-  }
-  else if (key.direction == 1) {
-    suffix = "_reverse.txt";
-  }
-
-  unsigned int buffer;
-  Byte* wheels = (Byte*) malloc(256 * key.length);
-  for (size_t i = 0; i < key.length; ++i) {
-    if (key.direction == 0) {
-      filename = prefix + key.rotorNames[i] + suffix;
-    }
-    else if (key.direction == 1) {
-      filename = prefix + key.rotorNames[key.length - 1 - i] + suffix;
-    }
-    const char* new_filename = filename.c_str();
-    std::ifstream myfile(new_filename, std::ios::in);
-    if (!myfile) {
-      throw file_not_found(new_filename, "loadRotors");
-    }
-
-    for (size_t j = 0; j < 256; ++j) {
-      myfile >> buffer;
-      wheels[256 * i + j] = buffer;
-    }
-  }
-  std::cout << timestamp(current_duration()) << "Rotors have been loaded.\n";
-  return wheels;
-}
-//*/
-
 Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {
   std::string prefix(rotDirectory);
   prefix += "/rotor_";
@@ -193,11 +141,6 @@ Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {
   fwrite(wheels,1,256*key.length,myfile);
   fclose(myfile);
 
-  /*
-  for(size_t i=0; i<256*key.length; ++i) {
-    printf("%02x ",wheels[i]);
-  }*/
   std::cout << timestamp(current_duration()) << "Rotors have been loaded.\n";
   return wheels;
 }
-//*/
