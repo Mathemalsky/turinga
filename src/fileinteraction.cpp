@@ -137,10 +137,6 @@ Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {
     fclose(myfile);
   }
 
-  FILE* myfile = fopen("rotors_test.txt", "wb");
-  fwrite(wheels,1,256*key.length,myfile);
-  fclose(myfile);
-
   std::cout << timestamp(current_duration()) << "Rotors have been loaded.\n";
   return wheels;
 }
