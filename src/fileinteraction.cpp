@@ -8,24 +8,6 @@
 #include "mainerror.hpp"
 #include "measurement.hpp"
 
-void write_rotorShifts(Byte* bytes, size_t size, std::ostream& myfile) {
-  Byte byte;
-  for(size_t i=0; i<size; ++i) {
-    byte = bytes[i];
-    myfile.write(reinterpret_cast<const char*>(&byte),sizeof(byte));
-  }
-}
-
-Byte* read_rotorShifts(size_t size, std::istream& myfile) {
-  Byte* bytes = (Byte*) malloc(MAX_KEYLENGTH);
-  Byte byte;
-  for(size_t i=0; i<size; ++i) {
-    myfile.read(reinterpret_cast<char*>(&byte),sizeof(byte));
-    bytes[i] = byte;
-  }
-  return bytes;
-}
-
 void read_file(Data& bytes, const char* filename, const TuringaKey& key) {
   FILE* myfile = fopen(filename, "rb");
   if (!myfile) {
@@ -85,7 +67,8 @@ TuringaKey readTuringaKey(const char* filename) {
 
   ignore_byte(myfile);
 
-  Byte* rotorShifts = read_rotorShifts(keylength, myfile);
+  Byte* rotorShifts = (Byte*)malloc(MAX_KEYLENGTH);
+  myfile.read((char*)rotorShifts,keylength);
   const TuringaKey key{direction, keylength, rotorNames, rotorShifts, fileShift};
 
   std::cout << timestamp(current_duration()) << "Turinga key has been read.\n";
@@ -102,7 +85,7 @@ void writeTuringaKey(const std::string filename, const TuringaKey& key) {
     myfile << character;
   }
   myfile << " " << key.fileShift << std::endl;
-  write_rotorShifts(key.rotorShifts,key.length,myfile);
+  myfile.write((char*)key.rotorShifts,key.length);
   std::cout << timestamp(current_duration()) << "Turinga key has been written to <" << filename
             << ">.\n";
 }
