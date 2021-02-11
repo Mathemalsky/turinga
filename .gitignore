@@ -1,3 +1,13 @@
+# the following lines help us ignore extensionless binaries
+# Ignore all
+*
+# Unignore all with extensions
+!*.*
+# Unignore all dirs
+!*/
+# Unignore makefile
+!Makefile
+
 # no bin or build folders
 bin/
 Linux*/
@@ -36,4 +46,7 @@ auxilaries/Rotors*
 
 # no build artifacts from IDEs
 *.user
+
+# no txt files
+*.txt
 
