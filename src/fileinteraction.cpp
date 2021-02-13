@@ -69,6 +69,8 @@ TuringaKey readTuringaKey(const char* filename) {
 
   Byte* rotorShifts = (Byte*)malloc(MAX_KEYLENGTH);
   myfile.read((char*)rotorShifts,keylength);
+  std::cout<<std::ifstream::failbit<<std::endl;
+  //assert(std::ifstream::failbit == 1 && "Couldn't read correctly");
   const TuringaKey key{direction, keylength, rotorNames, rotorShifts, fileShift};
 
   std::cout << timestamp(current_duration()) << "Turinga key has been read.\n";
