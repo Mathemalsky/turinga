@@ -50,3 +50,6 @@ auxilaries/Rotors*
 # no txt files
 *.txt
 
+# no bash skripts for testing
+*.sh
+
