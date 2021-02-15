@@ -7,4 +7,4 @@ void print_lightgreen(std::string word);
 void print_lightred(std::string word);
 void print_yellow(std::string word);
 
-#endif // COLORS_HPP
+#endif  // COLORS_HPP

@@ -22,28 +22,33 @@ using Bytes = std::vector<unsigned char>;
 
 // rotates the wheels,
 // each wheel rotates depending on the position of the prvious wheel
+/*!
+ * \brief rotate
+ * \param rotorShifts
+ * \param length
+ */
 void rotate(Byte* rotorShifts, const size_t length) {
   __m256i_u b = _mm256_setzero_si256();
 
   __m256i_u a = _mm256_loadu_si256((__m256i_u*) rotorShifts);
 
   Byte last = 1;
-  b                  = _mm256_insert_epi8(b, last, 0);
-  last               = !((rotorShifts[0] + last) % 3);
-  b                  = _mm256_insert_epi8(b, last, 1);
-  last               = !((rotorShifts[1] + last) % 5);
-  b                  = _mm256_insert_epi8(b, last, 2);
-  last               = !((rotorShifts[2] + last) % 7);
-  b                  = _mm256_insert_epi8(b, last, 3);
-  last               = !((rotorShifts[3] + last) % 9);
-  b                  = _mm256_insert_epi8(b, last, 4);
-  last               = !((rotorShifts[4] + last) % 11);
-  b                  = _mm256_insert_epi8(b, last, 5);
-  last               = !((rotorShifts[5] + last) % 13);
-  b                  = _mm256_insert_epi8(b, last, 6);
-  last               = !((rotorShifts[6] + last) % 15);
-  b                  = _mm256_insert_epi8(b, last, 7);
-  if(length>8) {
+  b         = _mm256_insert_epi8(b, last, 0);
+  last      = !((rotorShifts[0] + last) % 3);
+  b         = _mm256_insert_epi8(b, last, 1);
+  last      = !((rotorShifts[1] + last) % 5);
+  b         = _mm256_insert_epi8(b, last, 2);
+  last      = !((rotorShifts[2] + last) % 7);
+  b         = _mm256_insert_epi8(b, last, 3);
+  last      = !((rotorShifts[3] + last) % 9);
+  b         = _mm256_insert_epi8(b, last, 4);
+  last      = !((rotorShifts[4] + last) % 11);
+  b         = _mm256_insert_epi8(b, last, 5);
+  last      = !((rotorShifts[5] + last) % 13);
+  b         = _mm256_insert_epi8(b, last, 6);
+  last      = !((rotorShifts[6] + last) % 15);
+  b         = _mm256_insert_epi8(b, last, 7);
+  if (length > 8) {
     last = !((rotorShifts[7] + last) % 17);
     b    = _mm256_insert_epi8(b, last, 8);
     last = !((rotorShifts[8] + last) % 19);
@@ -60,7 +65,7 @@ void rotate(Byte* rotorShifts, const size_t length) {
     b    = _mm256_insert_epi8(b, last, 14);
     last = !((rotorShifts[14] + last) % 31);
     b    = _mm256_insert_epi8(b, last, 15);
-    if(length>16) {
+    if (length > 16) {
       last = !((rotorShifts[15] + last) % 33);
       b    = _mm256_insert_epi8(b, last, 16);
       last = !((rotorShifts[16] + last) % 35);
@@ -77,7 +82,7 @@ void rotate(Byte* rotorShifts, const size_t length) {
       b    = _mm256_insert_epi8(b, last, 22);
       last = !((rotorShifts[22] + last) % 47);
       b    = _mm256_insert_epi8(b, last, 23);
-      if (length>24) {
+      if (length > 24) {
         last = !((rotorShifts[23] + last) % 49);
         b    = _mm256_insert_epi8(b, last, 24);
         last = !((rotorShifts[24] + last) % 51);
@@ -98,15 +103,15 @@ void rotate(Byte* rotorShifts, const size_t length) {
     }
   }
 
-    a = _mm256_add_epi8(a, b);
+  a = _mm256_add_epi8(a, b);
 
-    _mm256_storeu_si256((__m256i_u*) rotorShifts, a);
+  _mm256_storeu_si256((__m256i_u*) rotorShifts, a);
 
-    rotorShifts[0] += !(rotorShifts[length - 1] % (2 * length + 1));
+  rotorShifts[0] += !(rotorShifts[length - 1] % (2 * length + 1));
 }
 TuringaKey generateTuringaKey(const size_t keylength, const std::string& availableRotors) {
   std::vector<char> rotorNames(keylength);
-  Byte* rotorShifts = (Byte*) malloc(MAX_KEYLENGTH);
+  Byte* rotorShifts           = (Byte*) malloc(MAX_KEYLENGTH);
   const size_t numberOfRotors = availableRotors.length();
   duthomhas::csprng random;
   for (size_t i = 0; i < keylength; ++i) {
@@ -127,12 +132,12 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   // this is an empirical constant from kcachgrind measurement
   // it's ratio of time spend rotate and time spend in encryption
   // the second thread gives speed up up to 13% more would be close to useless
-  const double rotateRatio = 45.92/53.71;
+  const double rotateRatio = 45.92 / 53.71;
   size_t begin             = 0, end;
 
-  end = std::round(bytes.size * (1-((1-rotateRatio)/(2-rotateRatio))));
+  end = std::round(bytes.size * (1 - ((1 - rotateRatio) / (2 - rotateRatio))));
 
-  Byte* rotorShifts_cpy = (Byte*)malloc(MAX_KEYLENGTH);
+  Byte* rotorShifts_cpy = (Byte*) malloc(MAX_KEYLENGTH);
   std::memcpy(rotorShifts_cpy, key.rotorShifts, MAX_KEYLENGTH);
   TuringaKey key_cpy{key.direction, key.length, key.rotorNames, rotorShifts_cpy, key.fileShift};
 
@@ -141,7 +146,7 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   for (size_t i = 0; i < end; ++i) {
     rotate(key.rotorShifts, key.length);
   }
-  encrypt_block(bytes,key,rotors,end,bytes.size);
+  encrypt_block(bytes, key, rotors, end, bytes.size);
 
   thr.join();
   free(key_cpy.rotorShifts);

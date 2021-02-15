@@ -21,9 +21,10 @@ struct TuringaKey {
   const size_t fileShift;
 };
 
-void rotate(Bytes &fileShifts, const size_t length);
+void rotate(Bytes& fileShifts, const size_t length);
 TuringaKey generateTuringaKey(const size_t keylength, const std::string& availableRotors);
-void encrypt(Data &bytes, TuringaKey& key, const Byte *rotors);
-void encrypt_block(Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end);
+void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors);
+void encrypt_block(
+  Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end);
 
-#endif // TURINGA_H
+#endif  // TURINGA_H
