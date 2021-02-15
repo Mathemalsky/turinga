@@ -109,6 +109,13 @@ void rotate(Byte* rotorShifts, const size_t length) {
 
   rotorShifts[0] += !(rotorShifts[length - 1] % (2 * length + 1));
 }
+
+/*!
+ * \brief generateTuringaKey
+ * \param keylength
+ * \param availableRotors string of characters which represents the names of rotors available
+ * \return TuringaKey
+ */
 TuringaKey generateTuringaKey(const size_t keylength, const std::string& availableRotors) {
   std::vector<char> rotorNames(keylength);
   Byte* rotorShifts           = (Byte*) malloc(MAX_KEYLENGTH);
