@@ -22,11 +22,6 @@ using Bytes = std::vector<unsigned char>;
 
 // rotates the wheels,
 // each wheel rotates depending on the position of the prvious wheel
-/*!
- * \brief rotate
- * \param rotorShifts
- * \param length
- */
 void rotate(Byte* rotorShifts, const size_t length) {
   __m256i_u b = _mm256_setzero_si256();
 
@@ -110,12 +105,6 @@ void rotate(Byte* rotorShifts, const size_t length) {
   rotorShifts[0] += !(rotorShifts[length - 1] % (2 * length + 1));
 }
 
-/*!
- * \brief generateTuringaKey
- * \param keylength
- * \param availableRotors string of characters which represents the names of rotors available
- * \return TuringaKey
- */
 TuringaKey generateTuringaKey(const size_t keylength, const std::string& availableRotors) {
   std::vector<char> rotorNames(keylength);
   Byte* rotorShifts           = (Byte*) malloc(MAX_KEYLENGTH);

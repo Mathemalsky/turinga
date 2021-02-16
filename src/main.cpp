@@ -14,10 +14,6 @@
 #include "mainerror.hpp"
 #include "measurement.hpp"
 
-/*!
- * \brief main set global variable starttime, interpret input arguments, call functions, manage
- * memory \param argc \param argv \return 0
- */
 int main(int argc, char** argv) {
   start_time();
   try {

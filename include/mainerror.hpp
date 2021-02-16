@@ -4,13 +4,13 @@
 #include <string>
 
 /*!
+ * \class Mainerror
  * \brief All specific errors inherrit from Mainerror class so they can be catched together
- * \param p_function string that contains the name where the error occurs
  */
 class Mainerror {
 public:
   /*!
-   * \brief report_error virtual function that can be called to catch ther errors
+   * \brief report_error virtual function that can be called to catch the errors
    */
   virtual void report_error() = 0;
   /*!
@@ -27,12 +27,12 @@ public:
   }
 
 private:
-  std::string p_function;
+  std::string p_function; /**< \param string that contains the name where the error occurs */
 };
 
 /*!
+ * \class File_not_found
  * \brief The class File_not_found is designed to handle errors when accesing files while reading
- * \param p_filename string that contains the name of the missing file
  */
 class File_not_found : public Mainerror {
 public:
@@ -42,13 +42,20 @@ public:
    * \param function the name of the function where the error occurs as string
    */
   File_not_found(std::string filename, std::string function);
+  /*!
+   * \brief report_error prints out the error message to the console
+   * \details prints the name of the missing file and the name of the function where the error
+   * occured
+   */
   void report_error();
 
 private:
-  std::string p_filename;
+  std::string
+    p_filename; /**< \param p_filename string that contains the name of the missing file */
 };
 
 /*!
+ * \class Cannot_create_file
  * \brief The class Cannot_create_file is designed to handle errors when accesing files while
  * writing
  * \param p_filename string that contains the name of the file
@@ -64,11 +71,13 @@ public:
   void report_error();
 
 private:
-  std::string p_filename;
+  std::string p_filename; /**< \param p_filename string that contains the name of the file
+                             struggeling to create */
 };
 
 /*!
- * \brief The Inappropriate_number_of_arguments class is designed to handle errors in case the
+ * \class Inappropriate_number_of_arguments
+ * \brief The class Inappropriate_number_of_arguments is designed to handle errors in case the
  * number of given arguments differs from the expected number of arguments
  * \param p_number number of collected arguments
  * \param p_expect expected number of arguments
@@ -86,7 +95,7 @@ public:
   void report_error();
 
 private:
-  unsigned int p_number;
-  unsigned int p_expectet;
+  unsigned int p_number;   /**< \param p_filename number of arguments got */
+  unsigned int p_expectet; /**< \param p_filename number of arguments expected */
 };
 #endif  // MAINERROR_HPP
