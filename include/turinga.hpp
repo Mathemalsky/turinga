@@ -1,6 +1,8 @@
 #ifndef TURINGA_H
 #define TURINGA_H
 
+/*! \file turinga.hpp */
+
 /*!
  * \mainpage Turinga
  * \section sec1 What is Turinga?
@@ -19,18 +21,18 @@
  * rotate the best security/runtime ration is reached if the key length is a multiple of 8
  * \section sec4 Historical notes
  * The idea of the encryption scheme comes from the enigma invented independently
- * by a few peole in 1919. The name Turinga is inspired by the great british mathematician Alan
- * Turing, who was one of the experts in Bletchley Park that achieved to break enigma during second
- * world war. Their work are the foundation of the improvements applied to enigma to obtain the
- * cryptographic scheme used in Turinga.
+ * by a few peole between 1915 and 1919. The name Turinga is inspired by the great british
+ * mathematician Alan Turing, who was one of the experts in Bletchley Park that achieved to break
+ * enigma during second world war. Their work are the foundation of the improvements applied to
+ * enigma to obtain the cryptographic scheme used in Turinga.
  */
 
 #include <stddef.h>
 #include <string>
 #include <vector>
 
-using Bytes = std::vector<unsigned char>;
-using Byte  = unsigned char;
+using Byte  = unsigned char;     /**< To simplify expressions use the intuitive definition */
+using Bytes = std::vector<Byte>; /**< A vector of type Byte are Bytes */
 
 /*!
  * \struct Data
@@ -58,9 +60,44 @@ struct TuringaKey {
   const size_t fileShift; /**< the bytes will be shiftet (mod filesize) by fileShift */
 };
 
+/*!
+ * \brief rotate changes the substitution rule after each byte
+ * \details This function replaces the rotation of wheels in enigma. This part is most critical for
+ * security.
+ * \authors Max, Jurek
+ * \param fileShifts determines the current substitution
+ * \param length number of rotors in use
+ */
 void rotate(Bytes& fileShifts, const size_t length);
+
+/*!
+ * \brief generateTuringaKey generates a pair of keys for encryption and decryption
+ * \param keylength
+ * \param availableRotors a std::string that represents the rotors, that can be used
+ * \return struct of type TuringaKey containing all infomation about the key
+ */
 TuringaKey generateTuringaKey(const size_t keylength, const std::string& availableRotors);
+
+/*!
+ * \brief encrypt encrypts or decrypts the data
+ * \details The function iterates through the data and through the rotors and performs the
+ * substitution for each rotor seperately.
+ * \param bytes The data to be encrypted/ decrypted.
+ * \param key The key used for encryption/ decryption.
+ * \param rotors stores the rotors (byte permutations) used.
+ */
 void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors);
+
+/*!
+ * \brief encrypt_block does the same as encrypt, but only from position begin to position end
+ * \details This function is designed to split the data and encrypt/ decrypt it parallel in several
+ * threads.
+ * \param bytes The data from were a block should be encrypted or decrypted.
+ * \param key The key used for encryption/ decryption.
+ * \param rotors rotors stores the rotors (byte permutations) used.
+ * \param begin position to begin the encryption/ decryption. Position begin is included.
+ * \param end position to end the encryption/ decryption. Position begin is excluded.
+ */
 void encrypt_block(
   Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end);
 
