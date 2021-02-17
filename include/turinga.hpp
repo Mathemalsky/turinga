@@ -21,9 +21,9 @@
  * rotate the best security/runtime ration is reached if the key length is a multiple of 8
  * \section sec4 Historical notes
  * The idea of the encryption scheme comes from the enigma invented independently
- * by a few peole between 1915 and 1919. The name Turinga is inspired by the great british
+ * by a few people between 1915 and 1919. The name Turinga is inspired by the great british
  * mathematician Alan Turing, who was one of the experts in Bletchley Park that achieved to break
- * enigma during second world war. Their work are the foundation of the improvements applied to
+ * enigma during second world war. Their work is the foundation of the improvements applied to
  * enigma to obtain the cryptographic scheme used in Turinga.
  */
 
@@ -53,11 +53,11 @@ struct TuringaKey {
   const size_t length; /**< stores the number of rotors used in the key */
   const std::vector<char>
     rotorNames; /**< rotorNames It's a string that contains the names of the rotors. The i-th rotor
-                   is represented by the i-th position in the the string. Hence the names of the
-                   rotors can only differ in ine char */
+                   is represented by the i-th position in the string. Hence the names of the
+                   rotors can only differ in one char */
   Byte* rotorShifts; /**< It's an array of bytes that stores current position of the wheels. This
                         will be changed by the rotate function after each encrypted Byte */
-  const size_t fileShift; /**< the bytes will be shiftet (mod filesize) by fileShift */
+  const size_t fileShift; /**< the bytes will be shifted (mod filesize) by fileShift */
 };
 
 /*!
@@ -81,7 +81,7 @@ TuringaKey generateTuringaKey(const size_t keylength, const std::string& availab
 /*!
  * \brief encrypt encrypts or decrypts the data
  * \details The function iterates through the data and through the rotors and performs the
- * substitution for each rotor seperately.
+ * substitution for each rotor separately.
  * \param bytes The data to be encrypted/ decrypted.
  * \param key The key used for encryption/ decryption.
  * \param rotors stores the rotors (byte permutations) used.

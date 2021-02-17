@@ -5,7 +5,7 @@
 
 /*!
  * \class Mainerror
- * \brief All specific errors inherrit from Mainerror class so they can be catched together
+ * \brief All specific errors inherit from Mainerror class so they can be caught together
  */
 class Mainerror {
 public:
@@ -32,7 +32,7 @@ private:
 
 /*!
  * \class File_not_found
- * \brief The class File_not_found is designed to handle errors when accesing files while reading
+ * \brief The class File_not_found is designed to handle errors when accessing files while reading
  */
 class File_not_found : public Mainerror {
 public:
@@ -56,7 +56,7 @@ private:
 
 /*!
  * \class Cannot_create_file
- * \brief The class Cannot_create_file is designed to handle errors when accesing files while
+ * \brief The class Cannot_create_file is designed to handle errors when accessing files while
  * writing
  * \param p_filename string that contains the name of the file
  */
@@ -72,7 +72,7 @@ public:
 
 private:
   std::string p_filename; /**< \param p_filename string that contains the name of the file
-                             struggeling to create */
+                             struggling to create */
 };
 
 /*!
@@ -87,7 +87,7 @@ public:
   /*!
    * \brief Inappropriate_number_of_arguments
    * \param number counts the collected arguments
-   * \param expectet states the amount of expected arguments
+   * \param expected states the amount of expected arguments
    * \param function name of the function where the error occurs, typically main
    */
   Inappropriate_number_of_arguments(
