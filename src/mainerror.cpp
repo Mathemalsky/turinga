@@ -40,16 +40,16 @@ void Cannot_create_file::report_error() {
 }
 
 Inappropriate_number_of_arguments::Inappropriate_number_of_arguments(
-  unsigned int number, unsigned int expectet, std::string function) {
+  unsigned int number, unsigned int expected, std::string function) {
   func(function);
   p_number   = number;
-  p_expectet = expectet;
+  p_expected = expected;
 }
 
 void Inappropriate_number_of_arguments::report_error() {
   std::cout << timestamp(current_duration());
   print_lightred("ERROR: ");
   std::cout << "Inapropriate number of arguments in function <" << func() << ">. Got " << p_number
-            << " but expectet " << p_expectet << ".\n";
+            << " but expectet " << p_expected << ".\n";
   exit(-1);
 }

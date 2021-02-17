@@ -1,6 +1,8 @@
 #ifndef MAINERROR_HPP
 #define MAINERROR_HPP
 
+/*! \file mainerror.hpp */
+
 #include <string>
 
 /*!
@@ -91,11 +93,11 @@ public:
    * \param function name of the function where the error occurs, typically main
    */
   Inappropriate_number_of_arguments(
-    unsigned int number, unsigned int expectet, std::string function);
+    unsigned int number, unsigned int expected, std::string function);
   void report_error();
 
 private:
   unsigned int p_number;   /**< \param p_filename number of arguments got */
-  unsigned int p_expectet; /**< \param p_filename number of arguments expected */
+  unsigned int p_expected; /**< \param p_filename number of arguments expected */
 };
 #endif  // MAINERROR_HPP

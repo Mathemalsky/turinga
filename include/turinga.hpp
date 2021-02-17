@@ -6,16 +6,17 @@
 /*!
  * \mainpage Turinga
  * \section sec1 What is Turinga?
- * Turinga is a simple program to encrypt and decrypt files.
+ * Turinga is a simple program to encrypt and decrypt files. It's a polyalphabetic byte wise
+ * substitution cipher. Hence it's a symmetric encryption scheme.
  * \section sec2 What are the requirements of Turinga?
  * Since the function rotate uses AVX2 your processor needs to support AVX2 and you have to compile
  * with -march=native
  * \section sec3 What should I care about using Turinga?
  * \subsection sec3_1 Security aspects
- *  Don't use short keys! Use at least length 8!
+ * Don't use short keys! Use at least length 8!
  *
- * Don't encrypt data which is highly redundant. In that case security can by improved by a good
- * compression method
+ * Don't encrypt data which is highly redundant! In that case security can by improved by a good
+ * compression method.
  * \subsection sec3_2 Performance aspects
  * Due to the actual implementation of
  * rotate the best security/runtime ration is reached if the key length is a multiple of 8
@@ -31,8 +32,8 @@
 #include <string>
 #include <vector>
 
-using Byte  = unsigned char;     /**< To simplify expressions use the intuitive definition */
-using Bytes = std::vector<Byte>; /**< A vector of type Byte are Bytes */
+using Byte  = unsigned char;     /**< To simplify expressions use the intuitive definition. */
+using Bytes = std::vector<Byte>; /**< A vector of type Byte are Bytes. */
 
 /*!
  * \struct Data
