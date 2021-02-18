@@ -26,7 +26,7 @@ double current_duration();
  * \brief timestamp formats the elapsed time to be printed pretty to terminal
  * \details The timestamp output will look like this: [  0.256458s].
  * \param duration time in seconds
- * \return Time elapsed since program start formated in a std::string.
+ * \return Time elapsed since program start formatted in a std::string.
  */
 inline std::string timestamp(const double duration) {
   std::string timeStamp = "[";
