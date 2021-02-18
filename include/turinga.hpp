@@ -42,12 +42,12 @@ using Bytes = std::vector<Byte>; /**< A vector of type Byte are Bytes. */
  */
 struct Data {
   Byte* bytes;       /**< an array of bytes (unsigned chars) */
-  const size_t size; /**< the length of the arry */
+  const size_t size; /**< the length of the array */
 };
 
 /*!
  * \struct TuringaKey
- * \brief The struct TuringaKey contains all information that determines the key for turinga
+ * \brief The struct TuringaKey contains all information that determines the key for turinga.
  */
 struct TuringaKey {
   int direction;       /**< It's value can be 0 or 1 where 0 stands for encrypt, 1 for decrypt. */
@@ -62,7 +62,7 @@ struct TuringaKey {
 };
 
 /*!
- * \brief rotate changes the substitution rule after each byte
+ * \brief changes the substitution rule after each byte
  * \details This function replaces the rotation of wheels in enigma. This part is most critical for
  * security.
  * \authors Max, Jurek
@@ -72,32 +72,32 @@ struct TuringaKey {
 void rotate(Bytes& fileShifts, const size_t length);
 
 /*!
- * \brief generateTuringaKey generates a pair of keys for encryption and decryption
- * \param keylength
+ * \brief generates a pair of keys for encryption and decryption
+ * \param keylength length of the key in use
  * \param availableRotors a std::string that represents the rotors, that can be used
  * \return struct of type TuringaKey containing all infomation about the key
  */
 TuringaKey generateTuringaKey(const size_t keylength, const std::string& availableRotors);
 
 /*!
- * \brief encrypt encrypts or decrypts the data
+ * \brief encrypts or decrypts the data
  * \details The function iterates through the data and through the rotors and performs the
  * substitution for each rotor separately.
- * \param bytes The data to be encrypted/ decrypted.
- * \param key The key used for encryption/ decryption.
- * \param rotors stores the rotors (byte permutations) used.
+ * \param bytes data to be encrypted/ decrypted
+ * \param key key used for encryption/ decryption
+ * \param rotors stores the rotors (byte permutations) used
  */
 void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors);
 
 /*!
- * \brief encrypt_block does the same as encrypt, but only from position begin to position end
+ * \brief does the same as encrypt, but only from position begin to position end
  * \details This function is designed to split the data and encrypt/ decrypt it parallel in several
  * threads.
- * \param bytes The data from were a block should be encrypted or decrypted.
- * \param key The key used for encryption/ decryption.
- * \param rotors rotors stores the rotors (byte permutations) used.
- * \param begin position to begin the encryption/ decryption. Position begin is included.
- * \param end position to end the encryption/ decryption. Position begin is excluded.
+ * \param bytes data from were a block should be encrypted or decrypted
+ * \param key key used for encryption/ decryption
+ * \param rotors stores the rotors (byte permutations) used
+ * \param begin position to begin the encryption/ decryption; Position begin is included.
+ * \param end position to end the encryption/ decryption; Position end is excluded.
  */
 void encrypt_block(
   Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end);

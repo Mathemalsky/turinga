@@ -7,21 +7,21 @@
 
 /*!
  * \class Mainerror
- * \brief All specific errors inherit from Mainerror class so they can be caught together
+ * \brief All specific errors inherit from Mainerror class so they can be caught together.
  */
 class Mainerror {
 public:
   /*!
-   * \brief report_error virtual function that can be called to catch the errors
+   * \brief virtual function that can be called to catch the errors
    */
   virtual void report_error() = 0;
   /*!
-   * \brief func writes into the private param p_function
+   * \brief writes into the private param p_function
    * \param function string which the param p_function should be set to
    */
   void func(const std::string function);
   /*!
-   * \brief func reads the private param p_function
+   * \brief reads the private param p_function
    * \return std::string p_function
    */
   std::string func() const;
@@ -34,7 +34,7 @@ private:
 
 /*!
  * \class File_not_found
- * \brief The class File_not_found is designed to handle errors when accessing files while reading
+ * \brief The class File_not_found is designed to handle errors when accessing files while reading.
  */
 class File_not_found : public Mainerror {
 public:
@@ -45,7 +45,7 @@ public:
    */
   File_not_found(std::string filename, std::string function);
   /*!
-   * \brief report_error prints out the error message to the console
+   * \brief prints out the error message to the console
    * \details prints the name of the missing file and the name of the function where the error
    * occured
    */
@@ -59,7 +59,7 @@ private:
 /*!
  * \class Cannot_create_file
  * \brief The class Cannot_create_file is designed to handle errors when accessing files while
- * writing
+ * writing.
  * \param p_filename string that contains the name of the file
  */
 class Cannot_create_file : public Mainerror {
@@ -70,6 +70,11 @@ public:
    * \param function the name of the function where the error occurs as string
    */
   Cannot_create_file(std::string filename, std::string function);
+  /*!
+   * \brief prints out the error message to the console
+   * \details prints the name of the file which makes problems and the name of the function where
+   * the error occured
+   */
   void report_error();
 
 private:
@@ -80,7 +85,7 @@ private:
 /*!
  * \class Inappropriate_number_of_arguments
  * \brief The class Inappropriate_number_of_arguments is designed to handle errors in case the
- * number of given arguments differs from the expected number of arguments
+ * number of given arguments differs from the expected number of arguments.
  * \param p_number number of collected arguments
  * \param p_expect expected number of arguments
  */
@@ -94,6 +99,11 @@ public:
    */
   Inappropriate_number_of_arguments(
     unsigned int number, unsigned int expected, std::string function);
+  /*!
+   * \brief prints out the error message to the console
+   * \details prints the number of argeuments got, the number of arguments expected and the function
+   * where the error occurs
+   */
   void report_error();
 
 private:
