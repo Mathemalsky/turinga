@@ -51,9 +51,9 @@ int main(int argc, char** argv) {
       free(key.rotorShifts);
     }
     else {
-      throw inappropriate_number_of_arguments(argc, 5, "main");
+      throw Inappropriate_number_of_arguments(argc, 5, "main");
     }
-  } catch (mainerror& error) {
+  } catch (Mainerror& error) {
     error.report_error();
   }
   std::cout << timestamp(current_duration());
