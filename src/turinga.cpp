@@ -20,11 +20,14 @@
 using Byte  = unsigned char;
 using Bytes = std::vector<unsigned char>;
 
+static char* reverse_global;
+
 // rotates the wheels,
 // each wheel rotates depending on the position of the prvious wheel
 void rotate(Byte* rotorShifts, const size_t length) {
   __m256i low_4_bits_mask  = _mm256_set1_epi8(0b00001111);
   __m256i high_4_bits_mask = _mm256_set1_epi8(0b11110000);
+  __m256i reverse          = _mm256_loadu_si256((__m256i*) reverse_global);
   __m256i table            = _mm256_setr_epi8(
     0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110, 0b1111, 0b0010, 0b1100, 0b0101,
     0b1010, 0b0100, 0b0011, 0b1000, 0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110,
@@ -39,8 +42,13 @@ void rotate(Byte* rotorShifts, const size_t length) {
     0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000);
 
   __m256i values = _mm256_loadu_si256((__m256i*) rotorShifts);
-  __m256i y      = _mm256_and_si256(values, low_4_bits_mask);
-  __m256i x      = _mm256_and_si256(values, high_4_bits_mask);
+  __m256i y      = (length > 16) ? _mm256_permute2x128_si256(values, values, 0b00000001)
+                                 : _mm256_permute2x128_si256(values, values, 0b00010000);
+
+  y = _mm256_shuffle_epi8(y, reverse);
+
+  y         = _mm256_and_si256(y, low_4_bits_mask);
+  __m256i x = _mm256_and_si256(values, high_4_bits_mask);
 
   // function pi(y)
   y = _mm256_shuffle_epi8(table, y);
@@ -83,21 +91,35 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   const double rotateRatio = 45.92 / 53.71;
   size_t begin             = 0, end;
 
-  end = std::round(bytes.size * (1 - ((1 - rotateRatio) / (2 - rotateRatio))));
+  char* reverse             = (char*) malloc(32);
+  const char high_keylength = key.length >> 4;
+  const char low_keylength  = key.length - (high_keylength << 4);
+#define place(val) ((val) & -(0 < (val)))
+  for (int i = 0; i < 16; i++) {
+    reverse[i] = place(low_keylength - i - 1);
+  }
+  for (int i = 0; i < 16; i++) {
+    reverse[16 + i] = place(high_keylength - i - 1);
+  }
+#undef place
+  reverse_global = reverse;
+
+  end = std::round(bytes.size * (1.0 - ((1.0 - rotateRatio) / (2.0 - rotateRatio))));
 
   Byte* rotorShifts_cpy = (Byte*) malloc(MAX_KEYLENGTH);
   std::memcpy(rotorShifts_cpy, key.rotorShifts, MAX_KEYLENGTH);
   TuringaKey key_cpy{key.direction, key.length, key.rotorNames, rotorShifts_cpy, key.fileShift};
 
-  std::thread thr(encrypt_block, std::ref(bytes), key_cpy, rotors, begin, end);
+  // std::thread thr(encrypt_block, std::ref(bytes), key_cpy, rotors, begin, end);
 
   for (size_t i = 0; i < end; ++i) {
     rotate(key.rotorShifts, key.length);
   }
   encrypt_block(bytes, key, rotors, end, bytes.size);
 
-  thr.join();
+  // thr.join();
   free(key_cpy.rotorShifts);
+  free(reverse);
 
   if (key.direction == 0) {
     std::cout << timestamp(current_duration()) << "File has been encrypted.\n";
