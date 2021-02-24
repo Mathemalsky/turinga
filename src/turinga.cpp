@@ -67,6 +67,7 @@ void rotate(Byte* rotorShifts, const size_t length, const char* __restrict__ rev
   values = _mm256_add_epi8(values, y);
 
   _mm256_storeu_si256((__m256i*) rotorShifts, values);  // save to rotorShifts
+
 }
 
 TuringaKey generateTuringaKey(const size_t keylength, const std::string& availableRotors) {
@@ -110,6 +111,7 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   for (size_t i = 0; i < end; ++i) {
     rotate(key.rotorShifts, key.length, reverseOrder);
   }
+  
   encrypt_block(bytes, key, rotors, end, bytes.size, reverseOrder);
 
   thr.join();

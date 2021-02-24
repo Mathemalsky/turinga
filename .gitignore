@@ -50,3 +50,10 @@ auxilaries/Rotors*
 # no txt files
 *.txt
 
+# exception for some files
+!CMakeLists.txt
+!lib/csprng/LICENCE_1_0.txt
+
+# no bash skripts for testing
+*.sh
+
