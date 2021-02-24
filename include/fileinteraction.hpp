@@ -27,17 +27,17 @@ inline size_t file_size(const char* filename) {
 #endif
 
 // ignore exactly one byte from the input file
-inline void ignore_byte(std::istream & myfile) {
-    Byte bin;
-    myfile.read(reinterpret_cast<char*>(&bin),sizeof(bin));
+inline void ignore_byte(std::istream& myfile) {
+  Byte bin;
+  myfile.read(reinterpret_cast<char*>(&bin), sizeof(bin));
 }
 
 void read_file(Data& bytes, const char* filename, const TuringaKey& key);
-void write_file(const Data &bytes, const char* filename, const TuringaKey& key);
+void write_file(const Data& bytes, const char* filename, const TuringaKey& key);
 
 TuringaKey readTuringaKey(const char* filename);
 void writeTuringaKey(const std::string filename, const TuringaKey& key);
 
-Byte *loadRotors(const TuringaKey &key, const char* rotDirectory);
+Byte* loadRotors(const TuringaKey& key, const char* rotDirectory);
 
-#endif // FILEINTERACTION_HPP
+#endif  // FILEINTERACTION_HPP

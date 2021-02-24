@@ -12,10 +12,12 @@ double current_duration();
 
 inline std::string timestamp(const double duration) {
   std::string timeStamp = "[";
-  if(duration<10) {timeStamp += " ";}
+  if (duration < 10) {
+    timeStamp += " ";
+  }
   timeStamp += std::to_string(duration);
   timeStamp += " s] ";
   return timeStamp;
 }
 
-#endif // MEASUREMENT_HPP
+#endif  // MEASUREMENT_HPP
