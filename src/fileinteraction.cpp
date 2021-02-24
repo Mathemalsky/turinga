@@ -67,8 +67,8 @@ TuringaKey readTuringaKey(const char* filename) {
 
   ignore_byte(myfile);
 
-  Byte* rotorShifts = (Byte*)malloc(MAX_KEYLENGTH);
-  myfile.read((char*)rotorShifts,keylength);
+  Byte* rotorShifts = (Byte*) malloc(MAX_KEYLENGTH);
+  myfile.read((char*) rotorShifts, keylength);
   assert(myfile.fail() == 0 && "Couldn't read correctly!");
   const TuringaKey key{direction, keylength, rotorNames, rotorShifts, fileShift};
 
@@ -86,7 +86,7 @@ void writeTuringaKey(const std::string filename, const TuringaKey& key) {
     myfile << character;
   }
   myfile << " " << key.fileShift << std::endl;
-  myfile.write((char*)key.rotorShifts,key.length);
+  myfile.write((char*) key.rotorShifts, key.length);
   assert(myfile.fail() == 0 && "Couldn't write correctly!");
   std::cout << timestamp(current_duration()) << "Turinga key has been written to <" << filename
             << ">.\n";
