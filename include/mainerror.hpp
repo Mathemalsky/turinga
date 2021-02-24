@@ -30,7 +30,6 @@ public:
 
 private:
   std::string p_function; /**< \param string that contains the name where the error occurs */
-
 };
 
 /*!

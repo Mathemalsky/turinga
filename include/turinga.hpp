@@ -100,6 +100,7 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors);
  * \param end position to end the encryption/ decryption; Position end is excluded.
  */
 void encrypt_block(
-  Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end);
+  Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end,
+  const char* __restrict__ reverseOrder);
 
 #endif  // TURINGA_H
