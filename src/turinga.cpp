@@ -23,6 +23,9 @@ using Bytes = std::vector<unsigned char>;
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
 void rotate(Byte* rotorShifts, const size_t length, const char* __restrict__ reverseOrder) {
+// disable gcc warning -Woverflow
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverflow"
   __m256i low_4_bits_mask  = _mm256_set1_epi8(0b00001111);
   __m256i high_4_bits_mask = _mm256_set1_epi8(0b11110000);
   __m256i reverse          = _mm256_loadu_si256((__m256i*) reverseOrder);
@@ -40,6 +43,9 @@ void rotate(Byte* rotorShifts, const size_t length, const char* __restrict__ rev
     0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000,
     0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
     0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000);
+
+// enable gcc warning -Woverflow
+#pragma GCC diagnostic pop
 
   __m256i values = _mm256_loadu_si256((__m256i*) rotorShifts);  // load bytes from rotorShifts
 
