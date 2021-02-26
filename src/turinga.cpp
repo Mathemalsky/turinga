@@ -1,11 +1,12 @@
 #include "turinga.hpp"
 
+#include <array>
 #include <cassert>
+#include <cmath>
+#include <cstddef>
 #include <fstream>
 #include <immintrin.h>
 #include <iostream>
-#include <cmath>
-#include <stddef.h>
 #include <string>
 #include <cstring>
 #include <thread>
@@ -102,52 +103,46 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   }
 #undef place
 
-  Byte* rotorShifts_cpy = (Byte*) malloc(MAX_KEYLENGTH);
-  std::memcpy(rotorShifts_cpy, key.rotorShifts, MAX_KEYLENGTH);
-  TuringaKey key_cpy{key.direction, key.length, key.rotorNames, rotorShifts_cpy, key.fileShift};
-
-  std::vector<std::thread> threads;
-  std::vector<TuringaKey> keys;
-
-  keys.push_back(key);
-
   const size_t threadcount = 2;
   size_t begin             = 0, end;
   end                      = bytes.size / threadcount;
 
+  std::vector<std::thread> threads;
+  std::vector<Byte*> rotorShiftsAry(threadcount, (Byte*) malloc(MAX_KEYLENGTH));
+
+  std::memcpy(rotorShiftsAry[0], key.rotorShifts, MAX_KEYLENGTH);
+
   for (size_t i = 0; i < threadcount - 1; ++i) {
     // copy the key because rotate in encrypt changes rotorShifts
-    Byte* rotorShifts_cpy = (Byte*) malloc(MAX_KEYLENGTH);  // MAYBE REWORK NECCACERY
-    std::memcpy(rotorShifts_cpy, keys[i].rotorShifts, MAX_KEYLENGTH);
+    std::memcpy(rotorShiftsAry[i + 1], rotorShiftsAry[i], MAX_KEYLENGTH);
 
-    // add new key to vector of keys
-    keys.push_back(
-      TuringaKey{key.direction, key.length, key.rotorNames, rotorShifts_cpy, key.fileShift});
     // start a thread
     threads.push_back(std::thread(
-      encrypt_block, std::ref(bytes), keys[i], rotors, begin, end, std::ref(reverseOrder)));
+      encrypt_block, std::ref(bytes),
+      TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[i], key.fileShift},
+      rotors, begin, end, std::ref(reverseOrder)));
     // prepair for next thread
     begin = end;
     end += bytes.size / threadcount;
     for (size_t i = 0; i < begin; ++i) {  // rotate to start of next thread
-      rotate(keys[i + 1].rotorShifts, key.length, reverseOrder);
+      rotate(rotorShiftsAry[i + 1], key.length, reverseOrder);
     }
   }
 
   // encrypt the rest
   begin = end;
   end   = bytes.size;
-  encrypt_block(bytes, keys[threadcount - 1], rotors, end, bytes.size, reverseOrder);
+  encrypt_block(
+    bytes,
+    TuringaKey{
+      key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1], key.fileShift},
+    rotors, end, bytes.size, reverseOrder);
 
   // collect all threads
   for (std::thread& thr : threads) {
     thr.join();
   }
-  for (TuringaKey& tKey : keys) {
-    free(tKey.rotorShifts);
-  }
 
-  free(key_cpy.rotorShifts);
   free(reverseOrder);
 
   if (key.direction == 0) {
