@@ -1,11 +1,11 @@
 #include "turinga.hpp"
 
 #include <cassert>
+#include <cmath>
+#include <cstddef>
 #include <fstream>
 #include <immintrin.h>
 #include <iostream>
-#include <cmath>
-#include <stddef.h>
 #include <string>
 #include <cstring>
 #include <thread>
@@ -23,6 +23,9 @@ using Bytes = std::vector<unsigned char>;
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
 void rotate(Byte* rotorShifts, const size_t length, const char* __restrict__ reverseOrder) {
+// disable gcc warning -Woverflow
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverflow"
   __m256i low_4_bits_mask  = _mm256_set1_epi8(0b00001111);
   __m256i high_4_bits_mask = _mm256_set1_epi8(0b11110000);
   __m256i reverse          = _mm256_loadu_si256((__m256i*) reverseOrder);
@@ -40,6 +43,9 @@ void rotate(Byte* rotorShifts, const size_t length, const char* __restrict__ rev
     0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000,
     0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
     0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000);
+
+// enable gcc warning -Woverflow
+#pragma GCC diagnostic pop
 
   __m256i values = _mm256_loadu_si256((__m256i*) rotorShifts);  // load bytes from rotorShifts
 
@@ -88,10 +94,7 @@ TuringaKey generateTuringaKey(const size_t keylength, const std::string& availab
 
 // encrypts/ decrypts the files
 void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
-  const size_t threadcount = 2;
-  size_t begin             = 0, end;
-
-  // count downwards from keylength-1 and fill with zeros
+  // count downwards from keylength-1 to 0 and fill with zeros
   char* reverseOrder = (char*) malloc(32);
 #define place(val) ((val) & -(0 < (val)))
   for (size_t i = 0; i < 32; ++i) {
@@ -99,22 +102,54 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   }
 #undef place
 
-  end = bytes.size / 2;
+  const size_t threadcount = std::thread::hardware_concurrency();  // number of logical processors
+  size_t begin             = 0, end;
+  end                      = bytes.size / threadcount;
 
-  Byte* rotorShifts_cpy = (Byte*) malloc(MAX_KEYLENGTH);
-  std::memcpy(rotorShifts_cpy, key.rotorShifts, MAX_KEYLENGTH);
-  TuringaKey key_cpy{key.direction, key.length, key.rotorNames, rotorShifts_cpy, key.fileShift};
+  std::vector<std::thread> threads;
+  std::vector<Byte*> rotorShiftsAry(threadcount);
 
-  std::thread thr(encrypt_block, std::ref(bytes), key_cpy, rotors, begin, end, reverseOrder);
-
-  for (size_t i = 0; i < end; ++i) {
-    rotate(key.rotorShifts, key.length, reverseOrder);
+  // allocate memory for copying
+  for (size_t i = 0; i < threadcount; i++) {
+    rotorShiftsAry[i] = (Byte*) malloc(MAX_KEYLENGTH);
   }
 
-  encrypt_block(bytes, key, rotors, end, bytes.size, reverseOrder);
+  std::memcpy(rotorShiftsAry[0], key.rotorShifts, MAX_KEYLENGTH);
 
-  thr.join();
-  free(key_cpy.rotorShifts);
+  for (size_t i = 0; i < threadcount - 1; ++i) {
+    // copy the key because rotate in encrypt changes rotorShifts
+    std::memcpy(rotorShiftsAry[i + 1], rotorShiftsAry[i], MAX_KEYLENGTH);
+
+    // start a thread
+    threads.push_back(std::thread(
+      encrypt_block, std::ref(bytes),
+      TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[i], key.fileShift},
+      rotors, begin, end, std::ref(reverseOrder)));
+    // prepair for next thread
+    for (size_t j = begin; j < end; ++j) {  // rotate to start of next thread
+      rotate(rotorShiftsAry[i + 1], key.length, reverseOrder);
+    }
+    begin = end;
+    end += bytes.size / threadcount;
+  }
+
+  // encrypt the rest
+  end = bytes.size;
+  encrypt_block(
+    bytes,
+    TuringaKey{
+      key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1], key.fileShift},
+    rotors, end, bytes.size, reverseOrder);
+
+  // collect all threads
+  for (std::thread& thr : threads) {
+    thr.join();
+  }
+
+  // free all memory
+  for (Byte*& rotShi : rotorShiftsAry) {
+    free(rotShi);
+  }
   free(reverseOrder);
 
   if (key.direction == 0) {
