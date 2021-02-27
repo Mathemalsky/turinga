@@ -110,8 +110,9 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   std::vector<std::thread> threads;
   std::vector<Byte*> rotorShiftsAry(threadcount);
 
-  for (int j = 0; j < threadcount; j++) {
-    rotorShiftsAry[j] = (Byte*) malloc(MAX_KEYLENGTH);
+  // allocate memory for copying
+  for (size_t i = 0; i < threadcount; i++) {
+    rotorShiftsAry[i] = (Byte*) malloc(MAX_KEYLENGTH);
   }
 
   std::memcpy(rotorShiftsAry[0], key.rotorShifts, MAX_KEYLENGTH);
@@ -126,15 +127,14 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
       TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[i], key.fileShift},
       rotors, begin, end, std::ref(reverseOrder)));
     // prepair for next thread
-    begin = end;
-    end += bytes.size / threadcount;
-    for (size_t j = 0; j < begin; ++j) {  // rotate to start of next thread
+    for (size_t j = begin; j < end; ++j) {  // rotate to start of next thread
       rotate(rotorShiftsAry[i + 1], key.length, reverseOrder);
     }
+    begin = end;
+    end += bytes.size / threadcount;
   }
 
   // encrypt the rest
-  begin = end;
   end   = bytes.size;
   encrypt_block(
     bytes,
@@ -147,6 +147,10 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
     thr.join();
   }
 
+  // free all memory
+  for(Byte* &rotShi : rotorShiftsAry) {
+    free(rotShi);
+  }
   free(reverseOrder);
 
   if (key.direction == 0) {
