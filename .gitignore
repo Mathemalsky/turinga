@@ -6,6 +6,7 @@
 # Unignore all dirs
 !*/
 # Unignore makefile
+!Doxyfile
 !Makefile
 
 # no bin or build folders
