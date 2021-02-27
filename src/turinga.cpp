@@ -1,6 +1,5 @@
 #include "turinga.hpp"
 
-#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstddef>
@@ -95,7 +94,7 @@ TuringaKey generateTuringaKey(const size_t keylength, const std::string& availab
 
 // encrypts/ decrypts the files
 void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
-  // count downwards from keylength-1 and fill with zeros
+  // count downwards from keylength-1 to 0 and fill with zeros
   char* reverseOrder = (char*) malloc(32);
 #define place(val) ((val) & -(0 < (val)))
   for (size_t i = 0; i < 32; ++i) {
@@ -103,7 +102,7 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   }
 #undef place
 
-  const size_t threadcount = 2;
+  const size_t threadcount = std::thread::hardware_concurrency();  // number of logical processors
   size_t begin             = 0, end;
   end                      = bytes.size / threadcount;
 
@@ -135,7 +134,7 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   }
 
   // encrypt the rest
-  end   = bytes.size;
+  end = bytes.size;
   encrypt_block(
     bytes,
     TuringaKey{
@@ -148,7 +147,7 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   }
 
   // free all memory
-  for(Byte* &rotShi : rotorShiftsAry) {
+  for (Byte*& rotShi : rotorShiftsAry) {
     free(rotShi);
   }
   free(reverseOrder);

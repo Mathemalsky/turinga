@@ -117,8 +117,16 @@ Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {
       throw File_not_found(new_filename, "loadRotors");
     }
 
+// disable gcc warning -Wunsused-variable
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
     size_t size = fread(wheels + 256 * i, 1, 256, myfile);
     assert(size == 256 && "Rotrors must have size 256!");
+
+// enable gcc warning -Wunused-variable
+#pragma GCC diagnostic pop
+
     fclose(myfile);
   }
 
