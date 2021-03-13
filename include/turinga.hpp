@@ -63,11 +63,20 @@ struct TuringaKey {
 
 /*!
  * \brief changes the substitution rule after each byte
- * \details This function replaces the rotation of wheels in enigma. This part is most critical for
- * security.
+ * This function maps the first n := length Bytes of rotorShifts to a n byte vector which will re-
+ * place the rotorShifts in the next step.
+ * Let's consider this n Bytes as vector in \f$\mathbb{F}_2^{8n}\f$.
+ * Now we cut this vector into 2n vectors of length 4.
+ * So if r is the vector of the first n bytes represented as row vector of bits we define
+ * \f{equation*}{ (v_0,...,v_{2n-1}) := r\f}
+ * Furthermore we define a binary vector s of length n by
+ * \f{equation*} s_i := <v_i, \pi(v_{2n-1-i})> \qquad i \in \{0,...,n-1\}\f}, where
+ * \f$\pi\f$ is defined by
  * \authors Max, Jurek
  * \param fileShifts determines the current substitution
  * \param length number of rotors in use
+ * \details This function replaces the rotation of wheels in enigma. This part is most critical for
+ * security.
  */
 void rotate(Bytes& fileShifts, const size_t length);
 
