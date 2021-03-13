@@ -22,23 +22,24 @@ using Bytes = std::vector<unsigned char>;
 
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
+#ifdef __AVX2__
 void rotate(Byte* rotorShifts, const size_t length, const char* __restrict__ reverseOrder) {
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
-  __m256i low_4_bits_mask  = _mm256_set1_epi8(0b00001111);
-  __m256i high_4_bits_mask = _mm256_set1_epi8(0b11110000);
-  __m256i reverse          = _mm256_loadu_si256((__m256i*) reverseOrder);
+  const __m256i low_4_bits_mask  = _mm256_set1_epi8(0b00001111);
+  const __m256i high_4_bits_mask = _mm256_set1_epi8(0b11110000);
+  const __m256i reverse          = _mm256_loadu_si256((__m256i*) reverseOrder);
 
   // table for inverting polynomial  in GF(2) of degree <= 3 mod x^4 + x +1
-  __m256i table = _mm256_setr_epi8(
+  const __m256i table = _mm256_setr_epi8(
     0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110, 0b1111, 0b0010, 0b1100, 0b0101,
     0b1010, 0b0100, 0b0011, 0b1000, 0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110,
     0b1111, 0b0010, 0b1100, 0b0101, 0b1010, 0b0100, 0b0011, 0b1000);
-  __m256i rotor_intervals = _mm256_setr_epi8(
+  const __m256i rotor_intervals = _mm256_setr_epi8(
     1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49,
     51, 53, 55, 57, 59, 61, 63);
-  __m256i lookup_sum = _mm256_setr_epi8(
+  const __m256i lookup_sum = _mm256_setr_epi8(
     0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
     0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000,
     0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
@@ -74,6 +75,37 @@ void rotate(Byte* rotorShifts, const size_t length, const char* __restrict__ rev
 
   _mm256_storeu_si256((__m256i*) rotorShifts, values);  // save to rotorShifts
 }
+
+#else
+void rotate(Byte* rotorShifts, const size_t length) {
+  // table for inverting polynomial  in GF(2) of degree <= 3 mod x^4 + x +1
+  Byte* table = (Byte*) malloc(16);
+  table[0]    = 0b0000;
+  table[1]    = 0b0001;
+  table[2]    = 0b1001;
+  table[3]    = 0b1110;
+  table[4]    = 0b1101;
+  table[5]    = 0b1011;
+  table[6]    = 0b0111;
+  table[7]    = 0b0110;
+  table[8]    = 0b1111;
+  table[9]    = 0b0010;
+  table[10]   = 0b1100;
+  table[11]   = 0b0101;
+  table[12]   = 0b1010;
+  table[13]   = 0b0100;
+  table[14]   = 0b0011;
+  table[15]   = 0b1000;
+
+  Byte* shifts = (Byte*) malloc(MAX_KEYLENGTH);
+  Byte* x      = (Byte*) malloc(MAX_KEYLENGTH);
+  Byte* y      = (Byte*) malloc(MAX_KEYLENGTH);
+  for (size_t i = 0; i < (length + 1) / 2; i++) {
+    x[i]     = rotorShifts[i] % 16;
+    x[i + 1] = rotorShifts[i] / 16;
+  }
+}
+#endif
 
 TuringaKey generateTuringaKey(const size_t keylength, const std::string& availableRotors) {
   std::vector<char> rotorNames(keylength);
