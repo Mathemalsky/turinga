@@ -97,13 +97,39 @@ void rotate(Byte* rotorShifts, const size_t length) {
   table[14]   = 0b0011;
   table[15]   = 0b1000;
 
-  Byte* shifts = (Byte*) malloc(MAX_KEYLENGTH);
-  Byte* x      = (Byte*) malloc(MAX_KEYLENGTH);
-  Byte* y      = (Byte*) malloc(MAX_KEYLENGTH);
-  for (size_t i = 0; i < (length + 1) / 2; i++) {
-    x[i]     = rotorShifts[i] % 16;
-    x[i + 1] = rotorShifts[i] / 16;
+  // lookup table for the sum of the binary digits mod 2
+  Byte* lookup_sum = (Byte*) malloc(16);
+  lookup_sum[0] = 0;
+  lookup_sum[1] = 1;
+  lookup_sum[2] = 1;
+  lookup_sum[3] = 0;
+  lookup_sum[4] = 1;
+  lookup_sum[5] = 0;
+  lookup_sum[6] = 0;
+  lookup_sum[7] = 1;
+  lookup_sum[8] = 1;
+  lookup_sum[9] = 0;
+  lookup_sum[10] = 0;
+  lookup_sum[11] = 1;
+  lookup_sum[12] = 0;
+  lookup_sum[13] = 1;
+  lookup_sum[14] = 1;
+  lookup_sum[15] = 0;
+
+  Byte* x      = (Byte*) malloc(MAX_KEYLENGTH * 2);
+  for (size_t i = 0; i < length; i++) {
+    x[i]     = rotorShifts[i] % 16;     // die hinteren Bits
+    x[i + 1] = rotorShifts[i] / 16;     // die vorderen Bits
   }
+  for (size_t i=0; i< length; i++) {
+    x[i] = table[x[i]];
+    x[i] += x[2*length-1 -i];
+    x[i] %= 16;
+    rotorShifts = (2*i+1)*looup_sum[x[i]];
+  }
+
+  free (table);
+  free(lookup_sum);
 }
 #endif
 
