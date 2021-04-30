@@ -123,8 +123,8 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   end = bytes.size;
   encrypt_block(
     bytes,
-    TuringaKey{
-      key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1], key.fileShift},
+    TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1],
+               key.fileShift},
     rotors, end, bytes.size, reverseOrder);
 
   // collect all threads

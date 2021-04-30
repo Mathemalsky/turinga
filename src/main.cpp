@@ -4,7 +4,7 @@
 #include <vector>
 
 #ifdef _WIN32
-#include <windows.h>        // maybe no longer necesarry
+#include <windows.h>  // maybe no longer necesarry
 #endif
 
 #include "colors.hpp"
