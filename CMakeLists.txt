@@ -17,6 +17,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -march=native -pthread -l
 
 set(SOURCES
         src/colors.cpp
+        src/encrypt_avx2.cpp
+        src/encrypt.cpp
         src/fileinteraction.cpp
         src/main.cpp
         src/mainerror.cpp
@@ -25,6 +27,8 @@ set(SOURCES
     )
 set(HEADERS
         include/colors.hpp
+        include/encrypt_avx2.hpp
+        include/encrypt.hpp
         include/fileinteraction.hpp
         include/mainerror.hpp
         include/measurement.hpp

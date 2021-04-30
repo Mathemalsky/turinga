@@ -1,5 +1,3 @@
-#include "turinga.hpp"
-
 #include <cassert>
 #include <fstream>
 #include <iostream>
@@ -13,6 +11,13 @@
 #include "fileinteraction.hpp"
 #include "mainerror.hpp"
 #include "measurement.hpp"
+#include "turinga.hpp"
+
+#ifdef __AVX2__
+#include "encrypt_avx2.hpp"
+#else
+#include "encrypt.hpp"
+#endif
 
 int main(int argc, char** argv) {
   start_time();

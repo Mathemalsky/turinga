@@ -28,15 +28,15 @@ inline size_t file_size(const char* filename) {
 }
 /** \def Assuming we are running on Linux we can use std::filesystem and it's c++17 features. */
 #else
-#include <experimental/filesystem>
+#include <filesystem>
 /*!
  * \brief detects how large the file is
  * \param filename name of the considered file
  * \return a size_t that is the size of the file in bytes
  */
 inline size_t file_size(const char* filename) {
-  std::experimental::filesystem::path p{filename};
-  return std::experimental::filesystem::file_size(p);
+  std::filesystem::path p{filename};
+  return std::filesystem::file_size(p);
 }
 #endif
 
