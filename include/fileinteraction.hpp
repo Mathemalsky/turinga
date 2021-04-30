@@ -1,5 +1,4 @@
-#ifndef FILEINTERACTION_HPP
-#define FILEINTERACTION_HPP
+#pragma once
 
 /*! \file fileinteraction.hpp */
 
@@ -11,10 +10,34 @@
 /** Limit key length a priori to dertermine space allocation at compile time. */
 const size_t MAX_KEYLENGTH = 32;
 
-#ifdef _WIN32
-/**< \def When compiled on windows, use different way to get the filesize. This is because
- * std::filesystem contains c++17 features not yet supportet by windows compilers.
+/** \def Assuming we are compiling with at least gcc 8.0 we can use std::filesystem and it's c++17 features. */
+#if __GNUC_PREREQ(8,0)
+#include <filesystem>
+/*!
+ * \brief detects how large the file is
+ * \param filename name of the considered file
+ * \return a size_t that is the size of the file in bytes
  */
+inline size_t file_size(const char* filename) {
+  std::filesystem::path p{filename};
+  return std::filesystem::file_size(p);
+}
+/* // This seems not to be working
+#elif __GNUC__
+/**< \def When we are compiling with an older version of gcc use different way to get the filesize. This is because std::filesystem contains c++17 features not yet supportet by windows compilers.
+ */
+
+#include <experimental/filesystem>
+/*!
+ * \brief detects how large the file is
+ * \param filename name of the considered file
+ * \return a size_t that is the size of the file in bytes
+ */
+inline size_t file_size(const char* filename) {
+  std::experimental::filesystem::path p{filename};
+  return std::experimental::filesystem::file_size(p);
+}*/
+#else
 /*!
  * \brief detects how large the file is
  * \param filename Name of the considered file.
@@ -25,18 +48,6 @@ inline size_t file_size(const char* filename) {
   myfile.seekg(0, std::ios::end);
   const size_t size = myfile.tellg();
   return size;
-}
-/** \def Assuming we are running on Linux we can use std::filesystem and it's c++17 features. */
-#else
-#include <filesystem>
-/*!
- * \brief detects how large the file is
- * \param filename name of the considered file
- * \return a size_t that is the size of the file in bytes
- */
-inline size_t file_size(const char* filename) {
-  std::filesystem::path p{filename};
-  return std::filesystem::file_size(p);
 }
 #endif
 
@@ -95,4 +106,3 @@ void writeTuringaKey(const std::string filename, const TuringaKey& key);
  */
 Byte* loadRotors(const TuringaKey& key, const char* rotDirectory);
 
-#endif  // FILEINTERACTION_HPP
