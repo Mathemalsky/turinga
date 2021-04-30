@@ -99,36 +99,36 @@ void rotate(Byte* rotorShifts, const size_t length) {
 
   // lookup table for the sum of the binary digits mod 2
   Byte* lookup_sum = (Byte*) malloc(16);
-  lookup_sum[0] = 0;
-  lookup_sum[1] = 1;
-  lookup_sum[2] = 1;
-  lookup_sum[3] = 0;
-  lookup_sum[4] = 1;
-  lookup_sum[5] = 0;
-  lookup_sum[6] = 0;
-  lookup_sum[7] = 1;
-  lookup_sum[8] = 1;
-  lookup_sum[9] = 0;
-  lookup_sum[10] = 0;
-  lookup_sum[11] = 1;
-  lookup_sum[12] = 0;
-  lookup_sum[13] = 1;
-  lookup_sum[14] = 1;
-  lookup_sum[15] = 0;
+  lookup_sum[0]    = 0;
+  lookup_sum[1]    = 1;
+  lookup_sum[2]    = 1;
+  lookup_sum[3]    = 0;
+  lookup_sum[4]    = 1;
+  lookup_sum[5]    = 0;
+  lookup_sum[6]    = 0;
+  lookup_sum[7]    = 1;
+  lookup_sum[8]    = 1;
+  lookup_sum[9]    = 0;
+  lookup_sum[10]   = 0;
+  lookup_sum[11]   = 1;
+  lookup_sum[12]   = 0;
+  lookup_sum[13]   = 1;
+  lookup_sum[14]   = 1;
+  lookup_sum[15]   = 0;
 
-  Byte* x      = (Byte*) malloc(MAX_KEYLENGTH * 2);
+  Byte* x = (Byte*) malloc(MAX_KEYLENGTH * 2);
   for (size_t i = 0; i < length; i++) {
-    x[i]     = rotorShifts[i] % 16;     // die hinteren Bits
-    x[i + 1] = rotorShifts[i] / 16;     // die vorderen Bits
+    x[i]     = (rotorShifts[i] << 4) >> 4;  // the rightmost bits
+    x[i + 1] = rotorShifts[i] >> 4;         // the leftmost bits
   }
-  for (size_t i=0; i< length; i++) {
-    x[i] = table[x[i]];
-    x[i] += x[2*length-1 -i];
-    x[i] %= 16;
-    rotorShifts = (2*i+1)*looup_sum[x[i]];
+  for (size_t i = 0; i < length; i++) {
+    Byte val = table[x[i]];
+    val ^= x[2 * length - 1 - i];  // bitwise xor
+    val = (val << 4) >> 4;         // shouldn't be nesecarry
+    rotorShifts[i] += (2 * i + 1) * lookup_sum[val];
   }
 
-  free (table);
+  free(table);
   free(lookup_sum);
 }
 #endif
@@ -195,8 +195,8 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   end = bytes.size;
   encrypt_block(
     bytes,
-    TuringaKey{
-      key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1], key.fileShift},
+    TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1],
+               key.fileShift},
     rotors, end, bytes.size, reverseOrder);
 
   // collect all threads
