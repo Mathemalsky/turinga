@@ -25,6 +25,9 @@ using Bytes = std::vector<unsigned char>;
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
 void rotate(Byte* rotorShifts, const size_t length) {
+  // Debug
+  // std::cout << "rotate invoked\n";
+
   // table for inverting polynomial  in GF(2) of degree <= 3 mod x^4 + x +1
   Byte* table = (Byte*) malloc(16);
   table[0]    = 0b0000;
@@ -65,9 +68,10 @@ void rotate(Byte* rotorShifts, const size_t length) {
 
   Byte* x = (Byte*) malloc(MAX_KEYLENGTH * 2);
   for (size_t i = 0; i < length; i++) {
-    x[i]     = (rotorShifts[i] << 4) >> 4;  // the rightmost bits
-    x[i + 1] = rotorShifts[i] >> 4;         // the leftmost bits
+    x[2 * i]     = rotorShifts[i] & 0b00001111;  // the rightmost bits WE MAY HAVE TO SWAP?
+    x[2 * i + 1] = rotorShifts[i] >> 4;          // the leftmost bits
   }
+
   for (size_t i = 0; i < length; i++) {
     Byte val = table[x[i]];
     val ^= x[2 * length - 1 - i];  // bitwise xor
@@ -83,8 +87,10 @@ void rotate(Byte* rotorShifts, const size_t length) {
 void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   // maybe other numbers of threads would be more efficient
   const size_t threadcount = std::thread::hardware_concurrency();  // number of logical processors
-  size_t begin             = 0, end;
-  end                      = bytes.size / threadcount;
+  std::cout << timestamp(current_duration()) << threadcount << " logical processors detected.\n";
+
+  size_t begin = 0, end;
+  end          = bytes.size / threadcount;
 
   std::vector<std::thread> threads;
   std::vector<Byte*> rotorShiftsAry(threadcount);
@@ -114,12 +120,11 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   }
 
   // encrypt the rest
-  end = bytes.size;
   encrypt_block(
     bytes,
     TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1],
                key.fileShift},
-    rotors, end, bytes.size);
+    rotors, begin, bytes.size);
 
   // collect all threads
   for (std::thread& thr : threads) {
