@@ -5,7 +5,7 @@
 #include <fstream>
 #include <vector>
 
-#include "turinga.hpp"
+#include "types.hpp"
 
 /** Limit key length a priori to dertermine space allocation at compile time. */
 const size_t MAX_KEYLENGTH = 32;

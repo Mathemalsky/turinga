@@ -17,22 +17,21 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -march=native -pthread -l
 
 set(SOURCES
         src/colors.cpp
-        src/encrypt_avx2.cpp
-        src/encrypt.cpp
         src/fileinteraction.cpp
         src/main.cpp
         src/mainerror.cpp
         src/measurement.cpp
+        src/rotate.cpp
         src/turinga.cpp
     )
 set(HEADERS
         include/colors.hpp
-        include/encrypt_avx2.hpp
-        include/encrypt.hpp
         include/fileinteraction.hpp
         include/mainerror.hpp
         include/measurement.hpp
+        include/rotate.hpp
         include/turinga.hpp
+        include/types.hpp
     )
 
 add_subdirectory(lib/csprng)

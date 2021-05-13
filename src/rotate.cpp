@@ -1,16 +1,9 @@
-#ifdef __AVX2__
+#include "rotate.hpp"
 
-#include "encrypt_avx2.hpp"
-
-#include <cassert>
 #include <cmath>
 #include <cstddef>
-#include <fstream>
-#include <immintrin.h>
-#include <iostream>
-#include <string>
 #include <cstring>
-#include <thread>
+#include <string>
 #include <vector>
 
 #include <csprng.hpp>
@@ -18,11 +11,10 @@
 #include "fileinteraction.hpp"
 #include "mainerror.hpp"
 #include "measurement.hpp"
-#include "turinga.hpp"
+#include "types.hpp"
 
-using Byte  = unsigned char;
-using Bytes = std::vector<unsigned char>;
-
+#ifdef __AVX2__
+#include <immintrin.h>
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
 void rotate(Byte* rotorShifts, const size_t length, const char* __restrict__ reverseOrder) {
@@ -77,7 +69,7 @@ void rotate(Byte* rotorShifts, const size_t length, const char* __restrict__ rev
 
   _mm256_storeu_si256((__m256i*) rotorShifts, values);  // save to rotorShifts
 }
-
+/*
 // encrypts/ decrypts the files
 void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   // count downwards from keylength-1 to 0 and fill with zeros
@@ -144,35 +136,53 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
     std::cout << timestamp(current_duration()) << "File has been decrypted.\n";
   }
 }
+*/
 
-void encrypt_block(
-  Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end,
-  const char* __restrict__ reverseOrder) {
-  const size_t keylength = key.length;
+#else
 
-  // encryption
-  if (key.direction == 0) {
-    for (size_t i = begin; i < end; ++i) {
-      Byte tmp = bytes.bytes[i];
-      for (size_t i = 0; i < keylength; ++i) {
-        tmp = rotors[256 * i + ((tmp + key.rotorShifts[i]) % 256)];
-      }
-      bytes.bytes[i] = tmp;
-      rotate(key.rotorShifts, keylength, reverseOrder);
-    }
+// rotates the wheels,
+// wheel rotation is determined by a bent function on the current state of rotorShifts
+void rotate(Byte* rotorShifts, const size_t length) {
+  // table for inverting polynomial  in GF(2) of degree <= 3 mod x^4 + x +1
+  Byte* table = (Byte*) malloc(16);
+  table[0]    = 0b0000;
+  table[1]    = 0b0001;
+  table[2]    = 0b1001;
+  table[3]    = 0b1110;
+  table[4]    = 0b1101;
+  table[5]    = 0b1011;
+  table[6]    = 0b0111;
+  table[7]    = 0b0110;
+  table[8]    = 0b1111;
+  table[9]    = 0b0010;
+  table[10]   = 0b1100;
+  table[11]   = 0b0101;
+  table[12]   = 0b1010;
+  table[13]   = 0b0100;
+  table[14]   = 0b0011;
+  table[15]   = 0b1000;
+
+  Byte* x = (Byte*) malloc(MAX_KEYLENGTH * 2);
+  for (size_t i = 0; i < length; i++) {
+    x[2 * i]     = rotorShifts[i] & 0b00001111;  // the rightmost bits WE MAY HAVE TO SWAP?
+    x[2 * i + 1] = rotorShifts[i] >> 4;          // the leftmost bits
   }
 
-  // decryption
-  else if (key.direction == 1) {
-    for (size_t i = begin; i < end; ++i) {
-      Byte tmp = bytes.bytes[i];
-      for (size_t i = 0; i < keylength; ++i) {
-        tmp = rotors[256 * i + tmp] - key.rotorShifts[keylength - 1 - i];
-      }
-      bytes.bytes[i] = tmp;
-      rotate(key.rotorShifts, keylength, reverseOrder);
-    }
+  for (size_t i = 0; i < length; i++) {
+    Byte val = table[x[i]];
+    val ^= x[2 * length - 1 - i];  // bitwise xor
+    rotorShifts[i] += (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);
   }
+
+  // Debug
+  /*
+  for (size_t i = 0; i < length; ++i) {
+    std::cout << size_t(rotorShifts[i]) << " ";
+  }
+  std::cout << "\n";
+  */
+
+  free(table);
 }
 
 #endif

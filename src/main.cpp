@@ -12,12 +12,7 @@
 #include "mainerror.hpp"
 #include "measurement.hpp"
 #include "turinga.hpp"
-
-#ifdef __AVX2__
-#include "encrypt_avx2.hpp"
-#else
-#include "encrypt.hpp"
-#endif
+#include "types.hpp"
 
 int main(int argc, char** argv) {
   start_time();
