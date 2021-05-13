@@ -44,25 +44,6 @@ void rotate(Byte* rotorShifts, const size_t length) {
   table[14]   = 0b0011;
   table[15]   = 0b1000;
 
-  // lookup table for the sum of the binary digits mod 2
-  Byte* lookup_sum = (Byte*) malloc(16);
-  lookup_sum[0]    = 0;
-  lookup_sum[1]    = 1;
-  lookup_sum[2]    = 1;
-  lookup_sum[3]    = 0;
-  lookup_sum[4]    = 1;
-  lookup_sum[5]    = 0;
-  lookup_sum[6]    = 0;
-  lookup_sum[7]    = 1;
-  lookup_sum[8]    = 1;
-  lookup_sum[9]    = 0;
-  lookup_sum[10]   = 0;
-  lookup_sum[11]   = 1;
-  lookup_sum[12]   = 0;
-  lookup_sum[13]   = 1;
-  lookup_sum[14]   = 1;
-  lookup_sum[15]   = 0;
-
   Byte* x = (Byte*) malloc(MAX_KEYLENGTH * 2);
   for (size_t i = 0; i < length; i++) {
     x[2 * i]     = rotorShifts[i] & 0b00001111;  // the rightmost bits WE MAY HAVE TO SWAP?
@@ -72,12 +53,18 @@ void rotate(Byte* rotorShifts, const size_t length) {
   for (size_t i = 0; i < length; i++) {
     Byte val = table[x[i]];
     val ^= x[2 * length - 1 - i];  // bitwise xor
-    val = (val << 4) >> 4;         // shouldn't be nesecarry
-    rotorShifts[i] += (2 * i + 1) * lookup_sum[val];
+    rotorShifts[i] += (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);
   }
 
+  // Debug
+  /*
+  for (size_t i = 0; i < length; ++i) {
+    std::cout << size_t(rotorShifts[i]) << " ";
+  }
+  std::cout << "\n";
+  */
+
   free(table);
-  free(lookup_sum);
 }
 
 // encrypts/ decrypts the files
