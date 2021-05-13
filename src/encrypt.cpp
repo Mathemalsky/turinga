@@ -25,9 +25,6 @@ using Bytes = std::vector<unsigned char>;
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
 void rotate(Byte* rotorShifts, const size_t length) {
-  // Debug
-  // std::cout << "rotate invoked\n";
-
   // table for inverting polynomial  in GF(2) of degree <= 3 mod x^4 + x +1
   Byte* table = (Byte*) malloc(16);
   table[0]    = 0b0000;
