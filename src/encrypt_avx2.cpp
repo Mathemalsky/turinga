@@ -120,12 +120,11 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   }
 
   // encrypt the rest
-  end = bytes.size;
   encrypt_block(
     bytes,
     TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1],
                key.fileShift},
-    rotors, end, bytes.size, reverseOrder);
+    rotors, begin, bytes.size, reverseOrder);
 
   // collect all threads
   for (std::thread& thr : threads) {
