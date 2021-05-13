@@ -44,9 +44,9 @@ int main(int argc, char** argv) {
       const size_t keylenght            = atoi(argv[2]);
       const std::string availableRotors = argv[3];
       TuringaKey key                    = generateTuringaKey(keylenght, availableRotors);
-      writeTuringaKey(keyfilePath, key);
+      writeTuringaKey(keyfilePath + ".key", key);
       key.direction = 1;
-      writeTuringaKey(keyfilePath.substr(0, keyfilePath.length() - 4) + "_inv.txt", key);
+      writeTuringaKey(keyfilePath.substr(0, keyfilePath.length() - 4) + "_inv.key", key);
 
       free(key.rotorShifts);
     }

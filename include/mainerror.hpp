@@ -110,4 +110,9 @@ private:
   unsigned int p_number;   /**< \param p_filename number of arguments got */
   unsigned int p_expected; /**< \param p_filename number of arguments expected */
 };
+
+void syntaxHelp();
+void syntaxCrypt();
+void syntaxGenerate();
+
 #endif  // MAINERROR_HPP
