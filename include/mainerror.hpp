@@ -111,8 +111,9 @@ private:
   unsigned int p_expected; /**< \param p_filename number of arguments expected */
 };
 
-void syntaxHelp();
+void syntax();
 void syntaxCrypt();
 void syntaxGenerate();
+void syntaxHelp();
 
 #endif  // MAINERROR_HPP
