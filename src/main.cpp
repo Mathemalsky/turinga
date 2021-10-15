@@ -1,6 +1,7 @@
 #include "turinga.hpp"
 
 #include <cassert>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -44,11 +45,27 @@ int main(int argc, char** argv) {
       const size_t keylenght            = atoi(argv[2]);
       const std::string availableRotors = argv[3];
       TuringaKey key                    = generateTuringaKey(keylenght, availableRotors);
-      writeTuringaKey(keyfilePath, key);
+      writeTuringaKey(keyfilePath + ".key", key);
       key.direction = 1;
-      writeTuringaKey(keyfilePath.substr(0, keyfilePath.length() - 4) + "_inv.txt", key);
+      writeTuringaKey(keyfilePath.substr(0, keyfilePath.length() - 4) + "_inv.key", key);
 
       free(key.rotorShifts);
+    }
+    else if (std::strcmp(argv[1], "help") == 0) {
+      if (argc == 2) {
+        syntax();
+      }
+      else if (argc == 3) {
+        if (std::strcmp(argv[2], "crypt") == 0) {
+          syntaxCrypt();
+        }
+        if (std::strcmp(argv[2], "generate") == 0) {
+          syntaxGenerate();
+        }
+        if (std::strcmp(argv[2], "help") == 0) {
+          syntaxHelp();
+        }
+      }
     }
     else {
       throw Inappropriate_number_of_arguments(argc, 5, "main");
