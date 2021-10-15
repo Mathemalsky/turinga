@@ -15,6 +15,7 @@ Linux*/
 build*/
 debug/
 release/
+CMakeFiles/
 
 # no documentation
 doc/
@@ -47,6 +48,9 @@ auxilaries/Rotors*
 
 # no build artifacts from IDEs
 *.user
+*.cmake
+*.cdb
+*.install
 
 # no txt files
 *.txt
