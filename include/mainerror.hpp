@@ -1,5 +1,4 @@
-#ifndef MAINERROR_HPP
-#define MAINERROR_HPP
+#pragma once
 
 /*! \file mainerror.hpp */
 
@@ -110,4 +109,3 @@ private:
   unsigned int p_number;   /**< \param p_filename number of arguments got */
   unsigned int p_expected; /**< \param p_filename number of arguments expected */
 };
-#endif  // MAINERROR_HPP

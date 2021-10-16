@@ -1,5 +1,4 @@
-#ifndef TURINGA_H
-#define TURINGA_H
+#pragma once
 
 /*! \file turinga.hpp */
 
@@ -63,5 +62,3 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors);
  */
 void encrypt_block(
   Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end);
-
-#endif  // TURINGA_H
