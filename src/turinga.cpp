@@ -39,6 +39,13 @@ TuringaKey generateTuringaKey(const size_t keylength, const std::string& availab
 
 // encrypts/ decrypts the files
 void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
+  Byte* reverseOrder = (Byte*) malloc(32);
+#define place(val) ((val) & -(0 < (val)))
+  for (size_t i = 0; i < 32; ++i) {
+    reverseOrder[i] = place(key.length - i - 1);
+  }
+#undef place
+
   // maybe other numbers of threads would be more efficient
   const size_t threadcount = std::thread::hardware_concurrency();  // number of logical processors
   std::cout << timestamp(current_duration()) << threadcount << " logical processors detected.\n";
@@ -64,10 +71,11 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
     threads.push_back(std::thread(
       encrypt_block, std::ref(bytes),
       TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[i], key.fileShift},
-      rotors, begin, end));
+      rotors, begin, end, reverseOrder));
     // prepair for next thread
+    RotateArgs args{rotorShiftsAry[i + 1], key.length, reverseOrder};
     for (size_t j = begin; j < end; ++j) {  // rotate to start of next thread
-      rotate(rotorShiftsAry[i + 1], key.length);
+      rotate(args);
     }
     begin = end;
     end += bytes.size / threadcount;
@@ -78,7 +86,7 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
     bytes,
     TuringaKey{
       key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1], key.fileShift},
-    rotors, begin, bytes.size);
+    rotors, begin, bytes.size, reverseOrder);
 
   // collect all threads
   for (std::thread& thr : threads) {
@@ -90,6 +98,8 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
     free(rotShi);
   }
 
+  free(reverseOrder);
+
   if (key.direction == 0) {
     std::cout << timestamp(current_duration()) << "File has been encrypted.\n";
   }
@@ -99,8 +109,10 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
 }
 
 void encrypt_block(
-  Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end) {
+  Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end,
+  const Byte* reverseOrder) {
   const size_t keylength = key.length;
+  RotateArgs args{key.rotorShifts, keylength, reverseOrder};
 
   // encryption
   if (key.direction == 0) {
@@ -110,7 +122,7 @@ void encrypt_block(
         tmp = rotors[256 * i + ((tmp + key.rotorShifts[i]) % 256)];
       }
       bytes.bytes[i] = tmp;
-      rotate(key.rotorShifts, keylength);
+      rotate(args);
     }
   }
 
@@ -122,7 +134,7 @@ void encrypt_block(
         tmp = rotors[256 * i + tmp] - key.rotorShifts[keylength - 1 - i];
       }
       bytes.bytes[i] = tmp;
-      rotate(key.rotorShifts, keylength);
+      rotate(args);
     }
   }
 }

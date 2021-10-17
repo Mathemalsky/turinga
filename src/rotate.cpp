@@ -17,43 +17,61 @@
 #include <immintrin.h>
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
-void rotate(Byte* rotorShifts, const size_t length, const char* __restrict__ reverseOrder) {
+void rotate(RotateArgs args) {
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
-  const __m256i low_4_bits_mask  = _mm256_set1_epi8(0b00001111);
-  const __m256i high_4_bits_mask = _mm256_set1_epi8(0b11110000);
-  const __m256i reverse          = _mm256_loadu_si256((__m256i*) reverseOrder);
-
-  // table for inverting polynomial  in GF(2) of degree <= 3 mod x^4 + x +1
-  const __m256i table = _mm256_setr_epi8(
+  const __m256i reverse = _mm256_loadu_si256((__m256i*) args.reverseOrder);
+  __m256i low           = _mm256_set1_epi8(0xff);
+  const __m256i table   = _mm256_setr_epi8(
     0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110, 0b1111, 0b0010, 0b1100, 0b0101,
     0b1010, 0b0100, 0b0011, 0b1000, 0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110,
     0b1111, 0b0010, 0b1100, 0b0101, 0b1010, 0b0100, 0b0011, 0b1000);
-  const __m256i rotor_intervals = _mm256_setr_epi8(
-    1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49,
-    51, 53, 55, 57, 59, 61, 63);
   const __m256i lookup_sum = _mm256_setr_epi8(
     0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
     0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000,
     0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
     0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000);
-
+  const __m256i rotor_intervals = _mm256_setr_epi8(
+    1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49,
+    51, 53, 55, 57, 59, 61, 63);
 // enable gcc warning -Woverflow
 #pragma GCC diagnostic pop
 
-  __m256i values = _mm256_loadu_si256((__m256i*) rotorShifts);  // load bytes from rotorShifts
+  __m128i a = _mm_loadu_si128(((__m128i*) args.rotorShifts));
+  __m128i b = _mm_loadu_si128(((__m128i*) args.rotorShifts) + 1);
 
-  // because shuffle can only permutate inside the lower and inside the upper 128 bit swap in case
-  // key is longer than 16 bit
-  __m256i y = (length > 16) ? _mm256_permute2x128_si256(values, values, 0b00000001)
-                            : _mm256_permute2x128_si256(values, values, 0b00010000);
+  __m256i x = _mm256_cvtepu8_epi16(a);
+  __m256i y = _mm256_cvtepu8_epi16(b);
 
-  y = _mm256_shuffle_epi8(y, reverse);  // maps y_i := y[reverse_i]
+  __m256i x1 = x;
+  __m256i x2 = _mm256_slli_epi16(x, 4);
+  __m256i y1 = y;
+  __m256i y2 = _mm256_slli_epi16(y, 4);
 
-  y         = _mm256_and_si256(y, low_4_bits_mask);
-  __m256i x = _mm256_and_si256(values, high_4_bits_mask);
+  x1 = _mm256_and_si256(x1, low);
+  x2 = _mm256_and_si256(x2, low);
+  y1 = _mm256_and_si256(y1, low);
+  y2 = _mm256_and_si256(y2, low);
 
+  x = _mm256_or_si256(x1, x2);
+  y = _mm256_or_si256(y1, y2);
+
+  x = _mm256_shuffle_epi8(table, x);
+  y = _mm256_shuffle_epi8(y, reverse);
+
+  __m256i z = _mm256_xor_si256(x, y);
+  z         = _mm256_shuffle_epi8(lookup_sum, z);
+  z         = _mm256_and_si256(z, rotor_intervals);
+
+  __m256i values = _mm256_set_m128i(a, b);
+  values         = _mm256_add_epi8(values, z);
+
+  _mm256_storeu_si256((__m256i*) args.rotorShifts, values);
+
+  // 0,1,...,31
+
+  /*
   // function pi(y)
   y = _mm256_shuffle_epi8(table, y);  // maps y_i := table[y_i]
   x = _mm256_srli_epi32(x, 4);        // bit shift from higher 4 bits to lower 4 bits
@@ -68,6 +86,7 @@ void rotate(Byte* rotorShifts, const size_t length, const char* __restrict__ rev
   values = _mm256_add_epi8(values, y);
 
   _mm256_storeu_si256((__m256i*) rotorShifts, values);  // save to rotorShifts
+  */
 }
 /*
 // encrypts/ decrypts the files
@@ -79,64 +98,44 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
     reverseOrder[i] = place(key.length - i - 1);
   }
 #undef place
-
-  const size_t threadcount = std::thread::hardware_concurrency();  // number of logical processors
-  size_t begin             = 0, end;
-  end                      = bytes.size / threadcount;
-
-  std::vector<std::thread> threads;
-  std::vector<Byte*> rotorShiftsAry(threadcount);
-
-  // allocate memory for copying
-  for (size_t i = 0; i < threadcount; i++) {
-    rotorShiftsAry[i] = (Byte*) malloc(MAX_KEYLENGTH);
-  }
-
-  std::memcpy(rotorShiftsAry[0], key.rotorShifts, MAX_KEYLENGTH);
-
-  for (size_t i = 0; i < threadcount - 1; ++i) {
-    // copy the key because rotate in encrypt changes rotorShifts
-    std::memcpy(rotorShiftsAry[i + 1], rotorShiftsAry[i], MAX_KEYLENGTH);
-
-    // start a thread
-    threads.push_back(std::thread(
-      encrypt_block, std::ref(bytes),
-      TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[i], key.fileShift},
-      rotors, begin, end, std::ref(reverseOrder)));
-    // prepair for next thread
-    for (size_t j = begin; j < end; ++j) {  // rotate to start of next thread
-      rotate(rotorShiftsAry[i + 1], key.length, reverseOrder);
-    }
-    begin = end;
-    end += bytes.size / threadcount;
-  }
-
-  // encrypt the rest
-  encrypt_block(
-    bytes,
-    TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1],
-               key.fileShift},
-    rotors, begin, bytes.size, reverseOrder);
-
-  // collect all threads
-  for (std::thread& thr : threads) {
-    thr.join();
-  }
-
-  // free all memory
-  for (Byte*& rotShi : rotorShiftsAry) {
-    free(rotShi);
-  }
-  free(reverseOrder);
-
-  if (key.direction == 0) {
-    std::cout << timestamp(current_duration()) << "File has been encrypted.\n";
-  }
-  else {
-    std::cout << timestamp(current_duration()) << "File has been decrypted.\n";
-  }
-}
 */
+#elif defined(__SSE3__)
+// disable gcc warning -Woverflow
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverflow"
+const __m128i low_4_bits_mask  = _mm_set1_epi8(0b00001111);
+const __m128i high_4_bits_mask = _mm_set1_epi8(0b11110000);
+
+// table for inverting polynomial  in GF(2) of degree <= 3 mod x^4 + x +1
+const __m128i table = _mm_setr_epi8(
+  0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110, 0b1111, 0b0010, 0b1100, 0b0101,
+  0b1010, 0b0100, 0b0011, 0b1000);
+const __m256i rotor_intervals = _mm256_setr_epi8(
+  1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51,
+  53, 55, 57, 59, 61, 63);
+const __m256i lookup_sum = _mm256_setr_epi8(
+  0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
+  0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000,
+  0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
+  0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000);
+
+// enable gcc warning -Woverflow
+#pragma GCC diagnostic pop
+
+__m128i values1 = _mm_loadu_si128((__m128i*) rotorShifts);      // load bytes from rotorShifts
+__m128i values2 = _mm_loadu_si128((__m128i*) rotorShifts + 1);  // load bytes from rotorShifts
+
+__m128i x1 = _mm_and_si128(values1, low_4_bits_mask);
+__m128i x2 = _mm_and_si128(values1, high_4_bits_mask);
+__m128i y1 = _mm_and_si128(values2, low_4_bits_mask);
+__m128i y2 = _mm_and_si128(values2, high_4_bits_mask);
+
+x2 = _mm_srli_epi32(x2, 4);  // bit shift from higher 4 bits to lower 4 bits
+y2 = _mm_srli_epi32(y2, 4);  // bit shift from higher 4 bits to lower 4 bits
+
+// function pi(y)
+x1 = _mm_shuffle_epi8(table, x1);  // maps x1[i] := table[x1[i]]
+x2 = _mm_shuffle_epi8(table, x2);  // maps x2[i] := table[x2[i]]
 
 #else
 
@@ -164,14 +163,15 @@ void rotate(Byte* rotorShifts, const size_t length) {
 
   Byte* x = (Byte*) malloc(MAX_KEYLENGTH * 2);
   for (size_t i = 0; i < length; i++) {
-    x[2 * i]     = rotorShifts[i] & 0b00001111;  // the rightmost bits WE MAY HAVE TO SWAP?
-    x[2 * i + 1] = rotorShifts[i] >> 4;          // the leftmost bits
+    x[2 * i]     = rotorShifts[i] >> 4;          // the rightmost bits
+    x[2 * i + 1] = rotorShifts[i] & 0b00001111;  // the leftmost bits
   }
 
   for (size_t i = 0; i < length; i++) {
     Byte val = table[x[i]];
     val ^= x[2 * length - 1 - i];  // bitwise xor
-    rotorShifts[i] += (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);
+    rotorShifts[i] +=
+      (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);  // test if val is uneven
   }
 
   // Debug
@@ -183,6 +183,7 @@ void rotate(Byte* rotorShifts, const size_t length) {
   */
 
   free(table);
+  free(x);
 }
 
 #endif

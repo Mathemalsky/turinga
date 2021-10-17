@@ -4,6 +4,12 @@
 
 #include "types.hpp"
 
+struct RotateArgs {
+  Byte* rotorShifts;
+  const size_t length;
+  const Byte* __restrict__ reverseOrder;
+};
+
 /*!
  * \brief changes the substitution rule after each byte
  * This function maps the first n := length Bytes of rotorShifts to a n byte vector which will re-
@@ -26,4 +32,4 @@
  * \details This function replaces the rotation of wheels in enigma. This part is most critical for
  * security.
  */
-void rotate(Byte* fileShifts, const size_t length);
+void rotate(RotateArgs args);
