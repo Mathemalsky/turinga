@@ -114,5 +114,3 @@ void syntax();
 void syntaxCrypt();
 void syntaxGenerate();
 void syntaxHelp();
-
-#endif  // MAINERROR_HPP
