@@ -118,8 +118,11 @@ void encrypt_block(
   if (key.direction == 0) {
     for (size_t i = begin; i < end; ++i) {
       Byte tmp = bytes.bytes[i];
-      for (size_t i = 0; i < keylength; ++i) {
+      for (size_t i = 0; i < keylength / 2; ++i) {
         tmp = rotors[256 * i + ((tmp + key.rotorShifts[i]) % 256)];
+      }
+      for (size_t i = keylength / 2; i < keylength; ++i) {
+        tmp = rotors[256 * i + ((tmp + key.rotorShifts[MAX_KEYLENGTH - keylength + i]) % 256)];
       }
       bytes.bytes[i] = tmp;
       rotate(args);
@@ -130,7 +133,10 @@ void encrypt_block(
   else if (key.direction == 1) {
     for (size_t i = begin; i < end; ++i) {
       Byte tmp = bytes.bytes[i];
-      for (size_t i = 0; i < keylength; ++i) {
+      for (size_t i = 0; i < keylength / 2; ++i) {
+        tmp = rotors[256 * i + tmp] - key.rotorShifts[MAX_KEYLENGTH - 1 - i];
+      }
+      for (size_t i = keylength / 2; i < keylength; ++i) {
         tmp = rotors[256 * i + tmp] - key.rotorShifts[keylength - 1 - i];
       }
       bytes.bytes[i] = tmp;

@@ -20,7 +20,7 @@
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
 void rotate(RotateArgs args) {
-#if defined(__AVX2__)
+#if defined(__AVX2__) && 0
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
@@ -139,16 +139,26 @@ void rotate(RotateArgs args) {
   table[15]   = 0b1000;
 
   Byte* x = (Byte*) malloc(MAX_KEYLENGTH * 2);
-  for (size_t i = 0; i < args.length; i++) {
+  for (size_t i = 0; i < args.length / 2; i++) {
     x[2 * i]     = args.rotorShifts[i] >> 4;          // the rightmost bits
     x[2 * i + 1] = args.rotorShifts[i] & 0b00001111;  // the leftmost bits
   }
+  for (size_t i = args.length / 2; i < args.length; i++) {
+    x[2 * i]     = args.rotorShifts[MAX_KEYLENGTH - args.length + i] >> 4;
+    x[2 * i + 1] = args.rotorShifts[MAX_KEYLENGTH - args.length + i] & 0b00001111;
+  }
 
-  for (size_t i = 0; i < args.length; i++) {
+  for (size_t i = 0; i < args.length / 2; i++) {
     Byte val = table[x[i]];
     val ^= x[2 * args.length - 1 - i];  // bitwise xor
     args.rotorShifts[i] +=
-      (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);  // test if val is uneven
+      (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);  // test val is uneven
+  }
+  for (size_t i = args.length / 2; i < args.length; i++) {
+    Byte val = table[x[i]];
+    val ^= x[2 * args.length - 1 - i];
+    args.rotorShifts[MAX_KEYLENGTH - args.length + i] +=
+      (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);
   }
 
   // Debug

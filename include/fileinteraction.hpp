@@ -47,6 +47,8 @@ inline void ignore_byte(std::istream& myfile) {
   myfile.read(reinterpret_cast<char*>(&bin), sizeof(bin));
 }
 
+void adaptRotorShifts(Byte* rotorShifts, const size_t keylength);
+
 /*!
  * \brief reads the content of file into bytes
  * \details In case the direction is encrypt the fileShift from TuringaKey will be applied.
