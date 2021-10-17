@@ -1,5 +1,3 @@
-#include "turinga.hpp"
-
 #include <cassert>
 #include <cstring>
 #include <fstream>
@@ -7,13 +5,15 @@
 #include <vector>
 
 #ifdef _WIN32
-#include <windows.h>
+#include <windows.h>  // maybe no longer necesarry
 #endif
 
 #include "colors.hpp"
 #include "fileinteraction.hpp"
 #include "mainerror.hpp"
 #include "measurement.hpp"
+#include "turinga.hpp"
+#include "types.hpp"
 
 int main(int argc, char** argv) {
   start_time();

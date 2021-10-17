@@ -1,5 +1,4 @@
-#ifndef MEASUREMENT_HPP
-#define MEASUREMENT_HPP
+#pragma once
 
 /*! \file measurement.hpp */
 
@@ -37,5 +36,3 @@ inline std::string timestamp(const double duration) {
   timeStamp += " s] ";
   return timeStamp;
 }
-
-#endif  // MEASUREMENT_HPP

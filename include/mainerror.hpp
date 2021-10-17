@@ -1,5 +1,4 @@
-#ifndef MAINERROR_HPP
-#define MAINERROR_HPP
+#pragma once
 
 /*! \file mainerror.hpp */
 

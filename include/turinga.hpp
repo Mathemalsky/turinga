@@ -1,5 +1,4 @@
-#ifndef TURINGA_H
-#define TURINGA_H
+#pragma once
 
 /*! \file turinga.hpp */
 
@@ -28,9 +27,11 @@
  * enigma to obtain the cryptographic scheme used in Turinga.
  */
 
-#include <stddef.h>
+#include <cstddef>
 #include <string>
-#include <vector>
+
+
+#include "types.hpp"
 
 using Byte  = unsigned char;     /**< To simplify expressions use the intuitive definition. */
 using Bytes = std::vector<Byte>; /**< A vector of type Byte are Bytes. */
@@ -113,7 +114,4 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors);
  * \param end position to end the encryption/ decryption; Position end is excluded.
  */
 void encrypt_block(
-  Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end,
-  const char* __restrict__ reverseOrder);
-
-#endif  // TURINGA_H
+  Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end);
