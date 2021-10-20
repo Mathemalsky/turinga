@@ -20,6 +20,9 @@
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
 void rotate(RotateArgs args) {
+  /***************************************************************************************************
+   *                                      AVX2 version
+   **************************************************************************************************/
 #if defined(__AVX2__) && 0
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
@@ -80,7 +83,10 @@ void rotate(RotateArgs args) {
   values         = _mm256_add_epi8(values, z);  // add z to the values
 
   _mm256_storeu_si256((__m256i*) args.rotorShifts, values);  // finally store rotor shifts
-#elif defined(__SSE3__) && 0
+#elif defined(__SSE3__)
+/***************************************************************************************************
+ *                                      SSE version
+ **************************************************************************************************/
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
@@ -91,20 +97,21 @@ void rotate(RotateArgs args) {
   const __m128i table = _mm_setr_epi8(
     0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110, 0b1111, 0b0010, 0b1100, 0b0101,
     0b1010, 0b0100, 0b0011, 0b1000);
-  const __m256i rotor_intervals = _mm256_setr_epi8(
-    1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49,
-    51, 53, 55, 57, 59, 61, 63);
-  const __m256i lookup_sum = _mm256_setr_epi8(
-    0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
-    0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000,
+  const __m128i rotor_intervals_1 =
+    _mm_setr_epi8(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31);
+  const __m128i rotor_intervals_2 =
+    _mm_setr_epi8(33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63);
+  const __m128i lookup_sum = _mm_setr_epi8(
     0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
     0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000);
+  const __m128i reverseOrder = _mm_setr_epi8(15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
 
 // enable gcc warning -Woverflow
 #pragma GCC diagnostic pop
 
-  __m128i values1 = _mm_loadu_si128((__m128i*) rotorShifts);      // load bytes from rotorShifts
-  __m128i values2 = _mm_loadu_si128((__m128i*) rotorShifts + 1);  // load bytes from rotorShifts
+  __m128i values1 = _mm_loadu_si128((__m128i*) args.rotorShifts);  // load bytes from rotorShifts
+  __m128i values2 =
+    _mm_loadu_si128((__m128i*) args.rotorShifts + 1);  // load bytes from rotorShifts
 
   __m128i x1 = _mm_and_si128(values1, low_4_bits_mask);
   __m128i x2 = _mm_and_si128(values1, high_4_bits_mask);
@@ -118,7 +125,31 @@ void rotate(RotateArgs args) {
   x1 = _mm_shuffle_epi8(table, x1);  // maps x1[i] := table[x1[i]]
   x2 = _mm_shuffle_epi8(table, x2);  // maps x2[i] := table[x2[i]]
 
+  // revert the order of the y
+  y1 = _mm_shuffle_epi8(y1, reverseOrder);
+  y2 = _mm_shuffle_epi8(y2, reverseOrder);
+
+  // the "inner product" of x and y
+  __m128i z1 = _mm_xor_si128(x1, y2);
+  __m128i z2 = _mm_xor_si128(x2, y1);
+  z1         = _mm_shuffle_epi8(lookup_sum, z1);
+  z2         = _mm_shuffle_epi8(lookup_sum, z2);
+
+  // multyply the indicatorvariable z with the shifts
+  z1 = _mm_and_si128(z1, rotor_intervals_1);
+  z2 = _mm_and_si128(z2, rotor_intervals_2);
+
+  // add rotorshift to rotors
+  values1 = _mm_add_epi8(values1, z1);
+  values2 = _mm_add_epi8(z2, values2);
+
+  // save the maipulated rotorshifts
+  _mm_storeu_si128((__m128i*) args.rotorShifts, values1);
+  _mm_storeu_si128((__m128i*) args.rotorShifts, values2);
 #else
+  /***************************************************************************************************
+   *                                 standard version
+   **************************************************************************************************/
   // table for inverting polynomial  in GF(2) of degree <= 3 mod x^4 + x +1
   Byte* table = (Byte*) malloc(16);
   table[0]    = 0b0000;
