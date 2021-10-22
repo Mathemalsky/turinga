@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
       TuringaKey key                    = generateTuringaKey(keylenght, availableRotors);
       writeTuringaKey(keyfilePath + ".key", key);
       key.direction = 1;
-      writeTuringaKey(keyfilePath.substr(0, keyfilePath.length() - 4) + "_inv.key", key);
+      writeTuringaKey(keyfilePath + "_inv.key", key);
 
       free(key.rotorShifts);
     }

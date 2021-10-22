@@ -7,7 +7,6 @@
 struct RotateArgs {
   Byte* rotorShifts;
   const size_t length;
-  const Byte* __restrict__ reverseOrder;
 };
 
 /*!

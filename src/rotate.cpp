@@ -17,9 +17,15 @@
 #include "measurement.hpp"
 #include "types.hpp"
 
+#include <iostream>
+
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
 void rotate(RotateArgs args) {
+  for (size_t i = 0; i < MAX_KEYLENGTH; ++i) {
+    std::cout << size_t(args.rotorShifts[i]) << " ";
+  }
+  std::cout << "\n";
   /***************************************************************************************************
    *                                      AVX2 version
    **************************************************************************************************/
@@ -87,10 +93,10 @@ void rotate(RotateArgs args) {
   values         = _mm256_add_epi8(values, z);  // add z to the values
 
   _mm256_storeu_si256((__m256i*) args.rotorShifts, values);  // finally store rotor shifts
-#elif defined(__SSE3__)
 /***************************************************************************************************
  *                                      SSE version
  **************************************************************************************************/
+#elif defined(__SSE3__) && 0
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
@@ -173,6 +179,7 @@ void rotate(RotateArgs args) {
   table[14]   = 0b0011;
   table[15]   = 0b1000;
 
+  /*
   Byte* x = (Byte*) malloc(MAX_KEYLENGTH * 2);
   for (size_t i = 0; i < args.length / 2; i++) {
     x[2 * i]     = args.rotorShifts[i] >> 4;          // the rightmost bits
@@ -195,17 +202,26 @@ void rotate(RotateArgs args) {
     args.rotorShifts[MAX_KEYLENGTH - args.length + i] +=
       (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);
   }
-
-  // Debug
-  /*
-  for (size_t i = 0; i < length; ++i) {
-    std::cout << size_t(rotorShifts[i]) << " ";
-  }
-  std::cout << "\n";
   */
+  Byte* x = (Byte*) malloc(MAX_KEYLENGTH * 2);
+  for (size_t i = 0; i < MAX_KEYLENGTH; i++) {
+    x[2 * i]     = args.rotorShifts[i] >> 4;          // the rightmost bits
+    x[2 * i + 1] = args.rotorShifts[i] & 0b00001111;  // the leftmost bits
+  }
+
+  for (size_t i = 0; i < MAX_KEYLENGTH; i++) {
+    Byte val = table[x[i]];
+    val ^= x[2 * MAX_KEYLENGTH - 1 - i];  // bitwise xor
+    args.rotorShifts[i] +=
+      (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);  // test val is uneven
+  }
 
   free(table);
   free(x);
-
 #endif
+  // Debug
+  for (size_t i = 0; i < MAX_KEYLENGTH; ++i) {
+    std::cout << size_t(args.rotorShifts[i]) << " ";
+  }
+  std::cout << "\n\n";
 }
