@@ -27,9 +27,12 @@ void rotate(RotateArgs args) {
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
-  const __m256i reverse = _mm256_loadu_si256((__m256i*) args.reverseOrder);
+  // const __m256i reverse = _mm256_loadu_si256((__m256i*) args.reverseOrder);
   const __m256i low     = _mm256_set1_epi8(0xff);  // low bit mask
-  const __m256i table   = _mm256_setr_epi8(
+  const __m256i reverse = _mm256_setr_epi8(
+    15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4,
+    3, 2, 1, 0);
+  const __m256i table = _mm256_setr_epi8(
     0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110, 0b1111, 0b0010, 0b1100, 0b0101,
     0b1010, 0b0100, 0b0011, 0b1000, 0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110,
     0b1111, 0b0010, 0b1100, 0b0101, 0b1010, 0b0100, 0b0011, 0b1000);  // lookup table for inverting
@@ -71,6 +74,7 @@ void rotate(RotateArgs args) {
   x = _mm256_shuffle_epi8(table, x);
 
   // invert the order of y
+  y = _mm256_permute2x128_si256(y, y, 0b00000001);  // swaps the first and the last 128 bits
   y = _mm256_shuffle_epi8(y, reverse);
 
   // take the "inner product" of x and y
@@ -94,17 +98,17 @@ void rotate(RotateArgs args) {
   const __m128i high_4_bits_mask = _mm_set1_epi8(0b11110000);
 
   // table for inverting polynomial  in GF(2) of degree <= 3 mod x^4 + x +1
-  const __m128i table = _mm_setr_epi8(
+  const __m128i reverseOrder = _mm_setr_epi8(15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+  const __m128i table        = _mm_setr_epi8(
     0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110, 0b1111, 0b0010, 0b1100, 0b0101,
     0b1010, 0b0100, 0b0011, 0b1000);
+  const __m128i lookup_sum = _mm_setr_epi8(
+    0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
+    0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000);
   const __m128i rotor_intervals_1 =
     _mm_setr_epi8(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31);
   const __m128i rotor_intervals_2 =
     _mm_setr_epi8(33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63);
-  const __m128i lookup_sum = _mm_setr_epi8(
-    0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
-    0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000);
-  const __m128i reverseOrder = _mm_setr_epi8(15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
 
 // enable gcc warning -Woverflow
 #pragma GCC diagnostic pop
