@@ -29,7 +29,7 @@ void rotate(RotateArgs args) {
   /***************************************************************************************************
    *                                      AVX2 version
    **************************************************************************************************/
-#if defined(__AVX2__) && 0
+#if defined(__AVX2__)
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
@@ -96,7 +96,7 @@ void rotate(RotateArgs args) {
 /***************************************************************************************************
  *                                      SSE version
  **************************************************************************************************/
-#elif defined(__SSE3__) && 0
+#elif defined(__SSE3__)
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
@@ -155,7 +155,7 @@ void rotate(RotateArgs args) {
 
   // save the maipulated rotorshifts
   _mm_storeu_si128((__m128i*) args.rotorShifts, values1);
-  _mm_storeu_si128((__m128i*) args.rotorShifts, values2);
+  _mm_storeu_si128((__m128i*) args.rotorShifts + 1, values2);
 #else
   /***************************************************************************************************
    *                                 standard version
@@ -205,8 +205,8 @@ void rotate(RotateArgs args) {
   */
   Byte* x = (Byte*) malloc(MAX_KEYLENGTH * 2);
   for (size_t i = 0; i < MAX_KEYLENGTH; i++) {
-    x[2 * i]     = args.rotorShifts[i] >> 4;          // the rightmost bits
-    x[2 * i + 1] = args.rotorShifts[i] & 0b00001111;  // the leftmost bits
+    x[2 * i]     = args.rotorShifts[i] & 0b00001111;  // the rightmost bits
+    x[2 * i + 1] = args.rotorShifts[i] >> 4;          // the leftmost bits
   }
 
   for (size_t i = 0; i < MAX_KEYLENGTH; i++) {
