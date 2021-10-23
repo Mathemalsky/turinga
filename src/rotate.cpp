@@ -19,6 +19,28 @@
 
 #include <iostream>
 
+void print(const __m128i a, const __m128i b) {
+  Byte* buffer = (Byte*) malloc(16);
+  _mm_storeu_si128((__m128i*) buffer, a);
+  for (size_t i = 0; i < 16; ++i) {
+    std::cout << (size_t) buffer[i] << " ";
+  }
+  _mm_storeu_si128((__m128i*) buffer, b);
+  for (size_t i = 0; i < 16; ++i) {
+    std::cout << (size_t) buffer[i] << " ";
+  }
+  std::cout << std::endl;
+}
+
+void print(const __m256i a) {
+  Byte* buffer = (Byte*) malloc(32);
+  _mm256_storeu_si256((__m256i*) buffer, a);
+  for (size_t i = 0; i < 32; ++i) {
+    std::cout << (size_t) buffer[i] << " ";
+  }
+  std::cout << std::endl;
+}
+
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
 void rotate(RotateArgs args) {
@@ -29,12 +51,12 @@ void rotate(RotateArgs args) {
   /***************************************************************************************************
    *                                      AVX2 version
    **************************************************************************************************/
-#if defined(__AVX2__)
+#if defined(__AVX2__) && 0
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
   // const __m256i reverse = _mm256_loadu_si256((__m256i*) args.reverseOrder);
-  const __m256i low     = _mm256_set1_epi8(0xff);  // low bit mask
+  const __m256i low     = _mm256_set1_epi8(0b00001111);  // low bit mask
   const __m256i reverse = _mm256_setr_epi8(
     15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4,
     3, 2, 1, 0);
@@ -56,6 +78,8 @@ void rotate(RotateArgs args) {
   __m128i a = _mm_loadu_si128(((__m128i*) args.rotorShifts));      // load the first 16 byte ino a
   __m128i b = _mm_loadu_si128(((__m128i*) args.rotorShifts) + 1);  // load the last 16 byte into b
 
+  print(a, b);
+
   // spread each byte into 2 (only in the lower 8 bit)
   __m256i x = _mm256_cvtepu8_epi16(a);
   __m256i y = _mm256_cvtepu8_epi16(b);
@@ -76,6 +100,9 @@ void rotate(RotateArgs args) {
   x = _mm256_or_si256(x1, x2);
   y = _mm256_or_si256(y1, y2);
 
+  print(x);
+  print(y);
+
   // invert using the lookup table x[i] := table[x[i]]
   x = _mm256_shuffle_epi8(table, x);
 
@@ -84,19 +111,19 @@ void rotate(RotateArgs args) {
   y = _mm256_shuffle_epi8(y, reverse);
 
   // take the "inner product" of x and y
-  __m256i z = _mm256_xor_si256(x, y);              // elementwise XOR
+  __m256i z = _mm256_and_si256(x, y);              // elementwise and
   z         = _mm256_shuffle_epi8(lookup_sum, z);  // sum over all elements using the lookup sum
 
   // set each position of z to 0 or rotor intervals and add to values
   z              = _mm256_and_si256(z, rotor_intervals);
-  __m256i values = _mm256_set_m128i(a, b);  // concatinate a and b to obtain initial rotor shifts
+  __m256i values = _mm256_set_m128i(b, a);  // concatinate a and b to obtain initial rotor shifts
   values         = _mm256_add_epi8(values, z);  // add z to the values
 
   _mm256_storeu_si256((__m256i*) args.rotorShifts, values);  // finally store rotor shifts
 /***************************************************************************************************
  *                                      SSE version
  **************************************************************************************************/
-#elif defined(__SSE3__)
+#elif defined(__SSE3__) && 0
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
@@ -131,17 +158,24 @@ void rotate(RotateArgs args) {
   x2 = _mm_srli_epi32(x2, 4);  // bit shift from higher 4 bits to lower 4 bits
   y2 = _mm_srli_epi32(y2, 4);  // bit shift from higher 4 bits to lower 4 bits
 
+  print(x1, y1);
+  print(x2, y2);
+
   // function pi(y)
   x1 = _mm_shuffle_epi8(table, x1);  // maps x1[i] := table[x1[i]]
   x2 = _mm_shuffle_epi8(table, x2);  // maps x2[i] := table[x2[i]]
+
+  print(x1, x2);
 
   // revert the order of the y
   y1 = _mm_shuffle_epi8(y1, reverseOrder);
   y2 = _mm_shuffle_epi8(y2, reverseOrder);
 
+  print(y2, y1);
+
   // the "inner product" of x and y
-  __m128i z1 = _mm_xor_si128(x1, y2);
-  __m128i z2 = _mm_xor_si128(x2, y1);
+  __m128i z1 = _mm_and_si128(x1, y2);
+  __m128i z2 = _mm_and_si128(x2, y1);
   z1         = _mm_shuffle_epi8(lookup_sum, z1);
   z2         = _mm_shuffle_epi8(lookup_sum, z2);
 
@@ -149,9 +183,11 @@ void rotate(RotateArgs args) {
   z1 = _mm_and_si128(z1, rotor_intervals_1);
   z2 = _mm_and_si128(z2, rotor_intervals_2);
 
+  print(z1, z2);
+
   // add rotorshift to rotors
   values1 = _mm_add_epi8(values1, z1);
-  values2 = _mm_add_epi8(z2, values2);
+  values2 = _mm_add_epi8(values2, z2);
 
   // save the maipulated rotorshifts
   _mm_storeu_si128((__m128i*) args.rotorShifts, values1);
@@ -208,13 +244,20 @@ void rotate(RotateArgs args) {
     x[2 * i]     = args.rotorShifts[i] & 0b00001111;  // the rightmost bits
     x[2 * i + 1] = args.rotorShifts[i] >> 4;          // the leftmost bits
   }
+  // Debug
+  for (size_t i = 0; i < 2 * MAX_KEYLENGTH; ++i) {
+    std::cout << size_t(x[i]) << " ";
+  }
+  std::cout << "\n\n";
 
   for (size_t i = 0; i < MAX_KEYLENGTH; i++) {
     Byte val = table[x[i]];
-    val ^= x[2 * MAX_KEYLENGTH - 1 - i];  // bitwise xor
+    val &= x[2 * MAX_KEYLENGTH - 1 - i];  // bitwise xor
     args.rotorShifts[i] +=
       (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);  // test val is uneven
+    std::cout << size_t((2 * i + 1) * (__builtin_popcount(val) & 0b00000001)) << " ";
   }
+  std::cout << std::endl;
 
   free(table);
   free(x);
