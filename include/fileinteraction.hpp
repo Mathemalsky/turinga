@@ -7,9 +7,6 @@
 
 #include "types.hpp"
 
-/** Limit key length a priori to dertermine space allocation at compile time. */
-const size_t MAX_KEYLENGTH = 32;
-
 /** \def Assuming we are compiling with at least gcc 8.0 we can use std::filesystem and it's c++17
  * features. */
 #if __GNUC_PREREQ(8, 0)
@@ -46,8 +43,6 @@ inline void ignore_byte(std::istream& myfile) {
   Byte bin;
   myfile.read(reinterpret_cast<char*>(&bin), sizeof(bin));
 }
-
-void adaptRotorShifts(Byte* rotorShifts, const size_t keylength);
 
 /*!
  * \brief reads the content of file into bytes

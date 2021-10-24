@@ -11,14 +11,12 @@
 
 #include <csprng.hpp>
 
+#include "constants.hpp"
 #include "fileinteraction.hpp"
 #include "mainerror.hpp"
 #include "measurement.hpp"
 #include "rotate.hpp"
 #include "types.hpp"
-
-using Byte  = unsigned char;
-using Bytes = std::vector<unsigned char>;
 
 TuringaKey generateTuringaKey(const size_t keylength, const std::string& availableRotors) {
   std::vector<char> rotorNames(keylength);

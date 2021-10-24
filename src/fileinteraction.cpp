@@ -5,20 +5,9 @@
 #include <iostream>
 #include <stdlib.h>
 
+#include "constants.hpp"
 #include "mainerror.hpp"
 #include "measurement.hpp"
-
-void adaptRotorShifts(Byte* rotorShifts, const size_t keylength) {
-  if (keylength % 2 == 0) {
-    for (unsigned int i = 1; i <= keylength / 2; ++i) {
-      rotorShifts[MAX_KEYLENGTH - i] = rotorShifts[keylength - 1];
-    }
-    for (unsigned int i = keylength / 2; i < MAX_KEYLENGTH / 2; ++i) {
-      rotorShifts[i]                     = 0;
-      rotorShifts[MAX_KEYLENGTH - 1 - i] = 0;
-    }
-  }
-}
 
 void read_file(Data& bytes, const char* filename, const TuringaKey& key) {
   FILE* myfile = fopen(filename, "rb");
