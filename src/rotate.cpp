@@ -123,7 +123,7 @@ void rotate(RotateArgs args) {
 /***************************************************************************************************
  *                                      SSE version
  **************************************************************************************************/
-#elif defined(__SSE3__) && 0
+#elif defined(__SSE3__)
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
@@ -142,21 +142,66 @@ void rotate(RotateArgs args) {
     _mm_setr_epi8(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31);
   const __m128i rotor_intervals_2 =
     _mm_setr_epi8(33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63);
-
+  const __m128i even_mask = _mm_setr_epi8(
+    0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00);
+  const __m128i uneven_mask = _mm_setr_epi8(
+    0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff);
+  const __m128i even_low     = _mm_setr_epi8(0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0);
+  const __m128i uneven_low   = _mm_setr_epi8(0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7);
+  const __m128i even_high    = _mm_setr_epi8(8, 0, 9, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15, 0);
+  const __m128i uneven_high  = _mm_setr_epi8(0, 8, 0, 9, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15);
+  const __m128i shuffle_high = _mm_setr_epi8(8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7);
 // enable gcc warning -Woverflow
 #pragma GCC diagnostic pop
 
-  __m128i values1 = _mm_loadu_si128((__m128i*) args.rotorShifts);  // load bytes from rotorShifts
-  __m128i values2 =
-    _mm_loadu_si128((__m128i*) args.rotorShifts + 1);  // load bytes from rotorShifts
+  // load bytes from rotorShifts
+  __m128i values1 = _mm_loadu_si128((__m128i*) args.rotorShifts);
+  __m128i values2 = _mm_loadu_si128((__m128i*) args.rotorShifts + 1);
 
-  __m128i x1 = _mm_and_si128(values1, low_4_bits_mask);
-  __m128i x2 = _mm_and_si128(values1, high_4_bits_mask);
-  __m128i y1 = _mm_and_si128(values2, low_4_bits_mask);
-  __m128i y2 = _mm_and_si128(values2, high_4_bits_mask);
+  /*
+  __m128i a1 = _mm_shuffle_epi8 (values1, even_low);
+  a1 = _mm_and_si128 (a1, even_mask);
+  __m128i a2 = _mm_shuffle_epi8 (values1, uneven_low);
+  a2 = _mm_and_si128 (a2, uneven_mask);
+  __m128i a = _mm_add_epi8 (a1, a2);
+
+  __m128i b1 = _mm_shuffle_epi8 (values1, even_low);
+  b1 = _mm_and_si128 (b1, even_mask);
+  __m128i b2 = _mm_shuffle_epi8 (values1, uneven_low);
+  b2 = _mm_and_si128 (b2, uneven_mask);
+  __m128i b = _mm_add_epi8 (b1, b2);
+  */
+
+  __m128i x1, x2, x3, x4, y1, y2, y3, y4;
+  x1 = _mm_cvtepu8_epi16(values1);
+  x3 = _mm_shuffle_epi8(values1, shuffle_high);
+  x3 = _mm_cvtepu8_epi16(x3);
+
+  x1 = _mm_and_si128(x1, low_4_bits_mask);
+  x2 = _mm_and_si128(x1, high_4_bits_mask);
+  x3 = _mm_and_si128(x3, low_4_bits_mask);
+  x4 = _mm_and_si128(x3, high_4_bits_mask);
 
   x2 = _mm_srli_epi32(x2, 4);  // bit shift from higher 4 bits to lower 4 bits
+  x4 = _mm_srli_epi32(x4, 4);  // bit shift from higher 4 bits to lower 4 bits
+
+  x1 = _mm_and_si128(x1, x2);
+  x2 = _mm_and_si128(x3, x4);
+
+  y1 = _mm_cvtepu8_epi16(values2);
+  y3 = _mm_shuffle_epi8(values2, shuffle_high);
+  y3 = _mm_cvtepu8_epi16(y3);
+
+  y1 = _mm_and_si128(y1, low_4_bits_mask);
+  y2 = _mm_and_si128(y1, high_4_bits_mask);
+  y3 = _mm_and_si128(y3, low_4_bits_mask);
+  y4 = _mm_and_si128(y3, high_4_bits_mask);
+
   y2 = _mm_srli_epi32(y2, 4);  // bit shift from higher 4 bits to lower 4 bits
+  y4 = _mm_srli_epi32(y4, 4);  // bit shift from higher 4 bits to lower 4 bits
+
+  y1 = _mm_and_si128(y1, y2);
+  y2 = _mm_and_si128(y3, y4);
 
   print(x1, y1);
   print(x2, y2);
@@ -178,6 +223,21 @@ void rotate(RotateArgs args) {
   __m128i z2 = _mm_and_si128(x2, y1);
   z1         = _mm_shuffle_epi8(lookup_sum, z1);
   z2         = _mm_shuffle_epi8(lookup_sum, z2);
+
+  /*
+  // shuffle z alternating from z1 and z2
+  __m128i z3 = _mm_shuffle_epi8(z1, even_low);
+  __m128i z4 = _mm_shuffle_epi8(z1, uneven_low);
+  z3         = _mm_and_si128(z3, even_mask);
+  z4         = _mm_and_si128(z4, uneven_mask);
+  z1         = _mm_add_epi8(z3, z4);
+
+  z3 = _mm_shuffle_epi8(z1, even_high);
+  z4 = _mm_shuffle_epi8(z1, uneven_high);
+  z3 = _mm_and_si128(z3, even_mask);
+  z4 = _mm_and_si128(z4, uneven_mask);
+  z2 = _mm_add_epi8(z3, z4);
+  */
 
   // multyply the indicatorvariable z with the shifts
   z1 = _mm_and_si128(z1, rotor_intervals_1);
