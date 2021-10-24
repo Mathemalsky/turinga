@@ -44,14 +44,16 @@ void print(const __m256i a) {
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
 void rotate(RotateArgs args) {
+  /*
   for (size_t i = 0; i < MAX_KEYLENGTH; ++i) {
     std::cout << size_t(args.rotorShifts[i]) << " ";
   }
   std::cout << "\n";
+  */
   /***************************************************************************************************
    *                                      AVX2 version
    **************************************************************************************************/
-#if defined(__AVX2__) && 0
+#if defined(__AVX2__)
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
@@ -78,7 +80,7 @@ void rotate(RotateArgs args) {
   __m128i a = _mm_loadu_si128(((__m128i*) args.rotorShifts));      // load the first 16 byte ino a
   __m128i b = _mm_loadu_si128(((__m128i*) args.rotorShifts) + 1);  // load the last 16 byte into b
 
-  print(a, b);
+  // print(a, b);
 
   // spread each byte into 2 (only in the lower 8 bit)
   __m256i x = _mm256_cvtepu8_epi16(a);
@@ -100,8 +102,8 @@ void rotate(RotateArgs args) {
   x = _mm256_or_si256(x1, x2);
   y = _mm256_or_si256(y1, y2);
 
-  print(x);
-  print(y);
+  // print(x);
+  // print(y);
 
   // invert using the lookup table x[i] := table[x[i]]
   x = _mm256_shuffle_epi8(table, x);
@@ -123,7 +125,7 @@ void rotate(RotateArgs args) {
 /***************************************************************************************************
  *                                      SSE version
  **************************************************************************************************/
-#elif defined(__SSE3__)
+#elif defined(__SSE3__) && 0
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
@@ -142,6 +144,7 @@ void rotate(RotateArgs args) {
     _mm_setr_epi8(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31);
   const __m128i rotor_intervals_2 =
     _mm_setr_epi8(33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63);
+  /*
   const __m128i even_mask = _mm_setr_epi8(
     0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00);
   const __m128i uneven_mask = _mm_setr_epi8(
@@ -150,6 +153,7 @@ void rotate(RotateArgs args) {
   const __m128i uneven_low   = _mm_setr_epi8(0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7);
   const __m128i even_high    = _mm_setr_epi8(8, 0, 9, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15, 0);
   const __m128i uneven_high  = _mm_setr_epi8(0, 8, 0, 9, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15);
+  */
   const __m128i shuffle_high = _mm_setr_epi8(8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7);
 // enable gcc warning -Woverflow
 #pragma GCC diagnostic pop
@@ -177,46 +181,51 @@ void rotate(RotateArgs args) {
   x3 = _mm_shuffle_epi8(values1, shuffle_high);
   x3 = _mm_cvtepu8_epi16(x3);
 
-  x1 = _mm_and_si128(x1, low_4_bits_mask);
+  // print(x1, x3);
+
   x2 = _mm_and_si128(x1, high_4_bits_mask);
-  x3 = _mm_and_si128(x3, low_4_bits_mask);
+  x1 = _mm_and_si128(x1, low_4_bits_mask);
   x4 = _mm_and_si128(x3, high_4_bits_mask);
+  x3 = _mm_and_si128(x3, low_4_bits_mask);
 
-  x2 = _mm_srli_epi32(x2, 4);  // bit shift from higher 4 bits to lower 4 bits
-  x4 = _mm_srli_epi32(x4, 4);  // bit shift from higher 4 bits to lower 4 bits
+  x2 = _mm_slli_epi32(x2, 4);  // bit shift from higher 4 bits to lower 4 bits
+  x4 = _mm_slli_epi32(x4, 4);  // bit shift from higher 4 bits to lower 4 bits
 
-  x1 = _mm_and_si128(x1, x2);
-  x2 = _mm_and_si128(x3, x4);
+  // print(x1, x3);
+  // print(x2, x4);
+
+  x1 = _mm_add_epi8(x1, x2);
+  x2 = _mm_add_epi8(x3, x4);
 
   y1 = _mm_cvtepu8_epi16(values2);
   y3 = _mm_shuffle_epi8(values2, shuffle_high);
   y3 = _mm_cvtepu8_epi16(y3);
 
-  y1 = _mm_and_si128(y1, low_4_bits_mask);
   y2 = _mm_and_si128(y1, high_4_bits_mask);
-  y3 = _mm_and_si128(y3, low_4_bits_mask);
+  y1 = _mm_and_si128(y1, low_4_bits_mask);
   y4 = _mm_and_si128(y3, high_4_bits_mask);
+  y3 = _mm_and_si128(y3, low_4_bits_mask);
 
-  y2 = _mm_srli_epi32(y2, 4);  // bit shift from higher 4 bits to lower 4 bits
-  y4 = _mm_srli_epi32(y4, 4);  // bit shift from higher 4 bits to lower 4 bits
+  y2 = _mm_slli_epi32(y2, 4);  // bit shift from higher 4 bits to lower 4 bits
+  y4 = _mm_slli_epi32(y4, 4);  // bit shift from higher 4 bits to lower 4 bits
 
-  y1 = _mm_and_si128(y1, y2);
-  y2 = _mm_and_si128(y3, y4);
+  y1 = _mm_add_epi8(y1, y2);
+  y2 = _mm_add_epi8(y3, y4);
 
-  print(x1, y1);
-  print(x2, y2);
+  // print(x1, y1);
+  // print(x2, y2);
 
   // function pi(y)
   x1 = _mm_shuffle_epi8(table, x1);  // maps x1[i] := table[x1[i]]
   x2 = _mm_shuffle_epi8(table, x2);  // maps x2[i] := table[x2[i]]
 
-  print(x1, x2);
+  // print(x1, x2);
 
   // revert the order of the y
   y1 = _mm_shuffle_epi8(y1, reverseOrder);
   y2 = _mm_shuffle_epi8(y2, reverseOrder);
 
-  print(y2, y1);
+  // print(y2, y1);
 
   // the "inner product" of x and y
   __m128i z1 = _mm_and_si128(x1, y2);
@@ -243,7 +252,7 @@ void rotate(RotateArgs args) {
   z1 = _mm_and_si128(z1, rotor_intervals_1);
   z2 = _mm_and_si128(z2, rotor_intervals_2);
 
-  print(z1, z2);
+  // print(z1, z2);
 
   // add rotorshift to rotors
   values1 = _mm_add_epi8(values1, z1);
@@ -305,26 +314,30 @@ void rotate(RotateArgs args) {
     x[2 * i + 1] = args.rotorShifts[i] >> 4;          // the leftmost bits
   }
   // Debug
+  /*
   for (size_t i = 0; i < 2 * MAX_KEYLENGTH; ++i) {
     std::cout << size_t(x[i]) << " ";
   }
   std::cout << "\n\n";
+  */
 
   for (size_t i = 0; i < MAX_KEYLENGTH; i++) {
     Byte val = table[x[i]];
     val &= x[2 * MAX_KEYLENGTH - 1 - i];  // bitwise xor
     args.rotorShifts[i] +=
       (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);  // test val is uneven
-    std::cout << size_t((2 * i + 1) * (__builtin_popcount(val) & 0b00000001)) << " ";
+    // std::cout << size_t((2 * i + 1) * (__builtin_popcount(val) & 0b00000001)) << " ";
   }
-  std::cout << std::endl;
+  // std::cout << std::endl;
 
   free(table);
   free(x);
 #endif
   // Debug
+  /*
   for (size_t i = 0; i < MAX_KEYLENGTH; ++i) {
     std::cout << size_t(args.rotorShifts[i]) << " ";
   }
   std::cout << "\n\n";
+  */
 }
