@@ -9,6 +9,8 @@
 
 /** \def Assuming we are compiling with at least gcc 8.0 we can use std::filesystem and it's c++17
  * features. */
+#if defined(__GNUC)
+#include <features.h>
 #if __GNUC_PREREQ(8, 0)
 #include <filesystem>
 /*!
@@ -20,6 +22,19 @@ inline size_t file_size(const char* filename) {
   std::filesystem::path p{filename};
   return std::filesystem::file_size(p);
 }
+#else
+/*!
+ * \brief detects how large the file is
+ * \param filename Name of the considered file.
+ * \return A size_t that is the size of the file in bytes.
+ */
+inline size_t file_size(const char* filename) {
+  std::ifstream myfile(filename, std::ios::binary);
+  myfile.seekg(0, std::ios::end);
+  const size_t size = myfile.tellg();
+  return size;
+}
+#endif
 #else
 /*!
  * \brief detects how large the file is
