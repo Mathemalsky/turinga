@@ -3,7 +3,6 @@
 #include <cmath>
 #include <cstddef>
 #include <cstring>
-#include <fstream>
 #include <iostream>
 #include <string>
 #include <thread>
@@ -19,13 +18,15 @@
 #include "types.hpp"
 
 TuringaKey generateTuringaKey(const size_t keylength, const std::string& availableRotors) {
-  std::vector<char> rotorNames(keylength);
   Byte* rotorShifts           = (Byte*) malloc(MAX_KEYLENGTH);
   const size_t numberOfRotors = availableRotors.length();
   duthomhas::csprng random;
   for (size_t i = 0; i < MAX_KEYLENGTH; ++i) {
     rotorShifts[i] = random();
-    rotorNames[i]  = availableRotors[random() % numberOfRotors];
+  }
+  std::vector<char> rotorNames(keylength);
+  for (char& rotorName : rotorNames) {
+    rotorName = availableRotors[random() % numberOfRotors];
   }
   const size_t fileShift = random();
   const TuringaKey key{0, keylength, rotorNames, rotorShifts, fileShift};
@@ -75,8 +76,8 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   // encrypt the rest
   encrypt_block(
     bytes,
-    TuringaKey{
-      key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1], key.fileShift},
+    TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1],
+               key.fileShift},
     rotors, begin, bytes.size);
 
   // collect all threads
