@@ -2,6 +2,8 @@
 
 #if defined(__SSE4_1__) || defined(__AVX2__)
 #include <immintrin.h>
+#else
+#include <stdlib.h>
 #endif
 
 #include "constants.hpp"
