@@ -1,5 +1,4 @@
-#ifndef MAINERROR_HPP
-#define MAINERROR_HPP
+#pragma once
 
 /*! \file mainerror.hpp */
 
@@ -115,5 +114,3 @@ void syntax();
 void syntaxCrypt();
 void syntaxGenerate();
 void syntaxHelp();
-
-#endif  // MAINERROR_HPP
