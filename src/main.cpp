@@ -9,8 +9,8 @@
 #endif
 
 #include "colors.hpp"
+#include "errors.hpp"
 #include "fileinteraction.hpp"
-#include "mainerror.hpp"
 #include "measurement.hpp"
 #include "turinga.hpp"
 #include "types.hpp"
@@ -68,10 +68,10 @@ int main(int argc, char** argv) {
       }
     }
     else {
-      throw Inappropriate_number_of_arguments(argc, 5, "main");
+      throw InappropriateNumberOfArguments(argc, 5, "main");
     }
-  } catch (Mainerror& error) {
-    error.report_error();
+  } catch (TuringaError& error) {
+    error.what();
   }
   std::cout << timestamp(current_duration());
   print_lightgreen("Done!\n");

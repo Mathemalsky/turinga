@@ -1,60 +1,49 @@
-#include "mainerror.hpp"
+#include "errors.hpp"
 
 #include <iostream>
-#include <string>
 
 #include "colors.hpp"
+#include "constants.hpp"
 #include "measurement.hpp"
 
-// maybe extra header for constants?
-static const std::string PROJECTNAME = "turinga21";
-
-void Mainerror::func(const std::string function) {
-  p_function = function;
-}
-
-std::string Mainerror::func() const {
-  return p_function;
-}
-
-File_not_found::File_not_found(std::string filename, std::string function) {
-  p_filename = filename;
-  func(function);
-}
-
-void File_not_found::report_error() {
-  std::cout << timestamp(current_duration());
-  print_lightred("ERROR: ");
-  std::cout << "File <" << p_filename << "> in function <" << func() << "> not found.\n";
-  exit(-1);
-}
-
-Cannot_create_file::Cannot_create_file(std::string filename, std::string function) {
-  func(function);
-  p_filename = filename;
-}
-
-void Cannot_create_file::report_error() {
-  std::cout << timestamp(current_duration());
-  print_lightred("ERROR: ");
-  std::cout << "Couldn't create output file <" << p_filename << "> in function <" << func()
-            << ">.\n";
-  exit(-1);
-}
-
-Inappropriate_number_of_arguments::Inappropriate_number_of_arguments(
+InappropriateNumberOfArguments::InappropriateNumberOfArguments(
   unsigned int number, unsigned int expected, std::string function) {
-  func(function);
   p_number   = number;
   p_expected = expected;
+  p_func     = function;
 }
 
-void Inappropriate_number_of_arguments::report_error() {
+void InappropriateNumberOfArguments::what() {
   std::cout << timestamp(current_duration());
   print_lightred("ERROR: ");
-  std::cout << "Inapropriate number of arguments in function <" << func() << ">. Got " << p_number
+  std::cout << "Inapropriate number of arguments in function <" << p_func << ">. Got " << p_number
             << " but expectet " << p_expected << ".\n";
   std::cout << "Type <./" << PROJECTNAME << " help> for syntax help.\n";
+  exit(-1);
+}
+
+FileNotFound::FileNotFound(std::string filename, std::string function) {
+  p_filename = filename;
+  p_func     = function;
+}
+
+void FileNotFound::what() {
+  std::cout << timestamp(current_duration());
+  print_lightred("ERROR: ");
+  std::cout << "File <" << p_filename << "> in function <" << p_func << "> not found.\n";
+  exit(-1);
+}
+
+CannotCreateFile::CannotCreateFile(std::string filename, std::string function) {
+  p_func     = function;
+  p_filename = filename;
+}
+
+void CannotCreateFile::what() {
+  std::cout << timestamp(current_duration());
+  print_lightred("ERROR: ");
+  std::cout << "Couldn't create output file <" << p_filename << "> in function <" << p_func
+            << ">.\n";
   exit(-1);
 }
 

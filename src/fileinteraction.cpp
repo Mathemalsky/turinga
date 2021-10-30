@@ -6,13 +6,13 @@
 #include <stdlib.h>
 
 #include "constants.hpp"
-#include "mainerror.hpp"
+#include "errors.hpp"
 #include "measurement.hpp"
 
 void read_file(Data& bytes, const char* filename, const TuringaKey& key) {
   FILE* myfile = fopen(filename, "rb");
   if (!myfile) {
-    throw File_not_found(filename, "read_file");
+    throw FileNotFound(filename, "read_file");
   }
 
   size_t size = 0;
@@ -32,7 +32,7 @@ void read_file(Data& bytes, const char* filename, const TuringaKey& key) {
 void write_file(const Data& bytes, const char* filename, const TuringaKey& key) {
   FILE* myfile = fopen(filename, "wb");
   if (!myfile) {
-    throw Cannot_create_file(filename, "write_file");
+    throw CannotCreateFile(filename, "write_file");
   }
   if (key.direction == 0) {
     fwrite(bytes.bytes, 1, bytes.size, myfile);
@@ -50,7 +50,7 @@ void write_file(const Data& bytes, const char* filename, const TuringaKey& key) 
 TuringaKey readTuringaKey(const char* filename) {
   std::ifstream myfile(filename, std::ios::in);
   if (!myfile) {
-    throw File_not_found(filename, "readTuringaKey");
+    throw FileNotFound(filename, "readTuringaKey");
   }
 
   int direction;
@@ -79,7 +79,7 @@ TuringaKey readTuringaKey(const char* filename) {
 void writeTuringaKey(const std::string filename, const TuringaKey& key) {
   std::ofstream myfile(filename, std::ios::binary);
   if (!myfile) {
-    throw Cannot_create_file(filename, "writeTuringaKey");
+    throw CannotCreateFile(filename, "writeTuringaKey");
   }
   myfile << key.direction << " " << key.length << " ";
   for (auto& character : key.rotorNames) {
@@ -114,7 +114,7 @@ Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {
     const char* new_filename = filename.c_str();
     FILE* myfile             = fopen(new_filename, "rb");
     if (!myfile) {
-      throw File_not_found(new_filename, "loadRotors");
+      throw FileNotFound(new_filename, "loadRotors");
     }
 
 // disable gcc warning -Wunsused-variable

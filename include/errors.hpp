@@ -1,8 +1,45 @@
 #pragma once
 
-/*! \file mainerror.hpp */
+/*! \file errors.hpp */
 
+#include <stdexcept>
 #include <string>
+
+class TuringaError : public std::exception {
+public:
+  virtual void what() = 0;
+
+protected:
+  std::string p_func;
+};
+
+/*!
+ * \class InappropriateNumberOfArguments
+ * \brief The class InappropriateNumberOfArguments is designed to handle errors in case the
+ * number of given arguments differs from the expected number of arguments.
+ * \param p_number number of collected arguments
+ * \param p_expect expected number of arguments
+ */
+class InappropriateNumberOfArguments : public TuringaError {
+public:
+  /*!
+   * \brief InappropriateNumberOfArguments
+   * \param number counts the collected arguments
+   * \param expected states the amount of expected arguments
+   * \param function name of the function where the error occurs, typically main
+   */
+  InappropriateNumberOfArguments(unsigned int number, unsigned int expected, std::string function);
+  /*!
+   * \brief prints out the error message to the console
+   * \details prints the number of argeuments got, the number of arguments expected and the function
+   * where the error occurs
+   */
+  void what();
+
+private:
+  unsigned int p_number;   /**< \param p_filename number of arguments got */
+  unsigned int p_expected; /**< \param p_filename number of arguments expected */
+};
 
 /*!
  * \class Mainerror
@@ -32,23 +69,23 @@ private:
 };
 
 /*!
- * \class File_not_found
- * \brief The class File_not_found is designed to handle errors when accessing files while reading.
+ * \class FileNotFound
+ * \brief The class FileNotFound is designed to handle errors when accessing files while reading.
  */
-class File_not_found : public Mainerror {
+class FileNotFound : public TuringaError {
 public:
   /*!
-   * \brief File_not_found
+   * \brief FileNotFound
    * \param filename name of the file which wasn't found
    * \param function the name of the function where the error occurs as string
    */
-  File_not_found(std::string filename, std::string function);
+  FileNotFound(std::string filename, std::string function);
   /*!
    * \brief prints out the error message to the console
    * \details prints the name of the missing file and the name of the function where the error
    * occured
    */
-  void report_error();
+  void what();
 
 private:
   std::string
@@ -56,58 +93,29 @@ private:
 };
 
 /*!
- * \class Cannot_create_file
- * \brief The class Cannot_create_file is designed to handle errors when accessing files while
+ * \class CannotCreateFile
+ * \brief The class CannotCreateFile is designed to handle errors when accessing files while
  * writing.
  * \param p_filename string that contains the name of the file
  */
-class Cannot_create_file : public Mainerror {
+class CannotCreateFile : public TuringaError {
 public:
   /*!
-   * \brief Cannot_create_file
+   * \brief CannotCreateFile
    * \param filename name of the file failed to create
    * \param function the name of the function where the error occurs as string
    */
-  Cannot_create_file(std::string filename, std::string function);
+  CannotCreateFile(std::string filename, std::string function);
   /*!
    * \brief prints out the error message to the console
    * \details prints the name of the file which makes problems and the name of the function where
    * the error occured
    */
-  void report_error();
+  void what();
 
 private:
   std::string p_filename; /**< \param p_filename string that contains the name of the file
                              struggling to create */
-};
-
-/*!
- * \class Inappropriate_number_of_arguments
- * \brief The class Inappropriate_number_of_arguments is designed to handle errors in case the
- * number of given arguments differs from the expected number of arguments.
- * \param p_number number of collected arguments
- * \param p_expect expected number of arguments
- */
-class Inappropriate_number_of_arguments : public Mainerror {
-public:
-  /*!
-   * \brief Inappropriate_number_of_arguments
-   * \param number counts the collected arguments
-   * \param expected states the amount of expected arguments
-   * \param function name of the function where the error occurs, typically main
-   */
-  Inappropriate_number_of_arguments(
-    unsigned int number, unsigned int expected, std::string function);
-  /*!
-   * \brief prints out the error message to the console
-   * \details prints the number of argeuments got, the number of arguments expected and the function
-   * where the error occurs
-   */
-  void report_error();
-
-private:
-  unsigned int p_number;   /**< \param p_filename number of arguments got */
-  unsigned int p_expected; /**< \param p_filename number of arguments expected */
 };
 
 void syntax();

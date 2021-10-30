@@ -22,7 +22,7 @@ struct RotateArgs {
  * \f$\pi\f$ is the bijective mapping from \f$\mathbb{F}_2^4\f$ to \f$\mathbb{F}_2^4\f$
  * which we obtain by considering the input vector as a coefficient vector of a binary
  * polynomial \f$g\f$ with \f$\deg(g) < 4\f$.
- * Then the output vector is the coeficcient vector of \f{equation*}{g^{-1}(x) \textrm{mod} x^4 + x
+ * Then the output vector is the coefficient vector of \f{equation*}{g^{-1}(x) \textrm{mod} x^4 + x
  * + 1\f}
  *
  * \authors Max, Jurek

@@ -12,7 +12,6 @@
 
 #include "constants.hpp"
 #include "fileinteraction.hpp"
-#include "mainerror.hpp"
 #include "measurement.hpp"
 #include "rotate.hpp"
 #include "types.hpp"
