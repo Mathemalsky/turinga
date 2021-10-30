@@ -203,7 +203,7 @@ void rotate(RotateArgs args) {
   }
   for (size_t i = 0; i < MAX_KEYLENGTH; i++) {
     Byte val = table[x[i]];
-    val &= x[2 * MAX_KEYLENGTH - 1 - i];  // bitwise xor
+    val &= x[2 * MAX_KEYLENGTH - 1 - i];  // bitwise and
     args.rotorShifts[i] +=
       (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);  // test val is uneven
   }
