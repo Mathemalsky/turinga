@@ -8,3 +8,4 @@
 /** Limit key length a priori to dertermine space allocation at compile time. */
 const size_t MAX_KEYLENGTH    = 32;
 const std::string PROJECTNAME = "turinga21";
+const std::string STD_ROT_DIR = "Rotors/";

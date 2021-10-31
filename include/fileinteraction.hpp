@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 
+#include "constants.hpp"
 #include "types.hpp"
 
 /** \def Assuming we are compiling with at least gcc 8.0 we can use std::filesystem and it's c++17
@@ -43,6 +44,8 @@ inline void ignore_byte(std::istream& myfile) {
   Byte bin;
   myfile.read(reinterpret_cast<char*>(&bin), sizeof(bin));
 }
+
+std::string findRotors(std::string path = STD_ROT_DIR);
 
 /*!
  * \brief reads the content of file into bytes
