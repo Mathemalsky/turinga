@@ -7,10 +7,9 @@
 #include "measurement.hpp"
 
 InappropriateNumberOfArguments::InappropriateNumberOfArguments(
-  unsigned int number, unsigned int expected, std::string function) {
-  p_number   = number;
-  p_expected = expected;
-  p_func     = function;
+  std::string function, unsigned int expected, unsigned int number)
+  : p_expected(expected), p_number(number) {
+  p_func = function;
 }
 
 void InappropriateNumberOfArguments::what() {
@@ -18,13 +17,25 @@ void InappropriateNumberOfArguments::what() {
   print_lightred("ERROR: ");
   std::cout << "Inapropriate number of arguments in function <" << p_func << ">. Got " << p_number
             << " but expectet " << p_expected << ".\n";
-  std::cout << "Type <./" << PROJECTNAME << " help> for syntax help.\n";
+  std::cout << "Type <./" << PROJECTNAME << "> <help> for syntax help.\n";
   exit(-1);
 }
 
-FileNotFound::FileNotFound(std::string filename, std::string function) {
-  p_filename = filename;
-  p_func     = function;
+InvalidArgument::InvalidArgument(std::string function, std::string arg, std::string setting)
+  : p_arg(arg), p_setting(setting) {
+  p_func = function;
+}
+
+void InvalidArgument::what() {
+  std::cout << timestamp(current_duration());
+  print_lightred("ERROR: ");
+  std::cout << "Argument <" << p_arg << "> is invaild " << p_setting << ".\n";
+  std::cout << "Type <./" << PROJECTNAME << "> <help> for syntax help.\n";
+  exit(-1);
+}
+
+FileNotFound::FileNotFound(std::string function, std::string filename) : p_filename(filename) {
+  p_func = function;
 }
 
 void FileNotFound::what() {
@@ -34,9 +45,9 @@ void FileNotFound::what() {
   exit(-1);
 }
 
-CannotCreateFile::CannotCreateFile(std::string filename, std::string function) {
-  p_func     = function;
-  p_filename = filename;
+CannotCreateFile::CannotCreateFile(std::string function, std::string filename)
+  : p_filename(filename) {
+  p_func = function;
 }
 
 void CannotCreateFile::what() {
@@ -67,7 +78,7 @@ void syntaxCrypt() {
 }
 
 void syntaxGenerate() {
-  std::cout << "- ./" << PROJECTNAME << " <file> <length> <rotors>\n";
+  std::cout << "- ./" << PROJECTNAME << " <file> <length> <available rotors>\n";
   std::cout << "    file            : path and filename (without ending) to write the files into\n";
   std::cout << "    length          : length of the key, recommended to use length 8 or larger\n";
   std::cout << "    rotors          : all Names of Rotornames (1 character each) without spaces\n";

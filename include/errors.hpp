@@ -5,12 +5,19 @@
 #include <stdexcept>
 #include <string>
 
+/*!
+ * \class TuringaError
+ * \brief All specific errors inherit from TuringaError class so they can be caught together.
+ */
 class TuringaError : public std::exception {
 public:
+  /*!
+   * \brief virtual function that can be called to catch the errors
+   */
   virtual void what() = 0;
 
 protected:
-  std::string p_func;
+  std::string p_func; /**< \param string that contains the name where the error occurs */
 };
 
 /*!
@@ -28,7 +35,7 @@ public:
    * \param expected states the amount of expected arguments
    * \param function name of the function where the error occurs, typically main
    */
-  InappropriateNumberOfArguments(unsigned int number, unsigned int expected, std::string function);
+  InappropriateNumberOfArguments(std::string function, unsigned int expected, unsigned int number);
   /*!
    * \brief prints out the error message to the console
    * \details prints the number of argeuments got, the number of arguments expected and the function
@@ -37,35 +44,17 @@ public:
   void what();
 
 private:
-  unsigned int p_number;   /**< \param p_filename number of arguments got */
   unsigned int p_expected; /**< \param p_filename number of arguments expected */
+  unsigned int p_number;   /**< \param p_filename number of arguments got */
 };
 
-/*!
- * \class Mainerror
- * \brief All specific errors inherit from Mainerror class so they can be caught together.
- */
-class Mainerror {
+class InvalidArgument : public TuringaError {
 public:
-  /*!
-   * \brief virtual function that can be called to catch the errors
-   */
-  virtual void report_error() = 0;
-  /*!
-   * \brief writes into the private param p_function
-   * \param function string which the param p_function should be set to
-   */
-  void func(const std::string function);
-  /*!
-   * \brief reads the private param p_function
-   * \return std::string p_function
-   */
-  std::string func() const;
-  virtual ~Mainerror() {
-  }
+  InvalidArgument(std::string function, std::string arg, std::string setting);
+  void what();
 
 private:
-  std::string p_function; /**< \param string that contains the name where the error occurs */
+  std::string p_arg, p_setting;
 };
 
 /*!

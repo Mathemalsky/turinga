@@ -12,7 +12,7 @@
 void read_file(Data& bytes, const char* filename, const TuringaKey& key) {
   FILE* myfile = fopen(filename, "rb");
   if (!myfile) {
-    throw FileNotFound(filename, "read_file");
+    throw FileNotFound("read_file", filename);
   }
 
   size_t size = 0;
@@ -32,7 +32,7 @@ void read_file(Data& bytes, const char* filename, const TuringaKey& key) {
 void write_file(const Data& bytes, const char* filename, const TuringaKey& key) {
   FILE* myfile = fopen(filename, "wb");
   if (!myfile) {
-    throw CannotCreateFile(filename, "write_file");
+    throw CannotCreateFile("write_file", filename);
   }
   if (key.direction == 0) {
     fwrite(bytes.bytes, 1, bytes.size, myfile);
@@ -50,7 +50,7 @@ void write_file(const Data& bytes, const char* filename, const TuringaKey& key) 
 TuringaKey readTuringaKey(const char* filename) {
   std::ifstream myfile(filename, std::ios::in);
   if (!myfile) {
-    throw FileNotFound(filename, "readTuringaKey");
+    throw FileNotFound("readTuringaKey", filename);
   }
 
   int direction;
@@ -79,7 +79,7 @@ TuringaKey readTuringaKey(const char* filename) {
 void writeTuringaKey(const std::string filename, const TuringaKey& key) {
   std::ofstream myfile(filename, std::ios::binary);
   if (!myfile) {
-    throw CannotCreateFile(filename, "writeTuringaKey");
+    throw CannotCreateFile("writeTuringaKey", filename);
   }
   myfile << key.direction << " " << key.length << " ";
   for (auto& character : key.rotorNames) {
@@ -97,10 +97,10 @@ Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {
   prefix += "/rotor_";
   std::string suffix, filename;
   if (key.direction == 0) {
-    suffix = ".txt";
+    suffix = "";
   }
   else if (key.direction == 1) {
-    suffix = "_reverse.txt";
+    suffix = "_reverse";
   }
 
   Byte* wheels = (Byte*) malloc(256 * key.length);
@@ -114,7 +114,7 @@ Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {
     const char* new_filename = filename.c_str();
     FILE* myfile             = fopen(new_filename, "rb");
     if (!myfile) {
-      throw FileNotFound(new_filename, "loadRotors");
+      throw FileNotFound("loadRotors", new_filename);
     }
 
 // disable gcc warning -Wunsused-variable
