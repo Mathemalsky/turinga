@@ -37,8 +37,12 @@ int main(int argc, char** argv) {
     }
     // generate a key
     else if (std::strcmp(argv[1], "genKey") == 0) {
-      if (argc <= 5) {
+      if (argc <= 3) {
         throw InappropriateNumberOfArguments("main", 5, argc);
+      }
+      else if (argc == 4) {
+        // not yet implemented
+        const std::string availableRotors = findRotors();
       }
       else {
         const char* keyfile               = argv[2];
