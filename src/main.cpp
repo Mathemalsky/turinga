@@ -1,8 +1,6 @@
 #include <cassert>
 #include <cstring>
-#include <fstream>
 #include <iostream>
-#include <vector>
 
 #ifdef _WIN32
 #include <windows.h>  // maybe no longer necesarry
@@ -22,9 +20,10 @@ int main(int argc, char** argv) {
     if (argc <= 1) {
       throw InappropriateNumberOfArguments("main", 2, argc);
     }
+    // print syntax hints
     else if (std::strcmp(argv[1], "help") == 0) {
       if (argc == 2) {
-        syntaxHelp();
+        syntax();
       }
       else if (std::strcmp(argv[2], "crypt") == 0) {
         syntaxCrypt();
@@ -36,6 +35,7 @@ int main(int argc, char** argv) {
         throw InvalidArgument("main", argv[2], "after <help>");
       }
     }
+    // generate a key
     else if (std::strcmp(argv[1], "genKey") == 0) {
       if (argc <= 5) {
         throw InappropriateNumberOfArguments("main", 5, argc);
@@ -50,8 +50,13 @@ int main(int argc, char** argv) {
         key.direction = 1;
         writeTuringaKey(keyfilePath + "_inv.key", key);
         free(key.rotorShifts);
+        if (keylength < 8) {
+          print_yellow("WARNING: ");
+          std::cout << "You generated a short key, which may be insecure.\n";
+        }
       }
     }
+    // generate Rotors
     else if (std::strcmp(argv[1], "genRot") == 0) {
       if (argc == 2) {
         throw InappropriateNumberOfArguments("main", 3, argc);
@@ -60,6 +65,7 @@ int main(int argc, char** argv) {
         generateRotor(argv[3]);
       }
     }
+    // encrypt or decrypt
     else if (std::strcmp(argv[1], "crypt") == 0) {
       if (argc <= 5) {
         throw InappropriateNumberOfArguments("main", 6, argc);

@@ -8,17 +8,17 @@
  * Turinga is a simple program to encrypt and decrypt files. It's a polyalphabetic byte wise
  * substitution cipher. Hence it's a symmetric encryption scheme.
  * \section sec2 What are the requirements of Turinga?
- * Since the function rotate uses AVX2 your processor needs to support AVX2 and you have to compile
- * with -march=native
- * \section sec3 What should I care about using Turinga?
+ * There is one version of the rotate function accelerated using AVX2 and another one accelerated
+ * using SSE up to 4.1. So if you want to compile using one of these versions you need a processor
+ * which supports AVX2 or SSE respectively and have to pass -march=native argument. This is default
+ * by the CMAkeLIsts.txt.
+ * \section sec3 What should I care about when using Turinga?
  * \subsection sec3_1 Security aspects
  * Don't use short keys! Use at least length 8!
- *
  * Don't encrypt data which is highly redundant! In that case security can by improved by a good
  * compression method.
  * \subsection sec3_2 Performance aspects
- * Due to the actual implementation of
- * rotate the best security/runtime ration is reached if the key length is a multiple of 8
+ * The runtime grows linear with the key length, don't by stingy a this point
  * \section sec4 Historical notes
  * The idea of the encryption scheme comes from the enigma invented independently
  * by a few people between 1915 and 1919. The name Turinga is inspired by the great british

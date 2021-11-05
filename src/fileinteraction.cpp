@@ -1,7 +1,6 @@
 #include "fileinteraction.hpp"
 
 #include <cassert>
-#include <fstream>
 #include <iostream>
 #include <stdlib.h>
 

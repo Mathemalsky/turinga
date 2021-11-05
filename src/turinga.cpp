@@ -1,12 +1,9 @@
 #include "turinga.hpp"
 
 #include <cmath>
-#include <cstddef>
 #include <cstring>
 #include <iostream>
-#include <string>
 #include <thread>
-#include <vector>
 
 #include <csprng.hpp>
 
@@ -14,7 +11,6 @@
 #include "fileinteraction.hpp"
 #include "measurement.hpp"
 #include "rotate.hpp"
-#include "types.hpp"
 
 TuringaKey generateTuringaKey(const size_t keylength, const std::string& availableRotors) {
   Byte* rotorShifts           = (Byte*) malloc(MAX_KEYLENGTH);
@@ -75,8 +71,8 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   // encrypt the rest
   encrypt_block(
     bytes,
-    TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1],
-               key.fileShift},
+    TuringaKey{
+      key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1], key.fileShift},
     rotors, begin, bytes.size);
 
   // collect all threads

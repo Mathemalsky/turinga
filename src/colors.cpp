@@ -1,7 +1,6 @@
 #include "colors.hpp"
 
 #include <iostream>
-#include <string>
 
 void print_lightgreen(std::string word) {
   std::cout << "\033[1;32m";

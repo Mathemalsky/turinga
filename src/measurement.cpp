@@ -1,8 +1,6 @@
 #include "measurement.hpp"
 
-#include <chrono>
-#include <math.h>
-#include <string>
+#include <cmath>
 
 using time_point = std::chrono::time_point<std::chrono::high_resolution_clock>;
 time_point startTime{};

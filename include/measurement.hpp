@@ -3,7 +3,6 @@
 /*! \file measurement.hpp */
 
 #include <chrono>
-#include <stdlib.h>
 #include <string>
 
 /** time_point acrynom for timepoint from std:.chrono */

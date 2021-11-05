@@ -69,23 +69,23 @@ void syntax() {
 
 void syntaxCrypt() {
   std::cout << "- ./" << PROJECTNAME << " <input_file> <key> <rotors> <output_file>\n";
-  std::cout << "    input_filename  : path and filename (with ending) of the file to be "
+  std::cout << "    input_file  : path and filename (with ending) of the file to be "
                "encrypted/decrypted\n";
-  std::cout << "    key             : path and filename (with ending) of the key used to be "
+  std::cout << "    key         : path and filename (with endingout) of the key used to be "
                "encrypt/decrypt\n";
-  std::cout << "    rotors          : path to the directory where the rotor files are stored\n";
-  std::cout << "    output_filename : path and filename (with ending) to write the file into\n";
+  std::cout << "    rotors      : path to the directory where the rotor files are stored\n";
+  std::cout << "    output_file : path and filename (with ending) to write the file into\n";
 }
 
 void syntaxGenerate() {
   std::cout << "- ./" << PROJECTNAME << " <file> <length> <available rotors>\n";
-  std::cout << "    file            : path and filename (without ending) to write the files into\n";
-  std::cout << "    length          : length of the key, recommended to use length 8 or larger\n";
-  std::cout << "    rotors          : all Names of Rotornames (1 character each) without spaces\n";
+  std::cout << "    file        : path and filename (without ending) to write the files into\n";
+  std::cout << "    length      : length of the key, recommended to use length 8 or larger\n";
+  std::cout << "    rotors      : all Names of Rotornames (1 character each) without spaces\n";
 }
 
 void syntaxHelp() {
   std::cout << "- ./" << PROJECTNAME << " <command>\n";
-  std::cout << "    command         : command you want to see detailed information about\n";
-  std::cout << "                      options are: <crypt>, <generate> and <help>\n";
+  std::cout << "    command     : command you want to see detailed information about\n";
+  std::cout << "                  options are: <crypt>, <generate> and <help>\n";
 }

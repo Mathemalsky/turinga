@@ -3,7 +3,6 @@
 /*! \file fileinteraction.hpp */
 
 #include <fstream>
-#include <vector>
 
 #include "types.hpp"
 

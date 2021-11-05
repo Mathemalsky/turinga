@@ -7,7 +7,6 @@
 #endif
 
 #include "constants.hpp"
-#include "types.hpp"
 
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
