@@ -10,7 +10,7 @@
 
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
-void rotate(RotateArgs args) {
+void rotate(Byte* rotorShifts) {
 /***************************************************************************************************
  *                                      AVX2 version
  **************************************************************************************************/
@@ -37,8 +37,8 @@ void rotate(RotateArgs args) {
 // enable gcc warning -Woverflow
 #pragma GCC diagnostic pop
 
-  __m128i a = _mm_loadu_si128(((__m128i*) args.rotorShifts));      // load the first 16 byte ino a
-  __m128i b = _mm_loadu_si128(((__m128i*) args.rotorShifts) + 1);  // load the last 16 byte into b
+  __m128i a = _mm_loadu_si128(((__m128i*) rotorShifts));      // load the first 16 byte ino a
+  __m128i b = _mm_loadu_si128(((__m128i*) rotorShifts) + 1);  // load the last 16 byte into b
 
   // spread each byte into 2 (only in the lower 8 bit)
   __m256i x = _mm256_cvtepu8_epi16(a);
@@ -76,7 +76,7 @@ void rotate(RotateArgs args) {
   __m256i values = _mm256_set_m128i(b, a);  // concatinate a and b to obtain initial rotor shifts
   values         = _mm256_add_epi8(values, z);  // add z to the values
 
-  _mm256_storeu_si256((__m256i*) args.rotorShifts, values);  // finally store rotor shifts
+  _mm256_storeu_si256((__m256i*) rotorShifts, values);  // finally store rotor shifts
 /***************************************************************************************************
  *                                      SSE version
  **************************************************************************************************/
@@ -104,8 +104,8 @@ void rotate(RotateArgs args) {
 #pragma GCC diagnostic pop
 
   // load bytes from rotorShifts
-  __m128i values1 = _mm_loadu_si128((__m128i*) args.rotorShifts);
-  __m128i values2 = _mm_loadu_si128((__m128i*) args.rotorShifts + 1);
+  __m128i values1 = _mm_loadu_si128((__m128i*) rotorShifts);
+  __m128i values2 = _mm_loadu_si128((__m128i*) rotorShifts + 1);
 
   // prepair the vectors for scalar products
   __m128i x1, x2, x3, x4, y1, y2, y3, y4;
@@ -170,8 +170,8 @@ void rotate(RotateArgs args) {
   values2 = _mm_add_epi8(values2, z2);
 
   // save the maipulated rotorshifts
-  _mm_storeu_si128((__m128i*) args.rotorShifts, values1);
-  _mm_storeu_si128((__m128i*) args.rotorShifts + 1, values2);
+  _mm_storeu_si128((__m128i*) rotorShifts, values1);
+  _mm_storeu_si128((__m128i*) rotorShifts + 1, values2);
 #else
   /***************************************************************************************************
    *                                 standard version
@@ -197,14 +197,13 @@ void rotate(RotateArgs args) {
 
   Byte* x = (Byte*) malloc(MAX_KEYLENGTH * 2);
   for (size_t i = 0; i < MAX_KEYLENGTH; i++) {
-    x[2 * i]     = args.rotorShifts[i] & 0b00001111;  // the rightmost bits
-    x[2 * i + 1] = args.rotorShifts[i] >> 4;          // the leftmost bits
+    x[2 * i]     = rotorShifts[i] & 0b00001111;  // the rightmost bits
+    x[2 * i + 1] = rotorShifts[i] >> 4;          // the leftmost bits
   }
   for (size_t i = 0; i < MAX_KEYLENGTH; i++) {
     Byte val = table[x[i]];
-    val &= x[2 * MAX_KEYLENGTH - 1 - i];  // bitwise xor
-    args.rotorShifts[i] +=
-      (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);  // test val is uneven
+    val &= x[2 * MAX_KEYLENGTH - 1 - i];                                     // bitwise xor
+    rotorShifts[i] += (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);  // test val is uneven
   }
   free(table);
   free(x);

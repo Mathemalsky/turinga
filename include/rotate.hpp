@@ -4,11 +4,6 @@
 
 #include "types.hpp"
 
-struct RotateArgs {
-  Byte* rotorShifts;
-  const size_t length;
-};
-
 /*!
  * \brief changes the substitution rule after each byte
  * This function maps the first n := length Bytes of rotorShifts to a n byte vector which will re-
@@ -27,8 +22,7 @@ struct RotateArgs {
  *
  * \authors Max, Jurek
  * \param fileShifts determines the current substitution
- * \param length number of rotors in use
  * \details This function replaces the rotation of wheels in enigma. This part is most critical for
  * security.
  */
-void rotate(RotateArgs args);
+void rotate(Byte* rotorShifts);

@@ -60,9 +60,8 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
       TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[i], key.fileShift},
       rotors, begin, end));
     // prepair for next thread
-    RotateArgs args{rotorShiftsAry[i + 1], key.length};
     for (size_t j = begin; j < end; ++j) {  // rotate to start of next thread
-      rotate(args);
+      rotate(rotorShiftsAry[i + 1]);
     }
     begin = end;
     end += bytes.size / threadcount;
@@ -96,7 +95,6 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
 void encrypt_block(
   Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end) {
   const size_t keylength = key.length;
-  RotateArgs args{key.rotorShifts, keylength};
 
   // encryption
   if (key.direction == 0) {
@@ -106,7 +104,7 @@ void encrypt_block(
         tmp = rotors[256 * i + ((tmp + key.rotorShifts[i]) % 256)];
       }
       bytes.bytes[i] = tmp;
-      rotate(args);
+      rotate(key.rotorShifts);
     }
   }
 
@@ -118,7 +116,7 @@ void encrypt_block(
         tmp = rotors[256 * i + tmp] - key.rotorShifts[keylength - 1 - i];
       }
       bytes.bytes[i] = tmp;
-      rotate(args);
+      rotate(key.rotorShifts);
     }
   }
 }
