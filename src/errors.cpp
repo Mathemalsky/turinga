@@ -58,6 +58,17 @@ void CannotCreateFile::what() {
   exit(-1);
 }
 
+NoKey::NoKey(std::string function, std::string filename) : p_filename(filename) {
+  p_func = function;
+}
+
+void NoKey::what() {
+  std::cout << timestamp(current_duration());
+  print_lightred("ERROR: ");
+  std::cout << "Couldn't find key file <" << p_filename << "> in function <" << p_func << ">.\n";
+  exit(-1);
+}
+
 void syntax() {
   std::cout << "Syntax\n ======\n";
   std::cout << "./" << PROJECTNAME << "<argument1> <argument2> ...\n";

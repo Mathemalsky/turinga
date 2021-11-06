@@ -21,13 +21,12 @@ struct Data {
  * \brief The struct TuringaKey contains all information that determines the key for turinga.
  */
 struct TuringaKey {
-  int direction;       /**< It's value can be 0 or 1 where 0 stands for encrypt, 1 for decrypt. */
-  const size_t length; /**< stores the number of rotors used in the key */
-  const std::vector<char>
-    rotorNames; /**< rotorNames It's a string that contains the names of the rotors. The i-th rotor
-                   is represented by the i-th position in the string. Hence the names of the
-                   rotors can only differ in one char */
+  int direction; /**< It's value can be 0 or 1 where 0 stands for encrypt, 1 for decrypt. */
+  size_t length; /**< stores the number of rotors used in the key */
+  std::vector<char> rotorNames; /**< rotorNames It's a string that contains the names of the rotors.
+                                   The i-th rotor is represented by the i-th position in the string.
+                                   Hence the names of the rotors can only differ in one char */
   Byte* rotorShifts; /**< It's an array of bytes that stores current position of the wheels. This
                         will be changed by the rotate function after each encrypted Byte */
-  const size_t fileShift; /**< the bytes will be shifted (mod filesize) by fileShift */
+  size_t fileShift;  /**< the bytes will be shifted (mod filesize) by fileShift */
 };

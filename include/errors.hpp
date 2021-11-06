@@ -41,7 +41,7 @@ public:
    * \details prints the number of arguments got, the number of arguments expected and the function
    * where the error occurs and a syntax hint
    */
-  void what();
+  void what() override;
 
 private:
   unsigned int p_expected; /**< \param p_expected number of arguments expected */
@@ -68,7 +68,7 @@ public:
    * \brief what prints out the error message to the console
    * \details prints the argument the description of context and a syntax hint
    */
-  void what();
+  void what() override;
 
 private:
   std::string p_arg;     /**< \param p_arg argument provided to turinga */
@@ -92,7 +92,7 @@ public:
    * \details prints the name of the missing file and the name of the function where the error
    * occured
    */
-  void what();
+  void what() override;
 
 private:
   std::string
@@ -118,11 +118,20 @@ public:
    * \details prints the name of the file which makes problems and the name of the function where
    * the error occured
    */
-  void what();
+  void what() override;
 
 private:
   std::string p_filename; /**< \param p_filename string that contains the name of the file
                              struggling to create */
+};
+
+class NoKey : public TuringaError {
+public:
+  NoKey(std::string function, std::string filename);
+  void what() override;
+
+private:
+  std::string p_filename;
 };
 
 /*!

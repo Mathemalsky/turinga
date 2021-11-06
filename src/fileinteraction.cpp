@@ -9,6 +9,36 @@
 
 #include <iostream>
 
+bool testForExistence(const char* filename) {
+  bool result;
+  FILE* file = fopen(filename, "rb");
+  if (!file) {
+    result = false;
+  }
+  else {
+    result = true;
+    fclose(file);
+  }
+  return result;
+}
+
+std::string findRotors(std::string path) {
+  std::string rotorsFound = "";
+  path += "rotor_";
+  for (unsigned int i = 0; i < VALID_ROT_NAMES.size(); ++i) {
+    std::string filename = path + VALID_ROT_NAMES[i];
+    if (!testForExistence(filename.c_str())) {
+      continue;
+    }
+    filename += "_reverse";
+    if (!testForExistence(filename.c_str())) {
+      continue;
+    }
+    rotorsFound += VALID_ROT_NAMES[i];
+  }
+  return rotorsFound;
+}
+
 void read_file(Data& bytes, const char* filename, const TuringaKey& key) {
   FILE* myfile = fopen(filename, "rb");
   if (!myfile) {

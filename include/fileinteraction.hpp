@@ -3,8 +3,10 @@
 /*! \file fileinteraction.hpp */
 
 #include <fstream>
+#include <string>
 
 #include "constants.hpp"
+#include "errors.hpp"
 #include "types.hpp"
 
 /** \def Assuming we are compiling with at least gcc 8.0 we can use std::filesystem and it's c++17
@@ -28,6 +30,9 @@ inline size_t file_size(const char* filename) {
  */
 inline size_t file_size(const char* filename) {
   std::ifstream myfile(filename, std::ios::binary);
+  if (!myfile) {
+    throw FileNotFound(std::string(filename), "file_size");
+  }
   myfile.seekg(0, std::ios::end);
   const size_t size = myfile.tellg();
   return size;
@@ -43,6 +48,8 @@ inline void ignore_byte(std::istream& myfile) {
   Byte bin;
   myfile.read(reinterpret_cast<char*>(&bin), sizeof(bin));
 }
+
+bool testForExistence(const char* filename);
 
 std::string findRotors(std::string path = STD_ROT_DIR);
 

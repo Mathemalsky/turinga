@@ -14,6 +14,30 @@
 #include "turinga.hpp"
 #include "types.hpp"
 
+void handleCrypt(
+  const char* filename, const char* outputfilename, const char* rotDirectory, TuringaKey key) {
+  Byte* rotors          = loadRotors(key, rotDirectory);
+  const size_t fileSize = file_size(filename);
+  Byte* data            = (Byte*) malloc(fileSize);
+  Data bytes{data, fileSize};
+  read_file(bytes, filename, key);
+  encrypt(bytes, key, rotors);
+  write_file(bytes, outputfilename, key);
+
+  free(rotors);
+  free(bytes.bytes);
+  free(key.rotorShifts);
+}
+
+TuringaKey createStdKey() {
+  std::string rotorNames = findRotors();
+  if (rotorNames.length() == 0) {
+    generateRotor(VALID_ROT_NAMES.c_str());
+    rotorNames = VALID_ROT_NAMES;
+  }
+  return generateTuringaKey(STD_KEY_LENGTH, rotorNames);
+}
+
 int main(int argc, char** argv) {
   start_time();
   try {
@@ -80,20 +104,40 @@ int main(int argc, char** argv) {
       const char* outputfile   = argv[5];
       TuringaKey key           = readTuringaKey(keyfile);
       assert((key.direction == 0 || key.direction == 1) && "the key ins't read correctly");
-      Byte* rotors          = loadRotors(key, rotDirectory);
-      const size_t fileSize = file_size(filename);
-      Byte* data            = (Byte*) malloc(fileSize);
-      Data bytes{data, fileSize};
-      read_file(bytes, filename, key);
-      encrypt(bytes, key, rotors);
-      write_file(bytes, outputfile, key);
-
-      free(rotors);
-      free(bytes.bytes);
-      free(key.rotorShifts);
+      handleCrypt(filename, outputfile, rotDirectory, key);
+    }
+    // decrypt file
+    else if (std::strcmp(argv[1], "-d") == 0) {
+      const char* filename = argv[2];
+      if (!testForExistence((STD_KEY_DIR + STD_KEY_INV).c_str())) {
+        throw NoKey("main", STD_KEY_DIR + STD_KEY_INV);
+      }
+      TuringaKey key = readTuringaKey((STD_KEY_DIR + STD_KEY_INV).c_str());
+      std::string outputfilename(filename);
+      outputfilename = outputfilename.substr(0, outputfilename.length() - 4);
+      handleCrypt(filename, outputfilename.c_str(), STD_ROT_DIR.c_str(), key);
     }
     else {
-      throw InvalidArgument("main", argv[1], "as first argument");
+      if (testForExistence(argv[1])) {
+        const char* filename = argv[1];
+        TuringaKey key;
+        if (testForExistence((STD_KEY_DIR + STD_KEY).c_str())) {
+          key = readTuringaKey((STD_KEY_DIR + STD_KEY).c_str());
+        }
+        else {
+          key = createStdKey();
+          writeTuringaKey((STD_KEY_DIR + STD_KEY).c_str(), key);
+          key.direction = 1;
+          writeTuringaKey((STD_KEY_DIR + STD_KEY_INV).c_str(), key);
+          key.direction = 0;
+        }
+        std::string outputfilename(filename);
+        outputfilename += ".tur";
+        handleCrypt(filename, outputfilename.c_str(), STD_ROT_DIR.c_str(), key);
+      }
+      else {
+        throw InvalidArgument("main", argv[1], "as first argument");
+      }
     }
   } catch (TuringaError& error) {
     error.what();

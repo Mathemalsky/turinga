@@ -1,8 +1,14 @@
+#include "rotorgenerate.hpp"
+
+#include <fstream>
+#include <iostream>
 #include <stdlib.h>
 #include <string>
-#include <fstream>
 #include <time.h>
 
+#include "colors.hpp"
+#include "constants.hpp"
+#include "measurement.hpp"
 #include "types.hpp"
 
 static Byte* order_256() {
@@ -35,16 +41,22 @@ void generateRotor(const char* rotorNames) {
   Byte* perm     = permutaion(order_256());
   Byte* inv_perm = invert(perm);
   std::string str_rotorNames(rotorNames);
+  if (str_rotorNames.length() <= 10) {
+    print_yellow("WARNING: ");
+    std::cout << "You're about to generate a very weak key!\n";
+  }
   for (size_t i = 0; i < str_rotorNames.length(); ++i) {
-    std::string name = std::string("rotor_") + str_rotorNames[i];
+    std::string name = STD_ROT_DIR + "rotor_" + str_rotorNames[i];
     FILE* myfile     = fopen(name.c_str(), "wb");
     fwrite(perm, 1, 256, myfile);
     fclose(myfile);
-    name   = std::string("rotor_") + str_rotorNames[i] + std::string("_reverse");
+    name += "_reverse";
     myfile = fopen(name.c_str(), "wb");
     fwrite(inv_perm, 1, 256, myfile);
     fclose(myfile);
   }
   free(perm);
   free(inv_perm);
+  std::cout << timestamp(current_duration())
+            << "Rotors with the following names have been generated: <" << str_rotorNames << ">\n";
 }
