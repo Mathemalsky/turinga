@@ -9,25 +9,6 @@
 
 #include <iostream>
 
-#if defined(__GNUC__)
-#include <features.h>
-#if __GNUC_PREREQ(8, 0)
-#include <filesystem>
-namespace fs = std::filesystem;
-std::string findRotors(std::string path) {
-  for (const auto p : fs::directory_iterator(path)) {
-    std::cout << p.path() << std::endl;
-  }
-  // just test
-  return path;
-}
-#else
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-#endif
-
-#endif
-
 void read_file(Data& bytes, const char* filename, const TuringaKey& key) {
   FILE* myfile = fopen(filename, "rb");
   if (!myfile) {

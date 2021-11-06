@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
       }
       else if (argc == 4) {
         // not yet implemented
-        const std::string availableRotors = findRotors();
+        // const std::string availableRotors = findRotors();
       }
       else {
         const char* keyfile               = argv[2];

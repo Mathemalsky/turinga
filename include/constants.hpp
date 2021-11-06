@@ -9,3 +9,6 @@
 const size_t MAX_KEYLENGTH    = 32;
 const std::string PROJECTNAME = "turinga21";
 const std::string STD_ROT_DIR = "Rotors/";
+const std::string STD_KEY     = "key";
+const std::string STD_KEY_INV = "keyinv";
+const std::string STD_KEY_DIR = "keys/";
