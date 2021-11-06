@@ -125,9 +125,24 @@ private:
                              struggling to create */
 };
 
+/*!
+ * \class NoKey
+ * \brief The class NoKey s designed to handle the error of not existing keys
+ * \param p_filename string that contains the name of the file where turinga was looking for the key
+ */
 class NoKey : public TuringaError {
 public:
+  /*!
+   * \brief NoKey
+   * \param function the name of the function where the error occurs as string
+   * \param filename name of the missing key file
+   */
   NoKey(std::string function, std::string filename);
+  /*!
+   * \brief prints out the error message to the console
+   * \details prints the name of the file of the missing key and the name of the function where the
+   * error occured
+   */
   void what() override;
 
 private:

@@ -64,16 +64,24 @@ int main(int argc, char** argv) {
       if (argc <= 3) {
         throw InappropriateNumberOfArguments("main", 5, argc);
       }
-      else if (argc == 4) {
-        // not yet implemented
-        // const std::string availableRotors = findRotors();
-      }
       else {
-        const char* keyfile               = argv[2];
-        std::string keyfilePath           = std::string(keyfile);
-        const size_t keylength            = atoi(argv[3]);
-        const std::string availableRotors = argv[4];
-        TuringaKey key                    = generateTuringaKey(keylength, availableRotors);
+        std::string availableRotors;
+        if (argc == 4) {
+          // get the rotors
+          availableRotors = findRotors();
+          if (availableRotors.length() == 0) {
+            generateRotor(VALID_ROT_NAMES.c_str());
+            availableRotors = VALID_ROT_NAMES;
+          }
+        }
+        else {
+          // get the Rotors by input
+          availableRotors = argv[4];
+        }
+        const char* keyfile     = argv[2];
+        std::string keyfilePath = std::string(keyfile);
+        const size_t keylength  = atoi(argv[3]);
+        TuringaKey key          = generateTuringaKey(keylength, availableRotors);
         writeTuringaKey(keyfilePath + ".key", key);
         key.direction = 1;
         writeTuringaKey(keyfilePath + "_inv.key", key);

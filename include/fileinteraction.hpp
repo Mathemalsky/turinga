@@ -40,7 +40,7 @@ inline size_t file_size(const char* filename) {
 #endif
 
 /*!
- * \brief reads one byte from file an ignore it
+ * \brief ignore_byte reads one byte from file an ignores it
  * \details This function is designed to ommit space or enter bytes which separetes data in file.
  * \param myfile determines from which file to read.
  */
@@ -49,8 +49,18 @@ inline void ignore_byte(std::istream& myfile) {
   myfile.read(reinterpret_cast<char*>(&bin), sizeof(bin));
 }
 
+/*!
+ * \brief testForExistence tests an file of given name exists or not
+ * \param filename name of the file to test
+ * \return true if a file with the name filename exists otherwise false
+ */
 bool testForExistence(const char* filename);
 
+/*!
+ * \brief findRotors detects the existence of rotorfiles
+ * \param path specifies the directory to search for rotors
+ * \return a  list of rotors found at the location given by path
+ */
 std::string findRotors(std::string path = STD_ROT_DIR);
 
 /*!
