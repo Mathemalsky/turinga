@@ -4,10 +4,6 @@
 #include <iostream>
 #include <vector>
 
-#ifdef _WIN32
-#include <windows.h>  // maybe no longer necesarry
-#endif
-
 #include "colors.hpp"
 #include "fileinteraction.hpp"
 #include "mainerror.hpp"
