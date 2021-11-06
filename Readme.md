@@ -13,4 +13,4 @@ I'm trying to achieve several aspects:
 ## Libraries used:
 library           | use case        | author               | licence can be found at:
 ------------------|-----------------|----------------------|-------------------------
-duthomhas::CSPRNG | generating Keys | Michael Thomas Greer | lib/csprng/LICENCE_1_0.txt
+duthomhas::CSPRNG | generating Keys | Michael Thomas Greer | lib/CSPRNG/LICENCE_1_0.txt
