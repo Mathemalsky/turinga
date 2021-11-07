@@ -26,8 +26,7 @@ TuringaKey generateTuringaKey(const size_t keylength, const std::string& availab
   const size_t fileShift = random();
   const TuringaKey key{0, keylength, rotorNames, rotorShifts, fileShift};
 
-  std::cout << timestamp(current_duration()) << "A key of length " << keylength
-            << " has been generated.\n";
+  std::cout << timestamp(current_duration()) << "A key of length " << keylength << " has been generated.\n";
   return key;
 }
 
@@ -57,8 +56,7 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
     // start a thread
     threads.push_back(std::thread(
       encrypt_block, std::ref(bytes),
-      TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[i], key.fileShift},
-      rotors, begin, end));
+      TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[i], key.fileShift}, rotors, begin, end));
     // prepair for next thread
     for (size_t j = begin; j < end; ++j) {  // rotate to start of next thread
       rotate(rotorShiftsAry[i + 1]);
@@ -69,9 +67,7 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
 
   // encrypt the rest
   encrypt_block(
-    bytes,
-    TuringaKey{
-      key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1], key.fileShift},
+    bytes, TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1], key.fileShift},
     rotors, begin, bytes.size);
 
   // collect all threads
@@ -92,8 +88,7 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   }
 }
 
-void encrypt_block(
-  Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end) {
+void encrypt_block(Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end) {
   const size_t keylength = key.length;
 
   // encryption

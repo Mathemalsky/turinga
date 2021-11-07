@@ -57,6 +57,6 @@ void generateRotor(const char* rotorNames) {
   }
   free(perm);
   free(inv_perm);
-  std::cout << timestamp(current_duration())
-            << "Rotors with the following names have been generated: <" << str_rotorNames << ">\n";
+  std::cout << timestamp(current_duration()) << "Rotors with the following names have been generated: <"
+            << str_rotorNames << ">\n";
 }

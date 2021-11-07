@@ -95,8 +95,7 @@ public:
   void what() override;
 
 private:
-  std::string
-    p_filename; /**< \param p_filename string that contains the name of the missing file */
+  std::string p_filename; /**< \param p_filename string that contains the name of the missing file */
 };
 
 /*!
@@ -160,10 +159,15 @@ void syntax();
  */
 void syntaxCrypt();
 /*!
- * \brief syntaxGenerate
+ * \brief syntaxGenerateKey prints detailed syntax advices for generating keys
  * \details explaines the arguments needed for key generation and their order
  */
-void syntaxGenerate();
+void syntaxGenerateKey();
+/*!
+ * \brief syntaxGenerateRotors prints detailed syntax advices for genrating rotors
+ * \details explaines the arguments needed for rotor generation
+ */
+void syntaxGenerateRotors();
 /*!
  * \brief syntaxHelp prints a hint how syntax
  * \details explaines how to get only specific syntax advices

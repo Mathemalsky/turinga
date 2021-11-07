@@ -118,8 +118,7 @@ void writeTuringaKey(const std::string filename, const TuringaKey& key) {
   myfile << " " << key.fileShift << std::endl;
   myfile.write((char*) key.rotorShifts, MAX_KEYLENGTH);
   assert(myfile.fail() == 0 && "Couldn't write correctly!");
-  std::cout << timestamp(current_duration()) << "Turinga key has been written to <" << filename
-            << ">.\n";
+  std::cout << timestamp(current_duration()) << "Turinga key has been written to <" << filename << ">.\n";
 }
 
 Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {

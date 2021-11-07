@@ -14,8 +14,7 @@
 #include "turinga.hpp"
 #include "types.hpp"
 
-void handleCrypt(
-  const char* filename, const char* outputfilename, const char* rotDirectory, TuringaKey key) {
+void handleCrypt(const char* filename, const char* outputfilename, const char* rotDirectory, TuringaKey key) {
   Byte* rotors          = loadRotors(key, rotDirectory);
   const size_t fileSize = file_size(filename);
   Byte* data            = (Byte*) malloc(fileSize);
@@ -52,8 +51,11 @@ int main(int argc, char** argv) {
       else if (std::strcmp(argv[2], "crypt") == 0) {
         syntaxCrypt();
       }
-      else if (std::strcmp(argv[2], "generate") == 0) {
-        syntaxGenerate();
+      else if (std::strcmp(argv[2], "genKey") == 0) {
+        syntaxGenerateKey();
+      }
+      else if (std::strcmp(argv[2], "genRot") == 0) {
+        syntaxGenerateRotors();
       }
       else {
         throw InvalidArgument("main", argv[2], "after <help>");
@@ -98,7 +100,7 @@ int main(int argc, char** argv) {
         throw InappropriateNumberOfArguments("main", 3, argc);
       }
       else {
-        generateRotor(argv[3]);
+        generateRotor(argv[2]);
       }
     }
     // encrypt or decrypt
