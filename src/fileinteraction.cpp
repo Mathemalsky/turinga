@@ -6,8 +6,23 @@
 
 #include "errors.hpp"
 #include "measurement.hpp"
+#include "turinga.hpp"
 
 #include <iostream>
+
+void handleCrypt(const char* filename, const char* outputfilename, const char* rotDirectory, TuringaKey key) {
+  Byte* rotors          = loadRotors(key, rotDirectory);
+  const size_t fileSize = file_size(filename);
+  Byte* data            = (Byte*) malloc(fileSize);
+  Data bytes{data, fileSize};
+  read_file(bytes, filename, key);
+  encrypt(bytes, key, rotors);
+  write_file(bytes, outputfilename, key);
+
+  free(rotors);
+  free(bytes.bytes);
+  free(key.rotorShifts);
+}
 
 bool testForExistence(const char* filename) {
   bool result;
@@ -83,10 +98,12 @@ TuringaKey readTuringaKey(const char* filename) {
     throw FileNotFound("readTuringaKey", filename);
   }
 
-  int direction;
+  int dir;
   size_t keylength;
-  myfile >> direction;
+  myfile >> dir;
   myfile >> keylength;
+
+  Direction direction = (dir == 0) ? encryption : decryption;
 
   std::vector<char> rotorNames(keylength);
   for (size_t i = 0; i < keylength; ++i) {
@@ -111,7 +128,8 @@ void writeTuringaKey(const std::string filename, const TuringaKey& key) {
   if (!myfile) {
     throw CannotCreateFile("writeTuringaKey", filename);
   }
-  myfile << key.direction << " " << key.length << " ";
+  int dir = (key.direction == encryption) ? 0 : 1;
+  myfile << dir << " " << key.length << " ";
   for (auto& character : key.rotorNames) {
     myfile << character;
   }

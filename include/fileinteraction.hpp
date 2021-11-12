@@ -50,6 +50,15 @@ inline void ignore_byte(std::istream& myfile) {
 }
 
 /*!
+ * \brief handleCrypt wraps up several function calls for encryption
+ * \param filename file to be encrypted/ decrypted
+ * \param outputfilename file where the output should be saved
+ * \param rotDirectory directory which contains the rotorfiles used by the key
+ * \param key defines the encryption
+ */
+void handleCrypt(const char* filename, const char* outputfilename, const char* rotDirectory, TuringaKey key);
+
+/*!
  * \brief testForExistence tests an file of given name exists or not
  * \param filename name of the file to test
  * \return true if a file with the name filename exists otherwise false

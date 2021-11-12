@@ -41,6 +41,14 @@
 TuringaKey generateTuringaKey(const size_t keylength, const std::string& availableRotors);
 
 /*!
+ * \brief createStdKey generate a key with standard name
+ * \details standardname is specified by a constant in constans.hpp. If no rotors are provide generate all stdandard
+ * rotors new in the standard rotor directory. This directory and the standard names are also defined in constants.hpp
+ * \return struct of type TuringaKey containing the new generated key
+ */
+TuringaKey createStdKey();
+
+/*!
  * \brief encrypts or decrypts the data
  * \details The function iterates through the data and through the rotors and performs the
  * substitution for each rotor separately.

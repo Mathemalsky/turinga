@@ -7,6 +7,11 @@ using Byte  = unsigned char;     /**< To simplify expressions use the intuitive 
 using Bytes = std::vector<Byte>; /**< A vector of type Byte are Bytes. */
 
 /*!
+ * \brief enum direction specifies it's a key for encryption or decryption
+ */
+enum Direction { encryption = 0, decryption = 1 };
+
+/*!
  * \struct Data
  * \brief The struct Data is a simple array and it's length.
  * \details It's intended to contain the complete information from a file.
@@ -21,7 +26,7 @@ struct Data {
  * \brief The struct TuringaKey contains all information that determines the key for turinga.
  */
 struct TuringaKey {
-  int direction;                /**< It's value can be 0 or 1 where 0 stands for encrypt, 1 for decrypt. */
+  Direction direction;          /**< It's value can be 0 or 1 where 0 stands for encrypt, 1 for decrypt. */
   size_t length;                /**< stores the number of rotors used in the key */
   std::vector<char> rotorNames; /**< rotorNames It's a string that contains the names of the rotors.
                                    The i-th rotor is represented by the i-th position in the string.

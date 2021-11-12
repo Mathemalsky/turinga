@@ -11,6 +11,7 @@
 #include "fileinteraction.hpp"
 #include "measurement.hpp"
 #include "rotate.hpp"
+#include "rotorgenerate.hpp"
 
 TuringaKey generateTuringaKey(const size_t keylength, const std::string& availableRotors) {
   Byte* rotorShifts           = (Byte*) malloc(MAX_KEYLENGTH);
@@ -24,10 +25,19 @@ TuringaKey generateTuringaKey(const size_t keylength, const std::string& availab
     rotorName = availableRotors[random() % numberOfRotors];
   }
   const size_t fileShift = random();
-  const TuringaKey key{0, keylength, rotorNames, rotorShifts, fileShift};
+  const TuringaKey key{encryption, keylength, rotorNames, rotorShifts, fileShift};
 
   std::cout << timestamp(current_duration()) << "A key of length " << keylength << " has been generated.\n";
   return key;
+}
+
+TuringaKey createStdKey() {
+  std::string rotorNames = findRotors();
+  if (rotorNames.length() == 0) {
+    generateRotor(VALID_ROT_NAMES.c_str());
+    rotorNames = VALID_ROT_NAMES;
+  }
+  return generateTuringaKey(STD_KEY_LENGTH, rotorNames);
 }
 
 // encrypts/ decrypts the files
@@ -92,7 +102,7 @@ void encrypt_block(Data& bytes, TuringaKey key, const Byte* rotors, const size_t
   const size_t keylength = key.length;
 
   // encryption
-  if (key.direction == 0) {
+  if (key.direction == encryption) {
     for (size_t i = begin; i < end; ++i) {
       Byte tmp = bytes.bytes[i];
       for (size_t i = 0; i < keylength; ++i) {
@@ -104,7 +114,7 @@ void encrypt_block(Data& bytes, TuringaKey key, const Byte* rotors, const size_t
   }
 
   // decryption
-  else if (key.direction == 1) {
+  else if (key.direction == decryption) {
     for (size_t i = begin; i < end; ++i) {
       Byte tmp = bytes.bytes[i];
       for (size_t i = 0; i < keylength; ++i) {

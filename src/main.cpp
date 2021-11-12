@@ -14,29 +14,6 @@
 #include "turinga.hpp"
 #include "types.hpp"
 
-void handleCrypt(const char* filename, const char* outputfilename, const char* rotDirectory, TuringaKey key) {
-  Byte* rotors          = loadRotors(key, rotDirectory);
-  const size_t fileSize = file_size(filename);
-  Byte* data            = (Byte*) malloc(fileSize);
-  Data bytes{data, fileSize};
-  read_file(bytes, filename, key);
-  encrypt(bytes, key, rotors);
-  write_file(bytes, outputfilename, key);
-
-  free(rotors);
-  free(bytes.bytes);
-  free(key.rotorShifts);
-}
-
-TuringaKey createStdKey() {
-  std::string rotorNames = findRotors();
-  if (rotorNames.length() == 0) {
-    generateRotor(VALID_ROT_NAMES.c_str());
-    rotorNames = VALID_ROT_NAMES;
-  }
-  return generateTuringaKey(STD_KEY_LENGTH, rotorNames);
-}
-
 int main(int argc, char** argv) {
   start_time();
   try {
@@ -85,7 +62,7 @@ int main(int argc, char** argv) {
         const size_t keylength  = atoi(argv[3]);
         TuringaKey key          = generateTuringaKey(keylength, availableRotors);
         writeTuringaKey(keyfilePath + ".key", key);
-        key.direction = 1;
+        key.direction = decryption;
         writeTuringaKey(keyfilePath + "_inv.key", key);
         free(key.rotorShifts);
         if (keylength < 8) {
@@ -113,7 +90,7 @@ int main(int argc, char** argv) {
       const char* rotDirectory = argv[4];
       const char* outputfile   = argv[5];
       TuringaKey key           = readTuringaKey(keyfile);
-      assert((key.direction == 0 || key.direction == 1) && "the key ins't read correctly");
+      assert((key.direction == encryption || key.direction == decryption) && "the key ins't read correctly");
       handleCrypt(filename, outputfile, rotDirectory, key);
     }
     // decrypt file
@@ -137,9 +114,9 @@ int main(int argc, char** argv) {
         else {
           key = createStdKey();
           writeTuringaKey((STD_KEY_DIR + STD_KEY).c_str(), key);
-          key.direction = 1;
+          key.direction = decryption;
           writeTuringaKey((STD_KEY_DIR + STD_KEY_INV).c_str(), key);
-          key.direction = 0;
+          key.direction = encryption;
         }
         std::string outputfilename(filename);
         outputfilename += ".tur";
