@@ -94,5 +94,5 @@ jobs:
       with:
         upload_url: ${{steps.create_release.outputs.upload_url}} 
         asset_name: turinga21-${{needs.build.outputs.release_name}}-linux.zip
-        asset_path: turinga21-${{needs.build.outputs.release_name}}-linux/${{github.workspace}}/turinga21-linux.zip
+        asset_path: turinga21-${{needs.build.outputs.release_name}}-linux/turinga21-linux.zip
         asset_content_type: application/zip
