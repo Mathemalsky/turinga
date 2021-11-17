@@ -3,9 +3,9 @@ name: CMake
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
   workflow_dispatch:
 
 env:
@@ -19,6 +19,10 @@ jobs:
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-latest
+    
+    # print the release name to use it when relasing
+    outputs:
+      release_name: ${{steps.get-version.outputs.release_name}}
 
     steps:
     - uses: actions/checkout@v2
@@ -38,6 +42,24 @@ jobs:
       if: success()
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
       
+    - name: name version after date
+      if: github.ref == 'refs/heads/master'
+      run: echo ::set-output name=release_name::$(echo $(date '+%Y-%m-%d'))
+      id: get-version
+
+    # zip the binary file
+    - name: zipping file
+      if: github.ref == 'refs/heads/master'
+      run: zip -r turinga21-linux.zip ${{github.workspace}}/bin
+    
+    # upload files to artifacts
+    - name: upload zips to GitHub actions artifact storage
+      if: github.ref == 'refs/heads/master'
+      uses: actions/upload-artifact@v2
+      with:
+        name: turinga21-${{steps.get-version.outputs.release_name}}-linux
+        path: ${{github.workspace}}/turinga21-linux.zip
+      
   # autogenrate releases
   release:
     runs-on: ubuntu-latest
@@ -46,29 +68,21 @@ jobs:
     # runs only on master
     if: github.ref == 'refs/heads/master'
     steps:
-    - name: name version after date
-      run: echo ::set-output name=release_name::$(echo $(date '+%Y-%m-%d'))
-      id: get-version
-
-    # zip the binary file
-    - run: zip -r turinga21-linux.zip ${{github.workspace}}/bin
-    
-    # upload files to artifacts
-    - uses: actions/upload-artifact@v2
-      name: upload zips to GitHub actions artifact storage
+    # download the required files also to this runner
+    - name: download all workflow run artifacts
+      uses: actions/download-artifact@v2
       with:
-        name: turinga21-${{steps.get-version.outputs.release_name}}-linux.zip
-        path: ${{github.workspace}}/turinga21-linux.zip
+        path: ./
          
     # create a normal release 
     - name: create release
       id: create_release
       uses: actions/create-release@master
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with:
-        tag_name: ${{steps.get-version.outputs.release_name}}
-        release_name: turinga21-${{steps.get-version.outputs.release_name}}
+        tag_name: ${{needs.build.outputs.release_name}}
+        release_name: turinga21-${{needs.build.outputs.release_name}}
         draft: false
         prerelease: false
     
@@ -76,9 +90,9 @@ jobs:
     - name: upload linux release
       uses: actions/upload-release-asset@v1.0.1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_name: turinga21-${{steps.get-version.outputs.release_name}}-linux.zip
-        asset_path: ${{github.workspace}}/turinga21-linux.zip
+        upload_url: ${{steps.create_release.outputs.upload_url}} 
+        asset_name: turinga21-${{needs.build.outputs.release_name}}-linux.zip
+        asset_path: turinga21-${{needs.build.outputs.release_name}}-linux/${{github.workspace}}/turinga21-linux.zip
         asset_content_type: application/zip
