@@ -50,7 +50,7 @@ jobs:
     # zip the binary file
     - name: zipping file
       if: github.ref == 'refs/heads/master'
-      run: zip -r turinga21-linux.zip ${{github.workspace}}/bin
+      run: zip -r turinga21-linux.zip bin
     
     # upload files to artifacts
     - name: upload zips to GitHub actions artifact storage
