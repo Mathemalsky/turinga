@@ -20,7 +20,7 @@ void testRotate(TuringaKey key) {
   Byte* previous = (Byte*) malloc(MAX_KEYLENGTH);
   std::memcpy(start, key.rotorShifts, MAX_KEYLENGTH);
   std::memcpy(previous, key.rotorShifts, MAX_KEYLENGTH);
-  for (size_t i = 0; i < 10000000; ++i) {
+  for (size_t i = 0; i < 100000000000; ++i) {
     rotate(key.rotorShifts);
     if (cmp(key.rotorShifts, previous, MAX_KEYLENGTH)) {
       std::cerr << "Fixpoint at iteration: " << i << "\n";
@@ -34,6 +34,7 @@ void testRotate(TuringaKey key) {
       free(previous);
       return;
     }
+    std::memcpy(previous, key.rotorShifts, MAX_KEYLENGTH);
   }
-  std::cerr << "Tes finished normal.\n";
+  std::cerr << "Test finished normaly.\n";
 }
