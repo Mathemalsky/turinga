@@ -97,6 +97,9 @@ void rotate(Byte* rotorShifts) {
   const __m128i rotor_intervals_1 = _mm_setr_epi8(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31);
   const __m128i rotor_intervals_2 = _mm_setr_epi8(33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63);
   const __m128i shuffle_high      = _mm_setr_epi8(8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7);
+  const __m128i all_one           = _mm_setr_epi8(
+    0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111,
+    0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111);
 // enable gcc warning -Woverflow
 #pragma GCC diagnostic pop
 
@@ -158,6 +161,12 @@ void rotate(Byte* rotorShifts) {
   z1         = _mm_shuffle_epi8(lookup_sum, z1);
   z2         = _mm_shuffle_epi8(lookup_sum, z2);
 
+  // extend the first entry to all the __m128i and if it's 0 invert enverything
+  __m128i mode = _mm_set1_epi8(z1);  // does that work? -> no, use store to access first byte
+  mode         = _mm_xor_si128(all_one, mode);
+  z1           = _mm_xor_si128(mode, z1);
+  z2           = _mm_xor_si128(mode, z2);
+
   // multyply the indicatorvariable z with the shifts
   z1 = _mm_and_si128(z1, rotor_intervals_1);
   z2 = _mm_and_si128(z2, rotor_intervals_2);
@@ -192,15 +201,24 @@ void rotate(Byte* rotorShifts) {
   table[14]   = 0b0011;
   table[15]   = 0b1000;
 
+  Byte* modeTable = (Byte*) malloc(2);
+  modeTable[0]    = 0b00000001;
+  modeTable[1]    = 0b00000000;
+
   Byte* x = (Byte*) malloc(MAX_KEYLENGTH * 2);
   for (size_t i = 0; i < MAX_KEYLENGTH; i++) {
     x[2 * i]     = rotorShifts[i] & 0b00001111;  // the rightmost bits
     x[2 * i + 1] = rotorShifts[i] >> 4;          // the leftmost bits
   }
-  for (size_t i = 0; i < MAX_KEYLENGTH; i++) {
+
+  ++rotorShifts[0];
+  Byte mode = table[x[0]] & x[2 * MAX_KEYLENGTH - 1];
+  mode      = modeTable[__builtin_popcount(mode) & 0b00000001];
+
+  for (size_t i = 1; i < MAX_KEYLENGTH; i++) {
     Byte val = table[x[i]];
-    val &= x[2 * MAX_KEYLENGTH - 1 - i];                                     // bitwise xor
-    rotorShifts[i] += (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);  // test val is uneven
+    val &= x[2 * MAX_KEYLENGTH - 1 - i];                                              // bitwise xor
+    rotorShifts[i] += (2 * i + 1) * ((mode ^ __builtin_popcount(val)) & 0b00000001);  // test val is uneven
   }
   free(table);
   free(x);
