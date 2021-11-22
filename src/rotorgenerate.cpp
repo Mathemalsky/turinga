@@ -49,14 +49,14 @@ void generateRotor(const char* rotorNames) {
   for (size_t i = 0; i < str_rotorNames.length(); ++i) {
     std::string name = STD_ROT_DIR + "rotor_" + str_rotorNames[i];
     FILE* myfile     = fopen(name.c_str(), "wb");
-    if(!myfile) {
+    if (!myfile) {
       throw CannotCreateFile("generateRotor", name);
     }
     fwrite(perm, 1, 256, myfile);
     fclose(myfile);
     name += "_reverse";
     myfile = fopen(name.c_str(), "wb");
-    if(!myfile) {
+    if (!myfile) {
       throw CannotCreateFile("generateRotor", name);
     }
     fwrite(inv_perm, 1, 256, myfile);

@@ -10,15 +10,15 @@
  * \section sec2 What are the requirements of Turinga?
  * There is one version of the rotate function accelerated using AVX2 and another one accelerated
  * using SSE up to 4.1. So if you want to compile using one of these versions you need a processor
- * which supports AVX2 or SSE respectively and have to pass -march=native argument. This is default
- * by the CMAkeLIsts.txt.
+ * which supports AVX2 or SSE respectively and have to pass -march=native argument. This is set to
+ * default by the CMakeLists.txt.
  * \section sec3 What should I care about when using Turinga?
  * \subsection sec3_1 Security aspects
  * Don't use short keys! Use at least length 8!
  * Don't encrypt data which is highly redundant! In that case security can by improved by a good
  * compression method.
  * \subsection sec3_2 Performance aspects
- * The runtime grows linear with the key length, don't by stingy a this point
+ * The runtime grows linear with the key length, don't by stingy a this point!
  * \section sec4 Historical notes
  * The idea of the encryption scheme comes from the enigma invented independently
  * by a few people between 1915 and 1919. The name Turinga is inspired by the great british
@@ -42,8 +42,8 @@ TuringaKey generateTuringaKey(const size_t keylength, const std::string& availab
 
 /*!
  * \brief createStdKey generate a key with standard name
- * \details standardname is specified by a constant in constans.hpp. If no rotors are provide generate all stdandard
- * rotors new in the standard rotor directory. This directory and the standard names are also defined in constants.hpp
+ * \details standardname is specified by a constant in constans.hpp. If no rotors are provided, generate all standard
+ * rotors new in the standard rotor directory. This directory and the standard names are also defined in constants.hpp.
  * \return struct of type TuringaKey containing the new generated key
  */
 TuringaKey createStdKey();

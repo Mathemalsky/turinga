@@ -26,7 +26,7 @@ inline size_t file_size(const char* filename) {
 /*!
  * \brief detects how large the file is
  * \param filename Name of the considered file.
- * \return A size_t that is the size of the file in bytes.
+ * \return size_t that is the size of the file in bytes.
  */
 inline size_t file_size(const char* filename) {
   std::ifstream myfile(filename, std::ios::binary);
@@ -50,7 +50,7 @@ inline void ignore_byte(std::istream& myfile) {
 }
 
 /*!
- * \brief handleCrypt wraps up several function calls for encryption
+ * \brief handleCrypt wraps up several function calls for encryption or decryption
  * \param filename file to be encrypted/ decrypted
  * \param outputfilename file where the output should be saved
  * \param rotDirectory directory which contains the rotorfiles used by the key
@@ -59,16 +59,16 @@ inline void ignore_byte(std::istream& myfile) {
 void handleCrypt(const char* filename, const char* outputfilename, const char* rotDirectory, TuringaKey key);
 
 /*!
- * \brief testForExistence tests an file of given name exists or not
+ * \brief testForExistence tests a file of given name exists or not
  * \param filename name of the file to test
- * \return true if a file with the name filename exists otherwise false
+ * \return true if a file with the name filename exists, otherwise false
  */
 bool testForExistence(const char* filename);
 
 /*!
  * \brief findRotors detects the existence of rotorfiles
  * \param path specifies the directory to search for rotors
- * \return a  list of rotors found at the location given by path
+ * \return list of rotors found at the location given by path
  */
 std::string findRotors(std::string path = STD_ROT_DIR);
 
@@ -77,7 +77,7 @@ std::string findRotors(std::string path = STD_ROT_DIR);
  * \details In case the direction is encrypt the fileShift from TuringaKey will be applied.
  * \param bytes a struct of type Data storing the files information
  * \param filename name of the file to be read
- * \param key the TuringaKey which will be apllied by reading the file
+ * \param key the TuringaKey which will be applied by reading the file
  */
 void read_file(Data& bytes, const char* filename, const TuringaKey& key);
 
@@ -101,7 +101,7 @@ TuringaKey readTuringaKey(const char* filename);
 /*!
  * \brief writes a TuringaKey to file with given filename
  * \param filename name of the file where the TuringaKey should be saved
- * \param key the TuringaKey wich should be written
+ * \param key the TuringaKey which should be written
  */
 void writeTuringaKey(const std::string filename, const TuringaKey& key);
 
