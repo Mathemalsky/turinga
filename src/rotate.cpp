@@ -162,7 +162,9 @@ void rotate(Byte* rotorShifts) {
   z2         = _mm_shuffle_epi8(lookup_sum, z2);
 
   // extend the first entry to all the __m128i and if it's 0 invert enverything
-  __m128i mode = _mm_set1_epi8(z1);  // does that work? -> no, use store to access first byte
+  Byte* chars = (Byte*) malloc(16);
+  _mm_storeu_si128((__m128i*) chars, z1);
+  __m128i mode = _mm_set1_epi8(chars[0]);
   mode         = _mm_xor_si128(all_one, mode);
   z1           = _mm_xor_si128(mode, z1);
   z2           = _mm_xor_si128(mode, z2);
