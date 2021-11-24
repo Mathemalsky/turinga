@@ -28,6 +28,8 @@
 #include "turinga.hpp"
 #include "types.hpp"
 
+#include "testrotate.hpp"
+
 int main(int argc, char** argv) {
   start_time();
   try {
@@ -117,6 +119,21 @@ int main(int argc, char** argv) {
       std::string outputfilename(filename);
       outputfilename = outputfilename.substr(0, outputfilename.length() - 4);
       handleCrypt(filename, outputfilename.c_str(), STD_ROT_DIR.c_str(), key);
+    }
+    // testing
+    else if (std::strcmp(argv[1], "-t") == 0) {
+      TuringaKey key;
+      if (testForExistence((STD_KEY_DIR + STD_KEY).c_str())) {
+        key = readTuringaKey((STD_KEY_DIR + STD_KEY).c_str());
+      }
+      else {
+        key = createStdKey();
+        writeTuringaKey((STD_KEY_DIR + STD_KEY).c_str(), key);
+        key.direction = decryption;
+        writeTuringaKey((STD_KEY_DIR + STD_KEY_INV).c_str(), key);
+        key.direction = encryption;
+      }
+      testRotate(key);
     }
     else {
       if (testForExistence(argv[1])) {

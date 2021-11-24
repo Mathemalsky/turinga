@@ -87,6 +87,10 @@ void rotate(Byte* rotorShifts) {
   __m256i z = _mm256_and_si256(x, y);              // elementwise and
   z         = _mm256_shuffle_epi8(lookup_sum, z);  // sum over all elements using the lookup sum
 
+  // if the first entry is 0 invert enverything
+  __m256i mode = _mm256_set1_epi8(_mm256_extract_epi8(z, 0));
+  z            = _mm256_cmpeq_epi8(z, mode);
+
   // set each position of z to 0 or rotor intervals and add to values
   z              = _mm256_and_si256(z, rotor_intervals);
   __m256i values = _mm256_set_m128i(b, a);      // concatinate a and b to obtain initial rotor shifts
@@ -175,6 +179,11 @@ void rotate(Byte* rotorShifts) {
   z1         = _mm_shuffle_epi8(lookup_sum, z1);
   z2         = _mm_shuffle_epi8(lookup_sum, z2);
 
+  // if the first entry is 0 invert enverything
+  __m128i mode = _mm_set1_epi8(_mm_extract_epi8(z1, 0));
+  z1           = _mm_cmpeq_epi8(z1, mode);
+  z2           = _mm_cmpeq_epi8(z2, mode);
+
   // multyply the indicatorvariable z with the shifts
   z1 = _mm_and_si128(z1, rotor_intervals_1);
   z2 = _mm_and_si128(z2, rotor_intervals_2);
@@ -214,10 +223,15 @@ void rotate(Byte* rotorShifts) {
     x[2 * i]     = rotorShifts[i] & 0b00001111;  // the rightmost bits
     x[2 * i + 1] = rotorShifts[i] >> 4;          // the leftmost bits
   }
-  for (size_t i = 0; i < MAX_KEYLENGTH; i++) {
+
+  ++rotorShifts[0];
+  Byte mode = table[x[0]] & x[2 * MAX_KEYLENGTH - 1];
+  mode      = !(__builtin_popcount(mode) & 0b00000001);
+
+  for (size_t i = 1; i < MAX_KEYLENGTH; i++) {
     Byte val = table[x[i]];
-    val &= x[2 * MAX_KEYLENGTH - 1 - i];                                     // bitwise xor
-    rotorShifts[i] += (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);  // test val is uneven
+    val &= x[2 * MAX_KEYLENGTH - 1 - i];                                              // bitwise xor
+    rotorShifts[i] += (2 * i + 1) * ((mode ^ __builtin_popcount(val)) & 0b00000001);  // test val is uneven
   }
   free(table);
   free(x);
