@@ -8,6 +8,7 @@
 # Unignore makefile
 !Doxyfile
 !Makefile
+!LICENSE
 
 # no bin or build folders
 bin/
