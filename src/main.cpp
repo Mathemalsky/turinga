@@ -3,10 +3,6 @@
 #include <filesystem>
 #include <iostream>
 
-#ifdef _WIN32
-#include <windows.h>  // maybe no longer necesarry
-#endif
-
 #include "colors.hpp"
 #include "errors.hpp"
 #include "fileinteraction.hpp"
