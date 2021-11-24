@@ -76,8 +76,8 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   // encrypt the rest
   encrypt_block(
     bytes,
-    TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1],
-               key.fileShift},
+    TuringaKey{
+      key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1], key.fileShift},
     rotors, begin, bytes.size);
 
   // collect all threads
