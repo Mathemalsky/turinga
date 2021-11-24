@@ -176,7 +176,7 @@ BreakConstructorInitializers: BeforeComma
 BreakStringLiterals: true
 
 # The column limit
-ColumnLimit: 100
+ColumnLimit: 120
 
 # If the initializers do not fit into one line, put every one on its own
 ConstructorInitializerAllOnOneLineOrOnePerLine: true

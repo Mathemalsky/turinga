@@ -20,11 +20,11 @@ file(GLOB SOURCES "src/*.cpp")
 #lists all header files to be included in the project
 file(GLOB HEADERS "include/*.hpp")
 
+add_subdirectory(lib/CSPRNG)
+
 # print useful info about compiler setting
 message(STATUS "Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
-
-add_subdirectory(lib/csprng)
 
 #add all sourcefiles and headerfiles to the project
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
@@ -32,4 +32,4 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 # look for included files also in the following directories
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
-target_link_libraries(${PROJECT_NAME} csprng_lib)
+target_link_libraries(${PROJECT_NAME} lib_csprng)

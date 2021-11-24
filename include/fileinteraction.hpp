@@ -3,8 +3,10 @@
 /*! \file fileinteraction.hpp */
 
 #include <fstream>
-#include <vector>
+#include <string>
 
+#include "constants.hpp"
+#include "errors.hpp"
 #include "types.hpp"
 
 /** \def Assuming we are compiling with at least gcc 8.0 we can use std::filesystem and it's c++17
@@ -26,10 +28,13 @@ inline size_t file_size(const char* filename) {
 /*!
  * \brief detects how large the file is
  * \param filename Name of the considered file.
- * \return A size_t that is the size of the file in bytes.
+ * \return size_t that is the size of the file in bytes.
  */
 inline size_t file_size(const char* filename) {
   std::ifstream myfile(filename, std::ios::binary);
+  if (!myfile) {
+    throw FileNotFound(std::string(filename), "file_size");
+  }
   myfile.seekg(0, std::ios::end);
   const size_t size = myfile.tellg();
   return size;
@@ -50,7 +55,7 @@ inline size_t file_size(const char* filename) {
 #endif
 
 /*!
- * \brief reads one byte from file an ignore it
+ * \brief ignore_byte reads one byte from file an ignores it
  * \details This function is designed to ommit space or enter bytes which separetes data in file.
  * \param myfile determines from which file to read.
  */
@@ -60,11 +65,34 @@ inline void ignore_byte(std::istream& myfile) {
 }
 
 /*!
+ * \brief handleCrypt wraps up several function calls for encryption or decryption
+ * \param filename file to be encrypted/ decrypted
+ * \param outputfilename file where the output should be saved
+ * \param rotDirectory directory which contains the rotorfiles used by the key
+ * \param key defines the encryption
+ */
+void handleCrypt(const char* filename, const char* outputfilename, const char* rotDirectory, TuringaKey key);
+
+/*!
+ * \brief testForExistence tests a file of given name exists or not
+ * \param filename name of the file to test
+ * \return true if a file with the name filename exists, otherwise false
+ */
+bool testForExistence(const char* filename);
+
+/*!
+ * \brief findRotors detects the existence of rotorfiles
+ * \param path specifies the directory to search for rotors
+ * \return list of rotors found at the location given by path
+ */
+std::string findRotors(std::string path = STD_ROT_DIR);
+
+/*!
  * \brief reads the content of file into bytes
  * \details In case the direction is encrypt the fileShift from TuringaKey will be applied.
  * \param bytes a struct of type Data storing the files information
  * \param filename name of the file to be read
- * \param key the TuringaKey which will be apllied by reading the file
+ * \param key the TuringaKey which will be applied by reading the file
  */
 void read_file(Data& bytes, const char* filename, const TuringaKey& key);
 
@@ -88,7 +116,7 @@ TuringaKey readTuringaKey(const char* filename);
 /*!
  * \brief writes a TuringaKey to file with given filename
  * \param filename name of the file where the TuringaKey should be saved
- * \param key the TuringaKey wich should be written
+ * \param key the TuringaKey which should be written
  */
 void writeTuringaKey(const std::string filename, const TuringaKey& key);
 

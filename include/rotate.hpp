@@ -4,11 +4,6 @@
 
 #include "types.hpp"
 
-struct RotateArgs {
-  Byte* rotorShifts;
-  const size_t length;
-};
-
 /*!
  * \brief changes the substitution rule after each byte
  * This function maps the first n := length Bytes of rotorShifts to a n byte vector which will re-
@@ -22,13 +17,12 @@ struct RotateArgs {
  * \f$\pi\f$ is the bijective mapping from \f$\mathbb{F}_2^4\f$ to \f$\mathbb{F}_2^4\f$
  * which we obtain by considering the input vector as a coefficient vector of a binary
  * polynomial \f$g\f$ with \f$\deg(g) < 4\f$.
- * Then the output vector is the coeficcient vector of \f{equation*}{g^{-1}(x) \textrm{mod} x^4 + x
+ * Then the output vector is the coefficient vector of \f{equation*}{g^{-1}(x) \textrm{mod} x^4 + x
  * + 1\f}
  *
  * \authors Max, Jurek
  * \param fileShifts determines the current substitution
- * \param length number of rotors in use
  * \details This function replaces the rotation of wheels in enigma. This part is most critical for
  * security.
  */
-void rotate(RotateArgs args);
+void rotate(Byte* rotorShifts);

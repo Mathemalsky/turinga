@@ -1,21 +1,17 @@
 #include "turinga.hpp"
 
 #include <cmath>
-#include <cstddef>
 #include <cstring>
 #include <iostream>
-#include <string>
 #include <thread>
-#include <vector>
 
 #include <csprng.hpp>
 
 #include "constants.hpp"
 #include "fileinteraction.hpp"
-#include "mainerror.hpp"
 #include "measurement.hpp"
 #include "rotate.hpp"
-#include "types.hpp"
+#include "rotorgenerate.hpp"
 
 TuringaKey generateTuringaKey(const size_t keylength, const std::string& availableRotors) {
   Byte* rotorShifts           = (Byte*) malloc(MAX_KEYLENGTH);
@@ -29,11 +25,19 @@ TuringaKey generateTuringaKey(const size_t keylength, const std::string& availab
     rotorName = availableRotors[random() % numberOfRotors];
   }
   const size_t fileShift = random();
-  const TuringaKey key{0, keylength, rotorNames, rotorShifts, fileShift};
+  const TuringaKey key{encryption, keylength, rotorNames, rotorShifts, fileShift};
 
-  std::cout << timestamp(current_duration()) << "A key of length " << keylength
-            << " has been generated.\n";
+  std::cout << timestamp(current_duration()) << "A key of length " << keylength << " has been generated.\n";
   return key;
+}
+
+TuringaKey createStdKey() {
+  std::string rotorNames = findRotors();
+  if (rotorNames.length() == 0) {
+    generateRotor(VALID_ROT_NAMES.c_str());
+    rotorNames = VALID_ROT_NAMES;
+  }
+  return generateTuringaKey(STD_KEY_LENGTH, rotorNames);
 }
 
 // encrypts/ decrypts the files
@@ -62,12 +66,10 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
     // start a thread
     threads.push_back(std::thread(
       encrypt_block, std::ref(bytes),
-      TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[i], key.fileShift},
-      rotors, begin, end));
+      TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[i], key.fileShift}, rotors, begin, end));
     // prepair for next thread
-    RotateArgs args{rotorShiftsAry[i + 1], key.length};
     for (size_t j = begin; j < end; ++j) {  // rotate to start of next thread
-      rotate(args);
+      rotate(rotorShiftsAry[i + 1]);
     }
     begin = end;
     end += bytes.size / threadcount;
@@ -75,9 +77,7 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
 
   // encrypt the rest
   encrypt_block(
-    bytes,
-    TuringaKey{
-      key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1], key.fileShift},
+    bytes, TuringaKey{key.direction, key.length, key.rotorNames, rotorShiftsAry[threadcount - 1], key.fileShift},
     rotors, begin, bytes.size);
 
   // collect all threads
@@ -98,32 +98,30 @@ void encrypt(Data& bytes, TuringaKey& key, const Byte* rotors) {
   }
 }
 
-void encrypt_block(
-  Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end) {
+void encrypt_block(Data& bytes, TuringaKey key, const Byte* rotors, const size_t begin, const size_t end) {
   const size_t keylength = key.length;
-  RotateArgs args{key.rotorShifts, keylength};
 
   // encryption
-  if (key.direction == 0) {
+  if (key.direction == encryption) {
     for (size_t i = begin; i < end; ++i) {
       Byte tmp = bytes.bytes[i];
       for (size_t i = 0; i < keylength; ++i) {
         tmp = rotors[256 * i + ((tmp + key.rotorShifts[i]) % 256)];
       }
       bytes.bytes[i] = tmp;
-      rotate(args);
+      rotate(key.rotorShifts);
     }
   }
 
   // decryption
-  else if (key.direction == 1) {
+  else if (key.direction == decryption) {
     for (size_t i = begin; i < end; ++i) {
       Byte tmp = bytes.bytes[i];
       for (size_t i = 0; i < keylength; ++i) {
         tmp = rotors[256 * i + tmp] - key.rotorShifts[keylength - 1 - i];
       }
       bytes.bytes[i] = tmp;
-      rotate(args);
+      rotate(key.rotorShifts);
     }
   }
 }

@@ -1,18 +1,63 @@
 #include "fileinteraction.hpp"
 
 #include <cassert>
-#include <fstream>
 #include <iostream>
 #include <stdlib.h>
 
-#include "constants.hpp"
-#include "mainerror.hpp"
+#include "errors.hpp"
 #include "measurement.hpp"
+#include "turinga.hpp"
+
+#include <iostream>
+
+void handleCrypt(const char* filename, const char* outputfilename, const char* rotDirectory, TuringaKey key) {
+  Byte* rotors          = loadRotors(key, rotDirectory);
+  const size_t fileSize = file_size(filename);
+  Byte* data            = (Byte*) malloc(fileSize);
+  Data bytes{data, fileSize};
+  read_file(bytes, filename, key);
+  encrypt(bytes, key, rotors);
+  write_file(bytes, outputfilename, key);
+
+  free(rotors);
+  free(bytes.bytes);
+  free(key.rotorShifts);
+}
+
+bool testForExistence(const char* filename) {
+  bool result;
+  FILE* file = fopen(filename, "rb");
+  if (!file) {
+    result = false;
+  }
+  else {
+    result = true;
+    fclose(file);
+  }
+  return result;
+}
+
+std::string findRotors(std::string path) {
+  std::string rotorsFound = "";
+  path += "rotor_";
+  for (unsigned int i = 0; i < VALID_ROT_NAMES.size(); ++i) {
+    std::string filename = path + VALID_ROT_NAMES[i];
+    if (!testForExistence(filename.c_str())) {
+      continue;
+    }
+    filename += "_reverse";
+    if (!testForExistence(filename.c_str())) {
+      continue;
+    }
+    rotorsFound += VALID_ROT_NAMES[i];
+  }
+  return rotorsFound;
+}
 
 void read_file(Data& bytes, const char* filename, const TuringaKey& key) {
   FILE* myfile = fopen(filename, "rb");
   if (!myfile) {
-    throw File_not_found(filename, "read_file");
+    throw FileNotFound("read_file", filename);
   }
 
   size_t size = 0;
@@ -32,7 +77,7 @@ void read_file(Data& bytes, const char* filename, const TuringaKey& key) {
 void write_file(const Data& bytes, const char* filename, const TuringaKey& key) {
   FILE* myfile = fopen(filename, "wb");
   if (!myfile) {
-    throw Cannot_create_file(filename, "write_file");
+    throw CannotCreateFile("write_file", filename);
   }
   if (key.direction == 0) {
     fwrite(bytes.bytes, 1, bytes.size, myfile);
@@ -50,13 +95,15 @@ void write_file(const Data& bytes, const char* filename, const TuringaKey& key) 
 TuringaKey readTuringaKey(const char* filename) {
   std::ifstream myfile(filename, std::ios::in);
   if (!myfile) {
-    throw File_not_found(filename, "readTuringaKey");
+    throw FileNotFound("readTuringaKey", filename);
   }
 
-  int direction;
+  int dir;
   size_t keylength;
-  myfile >> direction;
+  myfile >> dir;
   myfile >> keylength;
+
+  Direction direction = (dir == 0) ? encryption : decryption;
 
   std::vector<char> rotorNames(keylength);
   for (size_t i = 0; i < keylength; ++i) {
@@ -79,17 +126,17 @@ TuringaKey readTuringaKey(const char* filename) {
 void writeTuringaKey(const std::string filename, const TuringaKey& key) {
   std::ofstream myfile(filename, std::ios::binary);
   if (!myfile) {
-    throw Cannot_create_file(filename, "writeTuringaKey");
+    throw CannotCreateFile("writeTuringaKey", filename);
   }
-  myfile << key.direction << " " << key.length << " ";
+  int dir = (key.direction == encryption) ? 0 : 1;
+  myfile << dir << " " << key.length << " ";
   for (auto& character : key.rotorNames) {
     myfile << character;
   }
   myfile << " " << key.fileShift << std::endl;
   myfile.write((char*) key.rotorShifts, MAX_KEYLENGTH);
   assert(myfile.fail() == 0 && "Couldn't write correctly!");
-  std::cout << timestamp(current_duration()) << "Turinga key has been written to <" << filename
-            << ">.\n";
+  std::cout << timestamp(current_duration()) << "Turinga key has been written to <" << filename << ">.\n";
 }
 
 Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {
@@ -97,10 +144,10 @@ Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {
   prefix += "/rotor_";
   std::string suffix, filename;
   if (key.direction == 0) {
-    suffix = ".txt";
+    suffix = "";
   }
   else if (key.direction == 1) {
-    suffix = "_reverse.txt";
+    suffix = "_reverse";
   }
 
   Byte* wheels = (Byte*) malloc(256 * key.length);
@@ -114,7 +161,7 @@ Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {
     const char* new_filename = filename.c_str();
     FILE* myfile             = fopen(new_filename, "rb");
     if (!myfile) {
-      throw File_not_found(new_filename, "loadRotors");
+      throw FileNotFound("loadRotors", new_filename);
     }
 
 // disable gcc warning -Wunsused-variable

@@ -7,11 +7,10 @@
 #endif
 
 #include "constants.hpp"
-#include "types.hpp"
 
 // rotates the wheels,
 // wheel rotation is determined by a bent function on the current state of rotorShifts
-void rotate(RotateArgs args) {
+void rotate(Byte* rotorShifts) {
 /***************************************************************************************************
  *                                      AVX2 version
  **************************************************************************************************/
@@ -21,25 +20,24 @@ void rotate(RotateArgs args) {
 #pragma GCC diagnostic ignored "-Woverflow"
   const __m256i low     = _mm256_set1_epi8(0b00001111);  // low bit mask
   const __m256i reverse = _mm256_setr_epi8(
-    15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4,
-    3, 2, 1, 0);
+    15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
   const __m256i table = _mm256_setr_epi8(
-    0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110, 0b1111, 0b0010, 0b1100, 0b0101,
-    0b1010, 0b0100, 0b0011, 0b1000, 0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110,
-    0b1111, 0b0010, 0b1100, 0b0101, 0b1010, 0b0100, 0b0011, 0b1000);  // lookup table for inverting
+    0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110, 0b1111, 0b0010, 0b1100, 0b0101, 0b1010, 0b0100,
+    0b0011, 0b1000, 0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110, 0b1111, 0b0010, 0b1100, 0b0101,
+    0b1010, 0b0100, 0b0011, 0b1000);  // lookup table for inverting
   const __m256i lookup_sum = _mm256_setr_epi8(
-    0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
-    0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000,
-    0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
-    0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000);
+    0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b11111111,
+    0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
+    0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b00000000,
+    0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000);
   const __m256i rotor_intervals = _mm256_setr_epi8(
-    1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49,
-    51, 53, 55, 57, 59, 61, 63);  // lookup table: i-th entry is 2*i +1
+    1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59,
+    61, 63);  // lookup table: i-th entry is 2*i +1
 // enable gcc warning -Woverflow
 #pragma GCC diagnostic pop
 
-  __m128i a = _mm_loadu_si128(((__m128i*) args.rotorShifts));      // load the first 16 byte ino a
-  __m128i b = _mm_loadu_si128(((__m128i*) args.rotorShifts) + 1);  // load the last 16 byte into b
+  __m128i a = _mm_loadu_si128(((__m128i*) rotorShifts));      // load the first 16 byte ino a
+  __m128i b = _mm_loadu_si128(((__m128i*) rotorShifts) + 1);  // load the last 16 byte into b
 
   // spread each byte into 2 (only in the lower 8 bit)
   __m256i x = _mm256_cvtepu8_epi16(a);
@@ -74,10 +72,10 @@ void rotate(RotateArgs args) {
 
   // set each position of z to 0 or rotor intervals and add to values
   z              = _mm256_and_si256(z, rotor_intervals);
-  __m256i values = _mm256_set_m128i(b, a);  // concatinate a and b to obtain initial rotor shifts
+  __m256i values = _mm256_set_m128i(b, a);      // concatinate a and b to obtain initial rotor shifts
   values         = _mm256_add_epi8(values, z);  // add z to the values
 
-  _mm256_storeu_si256((__m256i*) args.rotorShifts, values);  // finally store rotor shifts
+  _mm256_storeu_si256((__m256i*) rotorShifts, values);  // finally store rotor shifts
 /***************************************************************************************************
  *                                      SSE version
  **************************************************************************************************/
@@ -91,22 +89,20 @@ void rotate(RotateArgs args) {
   // table for inverting polynomial  in GF(2) of degree <= 3 mod x^4 + x +1
   const __m128i reverseOrder = _mm_setr_epi8(15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
   const __m128i table        = _mm_setr_epi8(
-    0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110, 0b1111, 0b0010, 0b1100, 0b0101,
-    0b1010, 0b0100, 0b0011, 0b1000);
+    0b0000, 0b0001, 0b1001, 0b1110, 0b1101, 0b1011, 0b0111, 0b0110, 0b1111, 0b0010, 0b1100, 0b0101, 0b1010, 0b0100,
+    0b0011, 0b1000);
   const __m128i lookup_sum = _mm_setr_epi8(
-    0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
-    0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000);
-  const __m128i rotor_intervals_1 =
-    _mm_setr_epi8(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31);
-  const __m128i rotor_intervals_2 =
-    _mm_setr_epi8(33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63);
-  const __m128i shuffle_high = _mm_setr_epi8(8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7);
+    0b00000000, 0b11111111, 0b11111111, 0b00000000, 0b11111111, 0b00000000, 0b00000000, 0b11111111, 0b11111111,
+    0b00000000, 0b00000000, 0b11111111, 0b00000000, 0b11111111, 0b11111111, 0b00000000);
+  const __m128i rotor_intervals_1 = _mm_setr_epi8(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31);
+  const __m128i rotor_intervals_2 = _mm_setr_epi8(33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63);
+  const __m128i shuffle_high      = _mm_setr_epi8(8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7);
 // enable gcc warning -Woverflow
 #pragma GCC diagnostic pop
 
   // load bytes from rotorShifts
-  __m128i values1 = _mm_loadu_si128((__m128i*) args.rotorShifts);
-  __m128i values2 = _mm_loadu_si128((__m128i*) args.rotorShifts + 1);
+  __m128i values1 = _mm_loadu_si128((__m128i*) rotorShifts);
+  __m128i values2 = _mm_loadu_si128((__m128i*) rotorShifts + 1);
 
   // prepair the vectors for scalar products
   __m128i x1, x2, x3, x4, y1, y2, y3, y4;
@@ -171,8 +167,8 @@ void rotate(RotateArgs args) {
   values2 = _mm_add_epi8(values2, z2);
 
   // save the maipulated rotorshifts
-  _mm_storeu_si128((__m128i*) args.rotorShifts, values1);
-  _mm_storeu_si128((__m128i*) args.rotorShifts + 1, values2);
+  _mm_storeu_si128((__m128i*) rotorShifts, values1);
+  _mm_storeu_si128((__m128i*) rotorShifts + 1, values2);
 #else
   /***************************************************************************************************
    *                                 standard version
@@ -198,14 +194,13 @@ void rotate(RotateArgs args) {
 
   Byte* x = (Byte*) malloc(MAX_KEYLENGTH * 2);
   for (size_t i = 0; i < MAX_KEYLENGTH; i++) {
-    x[2 * i]     = args.rotorShifts[i] & 0b00001111;  // the rightmost bits
-    x[2 * i + 1] = args.rotorShifts[i] >> 4;          // the leftmost bits
+    x[2 * i]     = rotorShifts[i] & 0b00001111;  // the rightmost bits
+    x[2 * i + 1] = rotorShifts[i] >> 4;          // the leftmost bits
   }
   for (size_t i = 0; i < MAX_KEYLENGTH; i++) {
     Byte val = table[x[i]];
-    val &= x[2 * MAX_KEYLENGTH - 1 - i];  // bitwise and
-    args.rotorShifts[i] +=
-      (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);  // test val is uneven
+    val &= x[2 * MAX_KEYLENGTH - 1 - i];                                     // bitwise xor
+    rotorShifts[i] += (2 * i + 1) * (__builtin_popcount(val) & 0b00000001);  // test val is uneven
   }
   free(table);
   free(x);
