@@ -1,5 +1,6 @@
 #include "rotorgenerate.hpp"
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
@@ -46,6 +47,7 @@ void generateRotor(const char* rotorNames) {
     print_yellow("WARNING: ");
     std::cout << "You're about to generate a very weak key!\n";
   }
+  std::filesystem::create_directory(STD_ROT_DIR);
   for (size_t i = 0; i < str_rotorNames.length(); ++i) {
     std::string name = STD_ROT_DIR + "rotor_" + str_rotorNames[i];
     FILE* myfile     = fopen(name.c_str(), "wb");

@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cstring>
+#include <filesystem>
 #include <iostream>
 
 #ifdef _WIN32
@@ -112,6 +113,7 @@ int main(int argc, char** argv) {
           key = readTuringaKey((STD_KEY_DIR + STD_KEY).c_str());
         }
         else {
+          std::filesystem::create_directory(STD_KEY_DIR);
           key = createStdKey();
           writeTuringaKey((STD_KEY_DIR + STD_KEY).c_str(), key);
           key.direction = decryption;
