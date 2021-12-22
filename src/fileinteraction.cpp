@@ -78,7 +78,7 @@ void read_file(Data& bytes, const char* filename, const TuringaKey& key) {
   }
 
   size_t size = 0;
-  if (key.direction == 0) {
+  if (key.direction == encryption) {
     int position = key.fileShift % bytes.size;
     size += fread(bytes.bytes + position, 1, bytes.size - position, myfile);
     size += fread(bytes.bytes, 1, position, myfile);
@@ -96,7 +96,7 @@ void write_file(const Data& bytes, const char* filename, const TuringaKey& key) 
   if (!myfile) {
     throw CannotCreateFile("write_file", filename);
   }
-  if (key.direction == 0) {
+  if (key.direction == encryption) {
     fwrite(bytes.bytes, 1, bytes.size, myfile);
   }
   else {
@@ -169,10 +169,10 @@ Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {
 
   Byte* wheels = (Byte*) malloc(256 * key.length);
   for (size_t i = 0; i < key.length; ++i) {
-    if (key.direction == 0) {
+    if (key.direction == encryption) {
       filename = prefix + key.rotorNames[i] + suffix;
     }
-    else if (key.direction == 1) {
+    else if (key.direction == decryption) {
       filename = prefix + key.rotorNames[key.length - 1 - i] + suffix;
     }
     const char* new_filename = filename.c_str();
