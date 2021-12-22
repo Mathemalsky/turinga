@@ -77,16 +77,13 @@ jobs:
       if: success()
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
-    # zip the binary file
-    - name: zipping file
-      run: zip -r turinga21-windows.zip bin
     
     # upload files to artifacts
     - name: upload zips to GitHub actions artifact storage
       uses: actions/upload-artifact@v2
       with:
         name: turinga21-${{needs.build.outputs.release_name}}-windows
-        path: ${{github.workspace}}/turinga21-windows.zip
+        path: bin
         
   # autogenrate releases
   release:
