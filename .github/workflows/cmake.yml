@@ -86,7 +86,7 @@ jobs:
         upload_url: ${{needs.preparation.outputs.upload_url}} 
         asset_name: turinga21-${{needs.preparation.outputs.release_name}}-${{matrix.os}}${{matrix.flags}}
         asset_path: bin/turinga21
-        #asset_content_type: application/zip
+        asset_content_type: application/x-elf
     
     # upload all files to GitHub       
     - name: upload windows release
@@ -97,5 +97,6 @@ jobs:
       with:
         upload_url: ${{needs.preparation.outputs.upload_url}} 
         asset_name: turinga21-${{needs.preparation.outputs.release_name}}-${{matrix.os}}${{matrix.flags}}.exe
-        asset_path: bin/turinga21.exe   
+        asset_path: bin/turinga21.exe
+        asset_content_type: application/x-msdownload
 
