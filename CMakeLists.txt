@@ -19,16 +19,19 @@ cmake_minimum_required(VERSION 3.10)
 # project name is defined here
 project(turinga21)
 
+# not build in CI by default
+OPTION(CIBuild "Configuration for build in CI" OFF)
+
 # specify where the output should be compiled
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/bin)
 
-# set the compiler to gcc
-set(CMAKE_CXX_COMPILER g++)
-
 # set the compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -march=native -pthread -Wall -Wextra -pedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -pthread -Wall -Wextra -pedantic")
+if(${CIBuild} STREQUAL OFF)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+endif()
 
 # lists all sourcefiles to be compiled with the project
 file(GLOB SOURCES "src/*.cpp")
@@ -48,4 +51,4 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 # look for included files also in the following directories
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
-target_link_libraries(${PROJECT_NAME} lib_csprng)
+target_link_libraries(${PROJECT_NAME} lib_csprng stdc++)
