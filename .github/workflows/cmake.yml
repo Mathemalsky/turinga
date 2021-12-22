@@ -70,7 +70,7 @@ jobs:
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       if: success()
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "MSYS Makefiles" -DCMAKE_CXX_COMPILER="C:/msys64/mingw64/bin/clang.exe" -DCMAKE_C_COMPILER="C:/msys64/mingw64/bin/clang.exe" -DCMAKE_CXX_FLAGS="-lstdc++"
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "MSYS Makefiles" -DCMAKE_CXX_COMPILER="C:/msys64/mingw64/bin/clang.exe" -DCMAKE_C_COMPILER="C:/msys64/mingw64/bin/clang.exe"
 
     - name: Build
       # Build your program with the given configuration
@@ -79,12 +79,10 @@ jobs:
 
     # zip the binary file
     - name: zipping file
-      if: github.ref == 'refs/heads/master'
       run: zip -r turinga21-windows.zip bin
     
     # upload files to artifacts
     - name: upload zips to GitHub actions artifact storage
-      if: github.ref == 'refs/heads/master'
       uses: actions/upload-artifact@v2
       with:
         name: turinga21-${{needs.build.outputs.release_name}}-windows
