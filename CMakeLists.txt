@@ -46,4 +46,4 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 # look for included files also in the following directories
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
-target_link_libraries(${PROJECT_NAME} lib_csprng libstdc++)
+target_link_libraries(${PROJECT_NAME} lib_csprng stdc++)
