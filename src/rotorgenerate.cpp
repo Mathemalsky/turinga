@@ -1,6 +1,6 @@
 /*
  * Turinga is a simple symmetric encryption scheme based on ideas from enigma.
- * Copyright (C) 2021  Mathemalsky, MilchRatchet
+ * Copyright (C) 2022 Mathemalsky, MilchRatchet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string>
-#include <time.h>
 
 #include "colors.hpp"
 #include "constants.hpp"
@@ -38,9 +37,9 @@ static Byte* order_256() {
   return order;
 }
 
-static Byte* permutaion(Byte* array) {
+static Byte* permutaion(Byte* array, const unsigned int seed) {
   size_t a;
-  srand(time(NULL));
+  srand(seed);
   for (size_t i = 0; i < 256; ++i) {
     a = rand() % (256 - i);
     std::swap(array[a], array[255 - i]);
@@ -56,14 +55,10 @@ static Byte* invert(const Byte* perm) {
   return inv_perm;
 }
 
-void generateRotor(const char* rotorNames) {
-  Byte* perm     = permutaion(order_256());
+void generateRotor(const char* rotorNames, const unsigned int seed) {
+  Byte* perm     = permutaion(order_256(), seed);
   Byte* inv_perm = invert(perm);
   std::string str_rotorNames(rotorNames);
-  if (str_rotorNames.length() <= 10) {
-    print_yellow("WARNING: ");
-    std::cout << "You're about to generate a very weak key!\n";
-  }
   std::filesystem::create_directory(STD_ROT_DIR);
   for (size_t i = 0; i < str_rotorNames.length(); ++i) {
     std::string name = STD_ROT_DIR + "rotor_" + str_rotorNames[i];
@@ -84,5 +79,5 @@ void generateRotor(const char* rotorNames) {
   free(perm);
   free(inv_perm);
   std::cout << timestamp(current_duration()) << "Rotors with the following names have been generated: <"
-            << str_rotorNames << ">\n";
+            << str_rotorNames << "> Used seed: " << seed << "\n";
 }

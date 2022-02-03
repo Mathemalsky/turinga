@@ -1,6 +1,6 @@
 /*
  * Turinga is a simple symmetric encryption scheme based on ideas from enigma.
- * Copyright (C) 2021  Mathemalsky, MilchRatchet
+ * Copyright (C) 2022 Mathemalsky, MilchRatchet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,4 +23,4 @@
  * \brief generateRotor generates new rotors for the names
  * \param rotorsNames all chars corresponding to a rotors name
  */
-void generateRotor(const char* rotorsNames);
+void generateRotor(const char* rotorNames, const unsigned int seed = 0);
