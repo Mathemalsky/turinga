@@ -90,7 +90,12 @@ int main(int argc, char** argv) {
     // generate Rotors
     else if (std::strcmp(argv[1], "genRot") == 0) {
       if (argc == 2) {
-        throw InappropriateNumberOfArguments("main", 3, argc);
+        // generate all valid rotors with default seed 0
+        generateRotor(VALID_ROT_NAMES.c_str());
+      }
+      else if (argc == 3 && std::strcmp(argv[2], "-r") == 0) {
+        // generate all valid rotors with random seed
+        generateRotor(VALID_ROT_NAMES.c_str(), time(NULL));
       }
       else if (argc == 3) {
         // generate rotors using the default seed 0

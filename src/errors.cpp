@@ -133,8 +133,12 @@ void syntaxGenerateRotors() {
   std::cout << "    seed        : unsigned integer used as seed for generation\n";
   std::cout << "- ./" << PROJECTNAME << " genRot <rotor names>\n";
   std::cout << "                  use seed 0 for generation\n";
+  std::cout << "- ./" << PROJECTNAME << " genRot\n";
+  std::cout << "                  generate all valid rotors with default seed 0\n";
   std::cout << "- ./" << PROJECTNAME << " genRot <rotor names> -r\n";
   std::cout << "                  use a random seed for generation\n";
+  std::cout << "- ./" << PROJECTNAME << " genRot -r\n";
+  std::cout << "                  generate all valid rotors with default seed 0\n";
 }
 
 void syntaxHelp() {
