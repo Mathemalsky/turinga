@@ -80,11 +80,11 @@ void read_file(Data& bytes, const char* filename, const TuringaKey& key) {
   size_t size = 0;
   if (key.direction == encryption) {
     int position = key.fileShift % bytes.size;
-    size += fread(bytes.bytes + position, 1, bytes.size - position, myfile);
-    size += fread(bytes.bytes, 1, position, myfile);
+    size += fread(bytes.bytes + position, 1, bytes.size - position, myfile) * sizeof(Byte);
+    size += fread(bytes.bytes, 1, position, myfile) * sizeof(Byte);
   }
   else {
-    size = fread(bytes.bytes, 1, bytes.size, myfile);
+    size = fread(bytes.bytes, 1, bytes.size, myfile) * sizeof(Byte);
   }
   fclose(myfile);
   assert(size == bytes.size && "Incomplete read of file!");
@@ -110,49 +110,46 @@ void write_file(const Data& bytes, const char* filename, const TuringaKey& key) 
 
 // read the Turinga key
 TuringaKey readTuringaKey(const char* filename) {
-  std::ifstream myfile(filename, std::ios::in);
+  FILE* myfile = fopen(filename, "rb");
   if (!myfile) {
     throw FileNotFound("readTuringaKey", filename);
   }
 
-  int dir;
-  size_t keylength;
-  myfile >> dir;
-  myfile >> keylength;
+  unsigned int size = 0;
+  Byte init;
+  size += fread(&init, sizeof(Byte), 1, myfile) * sizeof(Byte);
+  Byte dir       = init & 0b10000000;
+  Byte keylength = init & 0b01111111;
 
   Direction direction = (dir == 0) ? encryption : decryption;
 
   std::vector<char> rotorNames(keylength);
-  for (size_t i = 0; i < keylength; ++i) {
-    myfile >> rotorNames[i];
-  }
+  size += fread(&rotorNames[0], sizeof(char), keylength, myfile) * sizeof(char);
 
   size_t fileShift;
-  myfile >> fileShift;
-
-  ignore_byte(myfile);
+  size += fread(&fileShift, sizeof(size_t), 1, myfile) * sizeof(size_t);
 
   Byte* rotorShifts = (Byte*) malloc(MAX_KEYLENGTH);
-  myfile.read((char*) rotorShifts, MAX_KEYLENGTH);
-  assert(myfile.fail() == 0 && "Couldn't read correctly!");
+  size += fread(rotorShifts, sizeof(Byte), MAX_KEYLENGTH, myfile) * sizeof(Byte);
+
+  assert(size == 1 + MAX_KEYLENGTH + sizeof(size_t) + (unsigned int) keylength && "Incorrect read of key!");
+
   const TuringaKey key{direction, keylength, rotorNames, rotorShifts, fileShift};
   std::cout << timestamp(current_duration()) << "Turinga key has been read.\n";
   return key;
 }
 
 void writeTuringaKey(const std::string filename, const TuringaKey& key) {
-  std::ofstream myfile(filename, std::ios::binary);
+  FILE* myfile = fopen(filename.c_str(), "wb");
   if (!myfile) {
     throw CannotCreateFile("writeTuringaKey", filename);
   }
-  int dir = (key.direction == encryption) ? 0 : 1;
-  myfile << dir << " " << key.length << " ";
-  for (auto& character : key.rotorNames) {
-    myfile << character;
-  }
-  myfile << " " << key.fileShift << std::endl;
-  myfile.write((char*) key.rotorShifts, MAX_KEYLENGTH);
-  assert(myfile.fail() == 0 && "Couldn't write correctly!");
+  Byte init = (key.direction == encryption) ? 0b00000000 : 0b10000000;
+  init += key.length;  // assemble infor for direction and length into one byte
+  fwrite(&init, sizeof(Byte), 1, myfile);
+  fwrite(&key.rotorNames[0], sizeof(char), key.length, myfile);
+  fwrite(&key.fileShift, sizeof(size_t), 1, myfile);
+  fwrite(key.rotorShifts, sizeof(Byte), MAX_KEYLENGTH, myfile);
   std::cout << timestamp(current_duration()) << "Turinga key has been written to <" << filename << ">.\n";
 }
 
