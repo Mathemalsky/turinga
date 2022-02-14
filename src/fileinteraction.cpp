@@ -1,6 +1,6 @@
 /*
  * Turinga is a simple symmetric encryption scheme based on ideas from enigma.
- * Copyright (C) 2021  Mathemalsky, MilchRatchet
+ * Copyright (C) 2022  Mathemalsky, MilchRatchet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -134,6 +134,7 @@ TuringaKey readTuringaKey(const char* filename) {
 
   assert(size == 1 + MAX_KEYLENGTH + sizeof(size_t) + (unsigned int) keylength && "Incorrect read of key!");
 
+  fclose(myfile);
   const TuringaKey key{direction, keylength, rotorNames, rotorShifts, fileShift};
   std::cout << timestamp(current_duration()) << "Turinga key has been read.\n";
   return key;
@@ -150,6 +151,7 @@ void writeTuringaKey(const std::string filename, const TuringaKey& key) {
   fwrite(&key.rotorNames[0], sizeof(char), key.length, myfile);
   fwrite(&key.fileShift, sizeof(size_t), 1, myfile);
   fwrite(key.rotorShifts, sizeof(Byte), MAX_KEYLENGTH, myfile);
+  fclose(myfile);
   std::cout << timestamp(current_duration()) << "Turinga key has been written to <" << filename << ">.\n";
 }
 
