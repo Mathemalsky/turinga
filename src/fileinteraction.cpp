@@ -123,8 +123,8 @@ TuringaKey readTuringaKey(const char* filename) {
 
   Direction direction = (dir == 0) ? encryption : decryption;
 
-  std::vector<char> rotorNames(keylength);
-  size += fread(&rotorNames[0], sizeof(char), keylength, myfile) * sizeof(char);
+  char* rotorNames = (char*) malloc(keylength);
+  size += fread(rotorNames, sizeof(char), keylength, myfile) * sizeof(char);
 
   size_t fileShift;
   size += fread(&fileShift, sizeof(size_t), 1, myfile) * sizeof(size_t);
@@ -148,7 +148,7 @@ void writeTuringaKey(const std::string filename, const TuringaKey& key) {
   Byte init = (key.direction == encryption) ? 0b00000000 : 0b10000000;
   init += key.length;  // assemble infor for direction and length into one byte
   fwrite(&init, sizeof(Byte), 1, myfile);
-  fwrite(&key.rotorNames[0], sizeof(char), key.length, myfile);
+  fwrite(key.rotorNames, sizeof(char), key.length, myfile);
   fwrite(&key.fileShift, sizeof(size_t), 1, myfile);
   fwrite(key.rotorShifts, sizeof(Byte), MAX_KEYLENGTH, myfile);
   fclose(myfile);
