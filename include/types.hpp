@@ -18,6 +18,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdlib>
 
 using Byte = unsigned char; /**< To simplify expressions use the intuitive definition. */
 
@@ -50,3 +51,13 @@ struct TuringaKey {
                           will be changed by the rotate function after each encrypted Byte */
   size_t fileShift;    /**< the bytes will be shifted (mod filesize) by fileShift */
 };
+
+/*!
+ * \brief freeTuringaKey frees the memory allocated for the key
+ * \param key specifies the key to be freed
+ * \details rotorNames and rotorShifts are pointers which need to be freed in order avoid memory leaks
+ */
+inline void freeTuringaKey(TuringaKey key) {
+  free(key.rotorNames);
+  free(key.rotorShifts);
+}
