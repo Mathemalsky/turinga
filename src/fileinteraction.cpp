@@ -38,7 +38,7 @@ void handleCrypt(const char* filename, const char* outputfilename, const char* r
 
   free(rotors);
   free(bytes.bytes);
-  free(key.rotorShifts);
+  freeTuringaKey(key);
 }
 
 bool testForExistence(const char* filename) {
