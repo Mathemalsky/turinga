@@ -1,6 +1,6 @@
 /*
  * Turinga is a simple symmetric encryption scheme based on ideas from enigma.
- * Copyright (C) 2022  Mathemalsky, MilchRatchet
+ * Copyright (C) 2022 Mathemalsky, MilchRatchet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,6 +90,7 @@ void syntax() {
   std::cout << "Valid options are:\n";
   syntaxCrypt();
   syntaxGenerateKey();
+  syntaxGenerateRotors();
   syntaxHelp();
 }
 
@@ -101,7 +102,6 @@ void syntaxCrypt() {
                "encrypt/decrypt\n";
   std::cout << "    rotors      : path to the directory where the rotor files are stored\n";
   std::cout << "    output_file : path and filename (with ending) to write the file into\n";
-
   std::cout << "- " << EXECUTE << " <input_file>\n";
   std::cout << "    input_file  : path and filename (with ending) of the file to be encrypted\n";
   std::cout << "                  <key> is assumed to be default, which is <" << STD_KEY_DIR << STD_KEY << ">.\n";
@@ -111,7 +111,6 @@ void syntaxCrypt() {
   std::cout << "                  If <" << STD_ROT_DIR
             << "> is empty all Rotors with valid names will be generated there in before generating the keys.\n";
   std::cout << "                  <output_file> is assumed to be <input_file> appended by the suffix <.tur>.\n";
-
   std::cout << "- " << EXECUTE << " -d <input_file>\n";
   std::cout << "    input_file  : path and filename (with ending) of the file to be decrypted\n";
   std::cout << "                  <key> is assumed to be default, which is <" << STD_KEY_DIR << STD_KEY_INV << ">.\n";
@@ -131,12 +130,21 @@ void syntaxGenerateKey() {
 }
 
 void syntaxGenerateRotors() {
-  std::cout << "- " << EXECUTE << " genRot <rotor names>\n";
+  std::cout << "- " << EXECUTE << " genRot <rotor names> <seed>\n";
   std::cout << "    rotor names : string of all rotor names (1 character each) to be generated.\n";
+  std::cout << "    seed        : unsigned integer used as seed for generation\n";
+  std::cout << "- " << EXECUTE << " genRot <rotor names>\n";
+  std::cout << "                  use seed 0 for generation\n";
+  std::cout << "- " << EXECUTE << " genRot\n";
+  std::cout << "                  generate all valid rotors with default seed 0\n";
+  std::cout << "- " << EXECUTE << " genRot <rotor names> -r\n";
+  std::cout << "                  use a random seed for generation\n";
+  std::cout << "- " << EXECUTE << " genRot -r\n";
+  std::cout << "                  generate all valid rotors with a random seed\n";
 }
 
 void syntaxHelp() {
-  std::cout << "- " << EXECUTE << " <command>\n";
+  std::cout << "- " << EXECUTE << " help <command>\n";
   std::cout << "    command     : command you want to see detailed information about\n";
-  std::cout << "                  options are: <crypt>, <generate> and <help>\n";
+  std::cout << "                  options are: <crypt>, <genKey>, <genRot> and <help>\n";
 }

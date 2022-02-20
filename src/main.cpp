@@ -1,6 +1,6 @@
 /*
  * Turinga is a simple symmetric encryption scheme based on ideas from enigma.
- * Copyright (C) 2021  Mathemalsky, MilchRatchet
+ * Copyright (C) 2022 Mathemalsky, MilchRatchet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
           }
         }
         else {
-          // get the Rotors by input
+          // get the rotors by input
           availableRotors = argv[4];
         }
         const char* keyfile     = argv[2];
@@ -90,10 +90,24 @@ int main(int argc, char** argv) {
     // generate Rotors
     else if (std::strcmp(argv[1], "genRot") == 0) {
       if (argc == 2) {
-        throw InappropriateNumberOfArguments("main", 3, argc);
+        // generate all valid rotors with default seed 0
+        generateRotor(VALID_ROT_NAMES.c_str());
+      }
+      else if (argc == 3 && std::strcmp(argv[2], "-r") == 0) {
+        // generate all valid rotors with random seed
+        generateRotor(VALID_ROT_NAMES.c_str(), time(NULL));
+      }
+      else if (argc == 3) {
+        // generate rotors using the default seed 0
+        generateRotor(argv[2]);
+      }
+      else if (std::strcmp(argv[3], "-r") == 0) {
+        // generate rotors using a random seed
+        generateRotor(argv[2], time(NULL));
       }
       else {
-        generateRotor(argv[2]);
+        // generate rotors using a given seed
+        generateRotor(argv[2], std::atoi(argv[3]));
       }
     }
     // encrypt or decrypt
