@@ -1,6 +1,6 @@
 /*
  * Turinga is a simple symmetric encryption scheme based on ideas from enigma.
- * Copyright (C) 2021  Mathemalsky, MilchRatchet
+ * Copyright (C) 2022  Mathemalsky, MilchRatchet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,3 +31,9 @@ inline const std::string STD_KEY_DIR     = "keys/";
 inline const unsigned int STD_KEY_LENGTH = 10;
 inline const std::string STD_ROT_DIR     = "rotors/";
 inline const std::string VALID_ROT_NAMES = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+#ifdef _WIN32
+inline const std::string EXECUTE = PROJECTNAME + ".exe";
+#else
+inline const std::string EXECUTE = "./" + PROJECTNAME;
+#endif

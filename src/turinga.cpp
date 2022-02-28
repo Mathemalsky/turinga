@@ -1,6 +1,6 @@
 /*
  * Turinga is a simple symmetric encryption scheme based on ideas from enigma.
- * Copyright (C) 2021  Mathemalsky, MilchRatchet
+ * Copyright (C) 2022  Mathemalsky, MilchRatchet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include <cstring>
 #include <iostream>
 #include <thread>
+#include <vector>
 
 #include <csprng.hpp>
 
@@ -37,9 +38,9 @@ TuringaKey generateTuringaKey(const size_t keylength, const std::string& availab
   for (size_t i = 0; i < MAX_KEYLENGTH; ++i) {
     rotorShifts[i] = random();
   }
-  std::vector<char> rotorNames(keylength);
-  for (char& rotorName : rotorNames) {
-    rotorName = availableRotors[random() % numberOfRotors];
+  char* rotorNames = (char*) malloc(keylength);
+  for (unsigned int i = 0; i < keylength; ++i) {
+    rotorNames[i] = availableRotors[random() % numberOfRotors];
   }
   const size_t fileShift = random();
   const TuringaKey key{encryption, keylength, rotorNames, rotorShifts, fileShift};

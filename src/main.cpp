@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
         writeTuringaKey(keyfilePath + ".key", key);
         key.direction = decryption;
         writeTuringaKey(keyfilePath + "_inv.key", key);
-        free(key.rotorShifts);
+        freeTuringaKey(key);
         if (keylength < 8) {
           print_yellow("WARNING: ");
           std::cout << "You generated a short key, which may be insecure.\n";
@@ -148,6 +148,7 @@ int main(int argc, char** argv) {
         key.direction = encryption;
       }
       testRotate(key);
+      freeTuringaKey(key);
     }
     else {
       if (testForExistence(argv[1])) {
