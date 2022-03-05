@@ -51,7 +51,7 @@ jobs:
     needs: [preparation]
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-2019]
         flags: ["", "-msse4", "-mavx2"]
     
     runs-on: ${{ matrix.os }}
@@ -68,7 +68,7 @@ jobs:
     - name: configure CMake windows
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-2019'
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "MSYS Makefiles" -DCMAKE_CXX_COMPILER="C:/msys64/mingw64/bin/clang.exe" -DCMAKE_C_COMPILER="C:/msys64/mingw64/bin/clang.exe" -DCMAKE_CXX_FLAGS=${{matrix.flags}} -DCIBuild=ON
                  
     - name: Build
@@ -90,7 +90,7 @@ jobs:
     
     # upload all files to GitHub       
     - name: upload windows release
-      if: (github.ref == 'refs/heads/master') && (matrix.os == 'windows-latest')
+      if: (github.ref == 'refs/heads/master') && (matrix.os == 'windows-2019')
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
