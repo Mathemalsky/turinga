@@ -33,7 +33,7 @@
 int main(int argc, char** argv) {
   start_time();
   try {
-    if (argc <= 1) {
+    if (argc < 2) {
       throw InappropriateNumberOfArguments("main", 2, argc);
     }
     // print syntax hints
@@ -125,6 +125,9 @@ int main(int argc, char** argv) {
     }
     // decrypt file
     else if (std::strcmp(argv[1], "-d") == 0) {
+      if (argc < 3) {
+        throw InappropriateNumberOfArguments("main", 3, argc);
+      }
       const char* filename = argv[2];
       if (!testForExistence((STD_KEY_DIR + STD_KEY_INV).c_str())) {
         throw NoKey("main", STD_KEY_DIR + STD_KEY_INV);
@@ -136,19 +139,25 @@ int main(int argc, char** argv) {
     }
     // testing
     else if (std::strcmp(argv[1], "-t") == 0) {
-      TuringaKey key;
-      if (testForExistence((STD_KEY_DIR + STD_KEY).c_str())) {
-        key = readTuringaKey((STD_KEY_DIR + STD_KEY).c_str());
+      if (argc == 2) {
+        TuringaKey key;
+        if (testForExistence((STD_KEY_DIR + STD_KEY).c_str())) {
+          key = readTuringaKey((STD_KEY_DIR + STD_KEY).c_str());
+        }
+        else {
+          key = createStdKey();
+          writeTuringaKey((STD_KEY_DIR + STD_KEY).c_str(), key);
+          key.direction = decryption;
+          writeTuringaKey((STD_KEY_DIR + STD_KEY_INV).c_str(), key);
+          key.direction = encryption;
+        }
+        findCycle(key.rotorShifts);
+        freeTuringaKey(key);
       }
       else {
-        key = createStdKey();
-        writeTuringaKey((STD_KEY_DIR + STD_KEY).c_str(), key);
-        key.direction = decryption;
-        writeTuringaKey((STD_KEY_DIR + STD_KEY_INV).c_str(), key);
-        key.direction = encryption;
+        // not special treatment for this case implemented yet
+        throw InappropriateNumberOfArguments("main", 2, argc);
       }
-      testRotate(key);
-      freeTuringaKey(key);
     }
     else {
       if (testForExistence(argv[1])) {

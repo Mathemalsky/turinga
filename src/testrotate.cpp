@@ -4,37 +4,25 @@
 #include <iostream>
 
 #include "constants.hpp"
+#include "measurement.hpp"
 #include "rotate.hpp"
 
-static bool cmp(const Byte* a, const Byte* b, const unsigned int length) {
-  for (unsigned int i = 0; i < length; ++i) {
-    if (a[i] != b[i]) {
-      return false;
+void findCycle(const Byte* rotorShifts, size_t maxIter) {
+  Byte* x = (Byte*) malloc(MAX_KEYLENGTH);
+  Byte* y = (Byte*) malloc(MAX_KEYLENGTH);
+  std::memcpy(x, rotorShifts, MAX_KEYLENGTH);
+  std::memcpy(y, rotorShifts, MAX_KEYLENGTH);
+  for (size_t iteration = 0; iteration < maxIter; ++iteration) {
+    rotate(x);
+    rotate(y);
+    rotate(y);
+    if (std::memcmp(x, y, MAX_KEYLENGTH) == 0) {
+      std::cerr << "cycle length is a divisor of " << iteration + 1 << ".\n";
+      break;
+    }
+    if ((iteration + 1) % (size_t) 1e7 == 0) {
+      std::cout << timestamp(current_duration()) << "iterations checked: " << iteration + 1 << "\n";
     }
   }
-  return true;
-}
-
-void testRotate(TuringaKey key) {
-  Byte* start    = (Byte*) malloc(MAX_KEYLENGTH);
-  Byte* previous = (Byte*) malloc(MAX_KEYLENGTH);
-  std::memcpy(start, key.rotorShifts, MAX_KEYLENGTH);
-  std::memcpy(previous, key.rotorShifts, MAX_KEYLENGTH);
-  for (size_t i = 0; i < 100000000000; ++i) {
-    rotate(key.rotorShifts);
-    if (cmp(key.rotorShifts, previous, MAX_KEYLENGTH)) {
-      std::cerr << "Fixpoint at iteration: " << i << "\n";
-      free(start);
-      free(previous);
-      return;
-    }
-    else if (cmp(key.rotorShifts, start, MAX_KEYLENGTH)) {
-      std::cerr << "Reached start value at iteration: " << i << "\n";
-      free(start);
-      free(previous);
-      return;
-    }
-    std::memcpy(previous, key.rotorShifts, MAX_KEYLENGTH);
-  }
-  std::cerr << "Test finished normaly.\n";
+  std::cout << timestamp(current_duration()) << "check done!";
 }
