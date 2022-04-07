@@ -22,6 +22,9 @@
 #include <stdexcept>
 #include <string>
 
+/***********************************************************************************************************************
+ *                                                 Error handling                                                      *
+ **********************************************************************************************************************/
 /*!
  * \class TuringaError
  * \brief All specific errors inherit from TuringaError class so they can be caught together.
@@ -165,6 +168,9 @@ private:
   std::string p_filename;
 };
 
+/***********************************************************************************************************************
+ *                                                  syntax help                                                        *
+ **********************************************************************************************************************/
 /*!
  * \brief syntax prints detailed sytanx advices
  * \details calls syntaxCrypt, syntaxGenerate and syntaxHelp
@@ -190,3 +196,8 @@ void syntaxGenerateRotors();
  * \details explaines how to get only specific syntax advices
  */
 void syntaxHelp();
+
+/***********************************************************************************************************************
+ *                                                     warning                                                         *
+ **********************************************************************************************************************/
+void readKeyWarning(size_t size, size_t expected);

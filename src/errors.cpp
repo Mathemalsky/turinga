@@ -17,12 +17,16 @@
  */
 #include "errors.hpp"
 
+#include <cstring>
 #include <iostream>
 
 #include "colors.hpp"
 #include "constants.hpp"
 #include "measurement.hpp"
 
+/***********************************************************************************************************************
+ *                                                 Error handling                                                      *
+ **********************************************************************************************************************/
 InappropriateNumberOfArguments::InappropriateNumberOfArguments(
   std::string function, unsigned int expected, unsigned int number)
   : p_expected(expected), p_number(number) {
@@ -84,6 +88,9 @@ void NoKey::what() {
   exit(-1);
 }
 
+/***********************************************************************************************************************
+ *                                                  syntax help                                                        *
+ **********************************************************************************************************************/
 void syntax() {
   std::cout << "Syntax\n======\n";
   std::cout << EXECUTE << " <argument1> <argument2> ...\n";
@@ -147,4 +154,31 @@ void syntaxHelp() {
   std::cout << "- " << EXECUTE << " help <command>\n";
   std::cout << "    command     : command you want to see detailed information about\n";
   std::cout << "                  options are: <crypt>, <genKey>, <genRot> and <help>\n";
+}
+
+/***********************************************************************************************************************
+ *                                                     warning                                                         *
+ **********************************************************************************************************************/
+void readKeyWarning(size_t size, size_t expected) {
+  if (size != expected) {
+    std::cout << timestamp(current_duration());
+    print_yellow("Warning: ");
+    std::cout << "The key file read has size " << size << " but expected was size " << expected << ".\n";
+    std::cout << "              Maybe it's a key file from incompatible version?\n";
+    std::cout << "              Do you want to continue (Y/n)? ";
+    std::string answer;
+    std::getline(std::cin, answer);
+    if (
+      std::strcmp(answer.c_str(), "") == 0 || std::strcmp(answer.c_str(), "y") == 0
+      || std::strcmp(answer.c_str(), "Y") == 0 || std::strcmp(answer.c_str(), "j") == 0
+      || std::strcmp(answer.c_str(), "j") == 0) {
+      return;
+    }
+    else if (std::strcmp(answer.c_str(), "n") == 0 || std::strcmp(answer.c_str(), "N") == 0) {
+      exit(0);
+    }
+    else {
+      throw InvalidArgument("readKeyWarning", answer, ". Valid options are y, Y, n, N, j, J, <nothing>");
+    }
+  }
 }
