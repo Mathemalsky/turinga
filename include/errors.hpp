@@ -1,6 +1,6 @@
 /*
  * Turinga is a simple symmetric encryption scheme based on ideas from enigma.
- * Copyright (C) 2021  Mathemalsky, MilchRatchet
+ * Copyright (C) 2022  Mathemalsky, MilchRatchet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -200,4 +200,10 @@ void syntaxHelp();
 /***********************************************************************************************************************
  *                                                     warning                                                         *
  **********************************************************************************************************************/
+/*!
+ * \brief readKeyWarning
+ * \param size number of bytes read
+ * \param expected number of bytes expectred to read
+ * \details print a warning if the key has not the expected length
+ */
 void readKeyWarning(size_t size, size_t expected);
