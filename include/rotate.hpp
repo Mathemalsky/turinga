@@ -35,7 +35,8 @@
  * which we obtain by considering the input vector as a coefficient vector of a binary
  * polynomial \f$g\f$ with \f$\deg(g) < 4\f$.
  * Then the output vector is the coefficient vector of \f{equation*}\pi(g) \equiv {g^{-1}(x) \textrm{ mod } x^4 + x
- * + 1\f}
+ * + 1\f} if g is not the 0 polynomial otherwiese zero.
+ * If \f$s_0 = 1\f$ shift the i-th rotor by \f$(2i +1) s_i\f$ else shift it by \f$(2i+1) (1-s_i)\f$
  *
  * \authors Max, Jurek
  * \param fileShifts determines the current substitution
