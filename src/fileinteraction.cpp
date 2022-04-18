@@ -132,7 +132,7 @@ TuringaKey readTuringaKey(const char* filename) {
   Byte* rotorShifts = (Byte*) malloc(MAX_KEYLENGTH);
   size += fread(rotorShifts, sizeof(Byte), MAX_KEYLENGTH, myfile) * sizeof(Byte);
 
-  assert(size == 1 + MAX_KEYLENGTH + sizeof(size_t) + (unsigned int) keylength && "Incorrect read of key!");
+  readKeyWarning(size, 1 + MAX_KEYLENGTH + sizeof(size_t) + (unsigned int) keylength);
 
   fclose(myfile);
   const TuringaKey key{direction, keylength, rotorNames, rotorShifts, fileShift};

@@ -1,6 +1,6 @@
 /*
  * Turinga is a simple symmetric encryption scheme based on ideas from enigma.
- * Copyright (C) 2021  Mathemalsky, MilchRatchet
+ * Copyright (C) 2022  Mathemalsky, MilchRatchet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,9 @@
 #include <stdexcept>
 #include <string>
 
+/***********************************************************************************************************************
+ *                                                 Error handling                                                      *
+ **********************************************************************************************************************/
 /*!
  * \class TuringaError
  * \brief All specific errors inherit from TuringaError class so they can be caught together.
@@ -165,6 +168,9 @@ private:
   std::string p_filename;
 };
 
+/***********************************************************************************************************************
+ *                                                  syntax help                                                        *
+ **********************************************************************************************************************/
 /*!
  * \brief syntax prints detailed sytanx advices
  * \details calls syntaxCrypt, syntaxGenerate and syntaxHelp
@@ -190,3 +196,14 @@ void syntaxGenerateRotors();
  * \details explaines how to get only specific syntax advices
  */
 void syntaxHelp();
+
+/***********************************************************************************************************************
+ *                                                     warning                                                         *
+ **********************************************************************************************************************/
+/*!
+ * \brief readKeyWarning
+ * \param size number of bytes read
+ * \param expected number of bytes expectred to read
+ * \details print a warning if the key has not the expected length
+ */
+void readKeyWarning(size_t size, size_t expected);
