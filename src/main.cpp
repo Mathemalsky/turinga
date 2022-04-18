@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
     // generate a key
     else if (std::strcmp(argv[1], "genKey") == 0) {
       if (argc <= 3) {
-        throw InappropriateNumberOfArguments("main", 5, argc);
+        throw InappropriateNumberOfArguments("main", 4, argc);
       }
       else {
         std::string availableRotors;
@@ -95,7 +95,8 @@ int main(int argc, char** argv) {
       }
       else if (argc == 3 && std::strcmp(argv[2], "-r") == 0) {
         // generate all valid rotors with random seed
-        generateRotor(VALID_ROT_NAMES.c_str(), time(NULL));
+        srand(time(NULL));
+        generateRotor(VALID_ROT_NAMES.c_str(), rand());
       }
       else if (argc == 3) {
         // generate rotors using the default seed 0
@@ -103,7 +104,8 @@ int main(int argc, char** argv) {
       }
       else if (std::strcmp(argv[3], "-r") == 0) {
         // generate rotors using a random seed
-        generateRotor(argv[2], time(NULL));
+        srand(time(NULL));
+        generateRotor(argv[2], rand());
       }
       else {
         // generate rotors using a given seed
