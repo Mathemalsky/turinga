@@ -1,6 +1,6 @@
 /*
  * Turinga is a simple symmetric encryption scheme based on ideas from enigma.
- * Copyright (C) 2021  Mathemalsky, MilchRatchet
+ * Copyright (C) 2022  Mathemalsky, MilchRatchet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -127,6 +127,11 @@ void write_file(const Data& bytes, const char* filename, const TuringaKey& key);
  * \brief reads a TuringaKey from given file
  * \param filename Name of the file where the TuringaKey is saved.
  * \return TuringaKey
+ * \details The first bit of the first byte contains information about the direction. The other 7 bits encode the length
+ * of the key. But note that the maximum keylength is 32.
+ * The next 32 bytes contain the initial rotorshifts where the rotation starts.
+ * The next bytes store the file shift.
+ * Finally the last bytes specify the used rotors.
  */
 TuringaKey readTuringaKey(const char* filename);
 
