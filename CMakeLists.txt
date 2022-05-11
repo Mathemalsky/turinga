@@ -36,6 +36,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -pthread -Wall -Wextra -p
 if(${CIBuild} STREQUAL OFF)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 endif()
+if(${StaticLinking} STREQUAL ON)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -static-libgcc -static-libstdc++")
+endif()
 
 # lists all sourcefiles to be compiled with the project
 file(GLOB SOURCES "src/*.cpp")
@@ -55,7 +58,7 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 # look for included files also in the following directories
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 if(${StaticLinking} STREQUAL ON)
-  target_link_libraries(${PROJECT_NAME} lib_csprng -static-libgcc -static-libstdc++)
+  target_link_libraries(${PROJECT_NAME} lib_csprng stdc++)
 else()
   target_link_libraries(${PROJECT_NAME} lib_csprng)
 endif()
