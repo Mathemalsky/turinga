@@ -37,7 +37,7 @@ if(${CIBuild} STREQUAL OFF)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 endif()
 if(${StaticLinking} STREQUAL ON)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -static-libgcc -static-libstdc++")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
 endif()
 
 # lists all sourcefiles to be compiled with the project
