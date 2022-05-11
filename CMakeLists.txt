@@ -1,5 +1,5 @@
 # Turinga is a simple symmetric encryption scheme based on ideas from enigma.
-# Copyright (C) 2021  Mathemalsky, MilchRatchet
+# Copyright (C) 2022  Mathemalsky, MilchRatchet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +21,10 @@ project(turinga21)
 
 # not build in CI by default
 OPTION(CIBuild "Configuration for build in CI" OFF)
+OPTION(StaticLinking "Static linking of standard library" OFF)
+
+message(STATUS "CIBuild=${CIBuild}")
+message(STATUS "StaticLinking=${StaticLinking}")
 
 # specify where the output should be compiled
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/)
@@ -30,7 +34,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/bin)
 # set the compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -pthread -Wall -Wextra -pedantic")
 if(${CIBuild} STREQUAL OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+endif()
+if(${StaticLinking} STREQUAL ON)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -static-libgcc -static-libstdc++")
 endif()
 
 # lists all sourcefiles to be compiled with the project
@@ -50,5 +57,8 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
 # look for included files also in the following directories
 target_include_directories(${PROJECT_NAME} PUBLIC include)
-
-target_link_libraries(${PROJECT_NAME} lib_csprng stdc++)
+if(${StaticLinking} STREQUAL ON)
+  target_link_libraries(${PROJECT_NAME} lib_csprng stdc++)
+else()
+  target_link_libraries(${PROJECT_NAME} lib_csprng)
+endif()
