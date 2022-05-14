@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.10)
 
 # project name is defined here
 project(turinga21)
@@ -56,12 +56,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 # link the csprng library to project
 target_link_libraries(${PROJECT_NAME} lib_csprng)
 
-if(WIN32 AND ${CIBuild})
-  file(GET_RUNTIME_DEPENDENCIES RT_DEPENDENCIES)
-  add_custom_target(copyDependencies
-    COMMAND ${CMAKE_COMMAND} -E copy ${RT_DEPENDENCIES} ${CMAKE_HOME_DIRECTORY}/bin
-  )
-
-  add_dependencies(${PROJECT_NAME} copyDependencies)
+# on windows pack the needed dlls in the output directory
+# CMake version 3.21 is required for TARGET_RUNTIM_DLLS command
+# would return an empty list on linux
+if(WIN32 AND ${CIBuild} STREQUAL ON AND ${CMAKE_VERSION} VERSION_GREATER "3.21")
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND_EXPAND_LISTS
+    )
 endif()
 
