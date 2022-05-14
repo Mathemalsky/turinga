@@ -9,12 +9,12 @@ on:
   workflow_dispatch:
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  # customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
   preparation: 
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    # see: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-latest
     
     # print the release name to use it when relasing
@@ -60,21 +60,26 @@ jobs:
     - uses: actions/checkout@v2
  
     - name: configure CMake linux
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       if: matrix.os == 'ubuntu-latest'
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_FLAGS=${{matrix.flags}} -DCIBuild=ON 
                 
     - name: configure CMake windows
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       if: matrix.os == 'windows-2019'
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "MSYS Makefiles" -DCMAKE_CXX_COMPILER="C:/msys64/mingw64/bin/clang.exe" -DCMAKE_C_COMPILER="C:/msys64/mingw64/bin/clang.exe" -DCMAKE_CXX_FLAGS=${{matrix.flags}} -DCIBuild=ON
                  
-    - name: Build
-      # Build your program with the given configuration
+    - name: build
+      # build your program with the given configuration
       if: success()
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      
+    - name: zip dll
+      # for windows pack the executable together with the required dll
+      if: (github.ref == 'refs/heads/master') && (matrix.os == 'windows-2019')
+      run: Compress-Archive -LiteralPath '${{github.workspace}}/bin/*' -DestinationPath '${{github.workspace}}/bin/turinga21.zip'
       
     # upload all files to GitHub       
     - name: upload linux release
@@ -96,7 +101,7 @@ jobs:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with:
         upload_url: ${{needs.preparation.outputs.upload_url}} 
-        asset_name: turinga21-${{needs.preparation.outputs.release_name}}-${{matrix.os}}${{matrix.flags}}.exe
-        asset_path: bin/turinga21.exe
-        asset_content_type: application/x-msdownload
+        asset_name: turinga21-${{needs.preparation.outputs.release_name}}-${{matrix.os}}${{matrix.flags}}.zip
+        asset_path: bin/turinga21.zip
+        asset_content_type: application/zip
 
