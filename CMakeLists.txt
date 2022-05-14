@@ -66,8 +66,7 @@ endif()
 # would return an empty list on linux
 if(WIN32 AND ${CIBuild} STREQUAL ON AND ${CMAKE_VERSION} VERSION_GREATER "3.21")
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    COMMAND_EXPAND_LISTS
+    COMMAND ${CMAKE_COMMAND} -E copy "C:/msys64/mingw64/bin/libstdc++-6.dll" ${CMAKE_HOME_DIRECTORY}/bin
     )
 endif()
 
