@@ -54,7 +54,12 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 # link the csprng library to project
-target_link_libraries(${PROJECT_NAME} lib_csprng)
+# standard library needs to be additionally linked in windows
+if(WIN32)
+  target_link_libraries(${PROJECT_NAME} lib_csprng stdc++)
+else()
+  target_link_libraries(${PROJECT_NAME} lib_csprng)
+endif()
 
 # on windows pack the needed dlls in the output directory
 # CMake version 3.21 is required for TARGET_RUNTIM_DLLS command
