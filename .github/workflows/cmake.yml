@@ -79,7 +79,7 @@ jobs:
     - name: zip dll
       # for windows pack the executable together with the required dll
       if: (github.ref == 'refs/heads/master') && (matrix.os == 'windows-2019')
-      run: Compress-Archive -LiteralPath '${{github.workspace}}\bin\*' -DestinationPath '${{github.workspace}}\bin\turinga21.zip'
+      run: Compress-Archive -Path '${{github.workspace}}\bin\*' -DestinationPath '${{github.workspace}}\bin\turinga21.zip'
       
     # upload all files to GitHub       
     - name: upload linux release
