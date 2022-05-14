@@ -65,6 +65,8 @@ endif()
 if(WIN32 AND ${CIBuild} STREQUAL ON)
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "C:/msys64/mingw64/bin/libstdc++-6.dll" ${CMAKE_HOME_DIRECTORY}/bin
+    COMMAND ${CMAKE_COMMAND} -E copy "C:/msys64/mingw64/bin/libwinpthread-1.dll" ${CMAKE_HOME_DIRECTORY}/bin
+    COMMAND ${CMAKE_COMMAND} -E copy "C:/msys64/mingw64/bin/libgcc_s_seh-1.dll" ${CMAKE_HOME_DIRECTORY}/bin
     )
 endif()
 
