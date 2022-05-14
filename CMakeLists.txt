@@ -14,17 +14,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 # project name is defined here
 project(turinga21)
 
 # not build in CI by default
 OPTION(CIBuild "Configuration for build in CI" OFF)
-OPTION(StaticLinking "Static linking of standard library" OFF)
+#OPTION(StaticLinking "Static linking of standard library" OFF)
 
 message(STATUS "CIBuild=${CIBuild}")
-message(STATUS "StaticLinking=${StaticLinking}")
+#message(STATUS "StaticLinking=${StaticLinking}")
 
 # specify where the output should be compiled
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/)
@@ -35,9 +35,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/bin)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -pthread -Wall -Wextra -pedantic")
 if(${CIBuild} STREQUAL OFF)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
-endif()
-if(${StaticLinking} STREQUAL ON)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
 endif()
 
 # lists all sourcefiles to be compiled with the project
@@ -57,8 +54,13 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
 # look for included files also in the following directories
 target_include_directories(${PROJECT_NAME} PUBLIC include)
-if(${StaticLinking} STREQUAL ON)
-  target_link_libraries(${PROJECT_NAME} lib_csprng stdc++)
-else()
-  target_link_libraries(${PROJECT_NAME} lib_csprng)
-endif()
+
+# link the csprng library to project
+target_link_libraries(${PROJECT_NAME} lib_csprng)
+
+file(GET_RUNTIME_DEPENDENCIES RT_DEPENDENCIES)
+add_custom_target(copyDependencies
+  COMMAND ${CMAKE_COMMAND} -E copy ${RT_DEPENDENCIES} ${CMAKE_HOME_DIRECTORY}/bin
+)
+
+add_dependencies(${PROJECT_NAME} copyDependencies)
