@@ -21,10 +21,8 @@ project(turinga21)
 
 # not build in CI by default
 OPTION(CIBuild "Configuration for build in CI" OFF)
-#OPTION(StaticLinking "Static linking of standard library" OFF)
 
 message(STATUS "CIBuild=${CIBuild}")
-#message(STATUS "StaticLinking=${StaticLinking}")
 
 # specify where the output should be compiled
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/)
@@ -58,9 +56,12 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 # link the csprng library to project
 target_link_libraries(${PROJECT_NAME} lib_csprng)
 
-file(GET_RUNTIME_DEPENDENCIES RT_DEPENDENCIES)
-add_custom_target(copyDependencies
-  COMMAND ${CMAKE_COMMAND} -E copy ${RT_DEPENDENCIES} ${CMAKE_HOME_DIRECTORY}/bin
-)
+if(WIN32 AND ${CIBuild})
+  file(GET_RUNTIME_DEPENDENCIES RT_DEPENDENCIES)
+  add_custom_target(copyDependencies
+    COMMAND ${CMAKE_COMMAND} -E copy ${RT_DEPENDENCIES} ${CMAKE_HOME_DIRECTORY}/bin
+  )
 
-add_dependencies(${PROJECT_NAME} copyDependencies)
+  add_dependencies(${PROJECT_NAME} copyDependencies)
+endif()
+
