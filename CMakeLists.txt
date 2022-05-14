@@ -62,9 +62,7 @@ else()
 endif()
 
 # on windows pack the needed dlls in the output directory
-# CMake version 3.21 is required for TARGET_RUNTIM_DLLS command
-# would return an empty list on linux
-if(WIN32 AND ${CIBuild} STREQUAL ON AND ${CMAKE_VERSION} VERSION_GREATER "3.21")
+if(WIN32 AND ${CIBuild} STREQUAL ON)
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "C:/msys64/mingw64/bin/libstdc++-6.dll" ${CMAKE_HOME_DIRECTORY}/bin
     )
