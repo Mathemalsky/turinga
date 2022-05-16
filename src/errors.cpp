@@ -33,7 +33,7 @@ InappropriateNumberOfArguments::InappropriateNumberOfArguments(
   p_func = function;
 }
 
-void InappropriateNumberOfArguments::what() {
+const char* InappropriateNumberOfArguments::what() const noexcept {
   std::cout << timestamp(current_duration());
   print_lightred("ERROR: ");
   std::cout << "Inapropriate number of arguments in function <" << p_func << ">. Got " << p_number << " but expectet "
@@ -47,7 +47,7 @@ InvalidArgument::InvalidArgument(std::string function, std::string arg, std::str
   p_func = function;
 }
 
-void InvalidArgument::what() {
+const char* InvalidArgument::what() const noexcept {
   std::cout << timestamp(current_duration());
   print_lightred("ERROR: ");
   std::cout << "Argument <" << p_arg << "> is invaild " << p_setting << ".\n";
@@ -59,7 +59,7 @@ FileNotFound::FileNotFound(std::string function, std::string filename) : p_filen
   p_func = function;
 }
 
-void FileNotFound::what() {
+const char* FileNotFound::what() const noexcept {
   std::cout << timestamp(current_duration());
   print_lightred("ERROR: ");
   std::cout << "File <" << p_filename << "> in function <" << p_func << "> not found.\n";
@@ -70,7 +70,7 @@ CannotCreateFile::CannotCreateFile(std::string function, std::string filename) :
   p_func = function;
 }
 
-void CannotCreateFile::what() {
+const char* CannotCreateFile::what() const noexcept {
   std::cout << timestamp(current_duration());
   print_lightred("ERROR: ");
   std::cout << "Couldn't create output file <" << p_filename << "> in function <" << p_func << ">.\n";
@@ -81,7 +81,7 @@ NoKey::NoKey(std::string function, std::string filename) : p_filename(filename) 
   p_func = function;
 }
 
-void NoKey::what() {
+const char* NoKey::what() const noexcept {
   std::cout << timestamp(current_duration());
   print_lightred("ERROR: ");
   std::cout << "Couldn't find key file <" << p_filename << "> in function <" << p_func << ">.\n";
