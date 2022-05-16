@@ -1,6 +1,6 @@
 /*
  * Turinga is a simple symmetric encryption scheme based on ideas from enigma.
- * Copyright (C) 2021  Mathemalsky, MilchRatchet
+ * Copyright (C) 2022  Mathemalsky, MilchRatchet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,19 +17,4 @@
  */
 #include "measurement.hpp"
 
-#include <cmath>
-
-using time_point = std::chrono::time_point<std::chrono::high_resolution_clock>;
-time_point startTime{};
-
-void start_time() {
-  startTime = std::chrono::high_resolution_clock::now();
-}
-
-// returns time in seconds since the programm has started
-double current_duration() {
-  const time_point splitTime = std::chrono::high_resolution_clock::now();
-  double timeSpan            = std::chrono::duration_cast<std::chrono::microseconds>(splitTime - startTime).count();
-  timeSpan                   = double(std::round(timeSpan)) / 1000000;
-  return timeSpan;
-}
+time_point START_TIME;

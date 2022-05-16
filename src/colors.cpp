@@ -1,6 +1,6 @@
 /*
  * Turinga is a simple symmetric encryption scheme based on ideas from enigma.
- * Copyright (C) 2021  Mathemalsky, MilchRatchet
+ * Copyright (C) 2022  Mathemalsky, MilchRatchet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,19 +19,19 @@
 
 #include <iostream>
 
-void print_lightgreen(std::string word) {
+void print_lightgreen(std::string word) noexcept {
   std::cout << "\033[1;32m";
   std::cout << word;
   std::cout << "\033[0m";
 }
 
-void print_lightred(std::string word) {
+void print_lightred(std::string word) noexcept {
   std::cout << "\033[1;31m";
   std::cout << word;
   std::cout << "\033[0m";
 }
 
-void print_yellow(std::string word) {
+void print_yellow(std::string word) noexcept {
   std::cout << "\033[1;33m";
   std::cout << word;
   std::cout << "\033[0m";

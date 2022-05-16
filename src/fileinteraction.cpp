@@ -180,8 +180,15 @@ Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {
       throw FileNotFound("loadRotors", new_filename);
     }
 
+// disable gcc warning -Woverflow
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverflow"
+
     size_t size = fread(wheels + 256 * i, 1, 256, myfile);
     assert(size == 256 && "Rotors must have size 256!");
+
+#pragma GCC diagnostic pop
+
     fclose(myfile);
   }
 
