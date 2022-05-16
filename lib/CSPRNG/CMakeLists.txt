@@ -9,6 +9,6 @@ set(HEADERS
     source/duthomhas/csprng.hpp
     source/duthomhas/is_iterable.hpp)
 
-add_library(lib_csprng STATIC ${SOURCES} ${HEADERS})
-target_include_directories (lib_csprng PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR}/source/duthomhas)
+add_library(csprng STATIC ${SOURCES} ${HEADERS})
+target_include_directories (csprng PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR}/source/duthomhas)
 

@@ -56,9 +56,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 # link the csprng library to project
 # standard library needs to be additionally linked in windows
 if(WIN32)
-  target_link_libraries(${PROJECT_NAME} lib_csprng stdc++)
+  target_link_libraries(${PROJECT_NAME} csprng stdc++)
 else()
-  target_link_libraries(${PROJECT_NAME} lib_csprng)
+  target_link_libraries(${PROJECT_NAME} csprng)
 endif()
 
 # on windows pack the needed dlls in the output directory

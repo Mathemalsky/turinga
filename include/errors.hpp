@@ -30,12 +30,6 @@
  * \brief All specific errors inherit from TuringaError class so they can be caught together.
  */
 class TuringaError : public std::exception {
-public:
-  /*!
-   * \brief virtual function that can be called to catch the errors
-   */
-  virtual void what() = 0;
-
 protected:
   std::string p_func; /**< \param string that contains the name where the error occurs */
 };
@@ -61,7 +55,7 @@ public:
    * \details prints the number of arguments got, the number of arguments expected and the function
    * where the error occurs and a syntax hint
    */
-  void what() override;
+  void what();
 
 private:
   unsigned int p_expected; /**< \param p_expected number of arguments expected */
