@@ -182,7 +182,7 @@ Byte* loadRotors(const TuringaKey& key, const char* rotDirectory) {
 
 // disable gcc warning -Woverflow
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Woverflow"
+#pragma GCC diagnostic ignored "-Wunused-variable"
 
     size_t size = fread(wheels + 256 * i, 1, 256, myfile);
     assert(size == 256 && "Rotors must have size 256!");
