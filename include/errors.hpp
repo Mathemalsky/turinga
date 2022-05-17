@@ -30,12 +30,6 @@
  * \brief All specific errors inherit from TuringaError class so they can be caught together.
  */
 class TuringaError : public std::exception {
-public:
-  /*!
-   * \brief virtual function that can be called to catch the errors
-   */
-  virtual void what() = 0;
-
 protected:
   std::string p_func; /**< \param string that contains the name where the error occurs */
 };
@@ -61,7 +55,7 @@ public:
    * \details prints the number of arguments got, the number of arguments expected and the function
    * where the error occurs and a syntax hint
    */
-  void what() override;
+  const char* what() const noexcept override;
 
 private:
   unsigned int p_expected; /**< \param p_expected number of arguments expected */
@@ -88,7 +82,7 @@ public:
    * \brief what prints out the error message to the console
    * \details prints the argument the description of context and a syntax hint
    */
-  void what() override;
+  const char* what() const noexcept override;
 
 private:
   std::string p_arg;     /**< \param p_arg argument provided to turinga */
@@ -112,7 +106,7 @@ public:
    * \details prints the name of the missing file and the name of the function where the error
    * occured
    */
-  void what() override;
+  const char* what() const noexcept override;
 
 private:
   std::string p_filename; /**< \param p_filename string that contains the name of the missing file */
@@ -137,7 +131,7 @@ public:
    * \details prints the name of the file which makes problems and the name of the function where
    * the error occured
    */
-  void what() override;
+  const char* what() const noexcept override;
 
 private:
   std::string p_filename; /**< \param p_filename string that contains the name of the file
@@ -162,7 +156,7 @@ public:
    * \details prints the name of the file of the missing key and the name of the function where the
    * error occured
    */
-  void what() override;
+  const char* what() const noexcept override;
 
 private:
   std::string p_filename;

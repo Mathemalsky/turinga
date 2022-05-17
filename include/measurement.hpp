@@ -1,6 +1,6 @@
 /*
  * Turinga is a simple symmetric encryption scheme based on ideas from enigma.
- * Copyright (C) 2021  Mathemalsky, MilchRatchet
+ * Copyright (C) 2022  Mathemalsky, MilchRatchet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,22 +20,32 @@
 /*! \file measurement.hpp */
 
 #include <chrono>
+#include <cmath>
 #include <string>
 
 /** time_point acrynom for timepoint from std:.chrono */
 using time_point = std::chrono::time_point<std::chrono::high_resolution_clock>;
 
+extern time_point START_TIME; /**< global variable which holds the time when the program started **/
+
 /*!
  * \brief initializes the global variable startTime
  */
-void start_time();
+inline void start_time() noexcept {
+  START_TIME = std::chrono::high_resolution_clock::now();
+}
 
 /*!
  * \brief computes the difference between the startTime and now
- * \details The time is rounded to microseconds.
+ * \details time is rounded to microseconds.
  * \return double that contains the time in seconds
  */
-double current_duration();
+inline double current_duration() noexcept {
+  const time_point splitTime = std::chrono::high_resolution_clock::now();
+  double timeSpan            = std::chrono::duration_cast<std::chrono::microseconds>(splitTime - START_TIME).count();
+  timeSpan                   = double(std::round(timeSpan)) / 1000000;
+  return timeSpan;
+}
 
 /*!
  * \brief formats the elapsed time to be printed pretty to terminal
@@ -43,7 +53,7 @@ double current_duration();
  * \param duration time in seconds
  * \return time elapsed since program start formatted in a std::string.
  */
-inline std::string timestamp(const double duration) {
+inline std::string timestamp(const double duration) noexcept {
   std::string timeStamp = "[";
   if (duration < 10) {
     timeStamp += " ";
