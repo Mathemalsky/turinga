@@ -148,6 +148,8 @@ void syntaxGenerateRotors() {
   std::cout << "                  use a random seed for generation\n";
   std::cout << "- " << EXECUTE << " genRot -r\n";
   std::cout << "                  generate all valid rotors with a random seed\n";
+  std::cout << "- " << EXECUTE << " genRot -a <seed>\n";
+  std::cout << "                  generate all valid rotors with given seed\n";
 }
 
 void syntaxHelp() {

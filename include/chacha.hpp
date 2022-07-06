@@ -22,6 +22,8 @@
 #include <cstdint>
 #include <cstdlib>
 
+#include <csprng.hpp>
+
 /*!
  * class ChaCha
  * \brief implemnts the csprng ChaCha
@@ -62,3 +64,12 @@ public:
  * \param length gives the number of bytes in the seed
  */
 void expandSeed(uint32_t* seed, const uint32_t* src, unsigned int length);
+
+/*!
+ * \brief generateSeed invokes the csprng library in order to get a seed
+ * \return a 32-bit integer as seed
+ */
+inline uint32_t generateSeed() {
+  duthomhas::csprng random;
+  return random();
+}
