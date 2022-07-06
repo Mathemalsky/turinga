@@ -23,4 +23,4 @@
  * \brief generateRotor generates new rotors for the names
  * \param rotorsNames all chars corresponding to a rotors name
  */
-void generateRotor(const char* rotorNames, const unsigned int seed = 0);
+void generateRotor(const char* rotorNames, const unsigned int givenSeed = 0);

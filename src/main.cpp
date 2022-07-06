@@ -20,6 +20,8 @@
 #include <filesystem>
 #include <iostream>
 
+#include <csprng.hpp>
+
 #include "colors.hpp"
 #include "errors.hpp"
 #include "fileinteraction.hpp"
@@ -104,8 +106,9 @@ int main(int argc, char** argv) {
       }
       else if (std::strcmp(argv[3], "-r") == 0) {
         // generate rotors using a random seed
-        srand(time(NULL));
-        generateRotor(argv[2], rand());
+        duthomhas::csprng random;
+        uint32_t origSeed = random();
+        generateRotor(argv[2], origSeed);
       }
       else {
         // generate rotors using a given seed
