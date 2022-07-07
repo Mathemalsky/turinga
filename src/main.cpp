@@ -100,21 +100,24 @@ int main(int argc, char** argv) {
         // generate all valid rotors with random seed
         generateRotor(VALID_ROT_NAMES.c_str(), generateSeed());
       }
-      else if (argc == 3 && std::strcmp(argv[2], "-a") == 0) {
-        // generate all valid rotors with given seed
-        generateRotor(VALID_ROT_NAMES.c_str(), std::atoi(argv[3]));
-      }
       else if (argc == 3) {
         // generate rotors using the default seed 0
         generateRotor(argv[2]);
       }
-      else if (std::strcmp(argv[3], "-r") == 0) {
+      else if (argc == 4 && std::strcmp(argv[2], "-a") == 0) {
+        // generate all valid rotors with given seed
+        generateRotor(VALID_ROT_NAMES.c_str(), std::atoi(argv[3]));
+      }
+      else if (argc == 4 && std::strcmp(argv[3], "-r") == 0) {
         // generate rotors using a random seed
         generateRotor(argv[2], generateSeed());
       }
-      else {
+      else if (argc == 4) {
         // generate rotors using a given seed
         generateRotor(argv[2], std::atoi(argv[3]));
+      }
+      else {
+        throw InappropriateNumberOfArguments("main", 4, argc);
       }
     }
     // encrypt or decrypt
