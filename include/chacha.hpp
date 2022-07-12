@@ -63,13 +63,13 @@ public:
  * \param src given seed will be repeated until it's length is 48 byte
  * \param length gives the number of bytes in the seed
  */
-void expandSeed(uint32_t* seed, const uint32_t* src, unsigned int length);
+void expandSeed(uint32_t* seed, const unsigned long src);
 
 /*!
  * \brief generateSeed invokes the csprng library in order to get a seed
- * \return a 32-bit integer as seed
+ * \return a 64-bit integer as seed
  */
-inline uint32_t generateSeed() {
+inline unsigned long generateSeed() {
   duthomhas::csprng random;
   return random();
 }

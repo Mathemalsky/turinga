@@ -18,8 +18,9 @@
 
 #include "chacha.hpp"
 
-#include <cmath>
 #include <cstring>
+
+#include "types.hpp"
 
 // implementation related to:
 // https://stackoverflow.com/questions/776508/best-practices-for-circular-shift-rotate-operations-in-c
@@ -48,8 +49,8 @@ static inline void quaterRound(uint32_t& a, uint32_t& b, uint32_t& c, uint32_t& 
 }
 
 void ChaCha::init(const uint32_t* seed) {
-  std::memcpy(&pState[0], &expand_32_byte_k, 16);  // copy the constant in the key
-  std::memcpy(&pState[4], seed, 48);               // 48 = 12 * 4 Byte
+  std::memcpy(pState, &expand_32_byte_k[0], 16);  // copy the constant in the key
+  std::memcpy(pState + 4, seed, 48);              // 48 = 12 * 4 Byte
 }
 
 uint32_t ChaCha::get() {
@@ -82,8 +83,10 @@ uint32_t ChaCha::get() {
   return workingState[0];
 }
 
-void expandSeed(uint32_t* seed, const uint32_t* src, unsigned int length) {
-  for (unsigned int i = 0; i < 12; i += length) {
-    std::memcpy(seed + i, src, 4 * std::min(length, 12 - i));
+void expandSeed(uint32_t* seed, const unsigned long src) {
+  Byte* byteSeed = (Byte*) seed;
+  const unsigned int length = sizeof (unsigned long);
+  for (unsigned int i = 0; i < 48; i += length) {
+    std::memcpy(byteSeed + i, &src, length);
   }
 }
