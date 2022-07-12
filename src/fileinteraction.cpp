@@ -88,6 +88,7 @@ void read_file(Data& bytes, const char* filename, const TuringaKey& key) {
   }
   fclose(myfile);
   assert(size == bytes.size && "Incomplete read of file!");
+  (void) size;
   std::cout << timestamp(current_duration()) << "File has been read from <" << filename << ">.\n";
 }
 
