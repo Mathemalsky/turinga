@@ -84,8 +84,8 @@ uint32_t ChaCha::get() {
 }
 
 void expandSeed(uint32_t* seed, const unsigned long src) {
-  Byte* byteSeed = (Byte*) seed;
-  const unsigned int length = sizeof (unsigned long);
+  Byte* byteSeed            = (Byte*) seed;
+  const unsigned int length = sizeof(unsigned long);
   for (unsigned int i = 0; i < 48; i += length) {
     std::memcpy(byteSeed + i, &src, length);
   }
