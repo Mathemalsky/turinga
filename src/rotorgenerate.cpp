@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string>
 
+#include "chacha.hpp"
 #include "colors.hpp"
 #include "constants.hpp"
 #include "errors.hpp"
@@ -37,11 +38,16 @@ static Byte* order_256() {
   return order;
 }
 
-static Byte* permutaion(Byte* array, const unsigned int seed) {
+static Byte* permutaion(Byte* array, const uint64_t givenSeed) {
+  // set up the chacha rng
+  uint32_t seed[12];
+  expandSeed(&seed[0], givenSeed);
+  ChaCha rng;
+  rng.init(seed);
+
   size_t a;
-  srand(seed);
   for (size_t i = 0; i < 256; ++i) {
-    a = rand() % (256 - i);
+    a = rng.get() % (256 - i);
     std::swap(array[a], array[255 - i]);
   }
   return array;
@@ -55,8 +61,8 @@ static Byte* invert(const Byte* perm) {
   return inv_perm;
 }
 
-void generateRotor(const char* rotorNames, const unsigned int seed) {
-  Byte* perm     = permutaion(order_256(), seed);
+void generateRotor(const char* rotorNames, const uint64_t givenSeed) {
+  Byte* perm     = permutaion(order_256(), givenSeed);
   Byte* inv_perm = invert(perm);
   std::string str_rotorNames(rotorNames);
   std::filesystem::create_directory(STD_ROT_DIR);
@@ -79,5 +85,5 @@ void generateRotor(const char* rotorNames, const unsigned int seed) {
   free(perm);
   free(inv_perm);
   std::cout << timestamp(current_duration()) << "Rotors with the following names have been generated: <"
-            << str_rotorNames << "> Used seed: " << seed << "\n";
+            << str_rotorNames << "> Used seed: " << givenSeed << "\n";
 }

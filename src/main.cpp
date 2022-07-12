@@ -20,6 +20,9 @@
 #include <filesystem>
 #include <iostream>
 
+#include <csprng.hpp>
+
+#include "chacha.hpp"
 #include "colors.hpp"
 #include "errors.hpp"
 #include "fileinteraction.hpp"
@@ -95,21 +98,26 @@ int main(int argc, char** argv) {
       }
       else if (argc == 3 && std::strcmp(argv[2], "-r") == 0) {
         // generate all valid rotors with random seed
-        srand(time(NULL));
-        generateRotor(VALID_ROT_NAMES.c_str(), rand());
+        generateRotor(VALID_ROT_NAMES.c_str(), generateSeed());
       }
       else if (argc == 3) {
         // generate rotors using the default seed 0
         generateRotor(argv[2]);
       }
-      else if (std::strcmp(argv[3], "-r") == 0) {
+      else if (argc == 4 && std::strcmp(argv[2], "-a") == 0) {
+        // generate all valid rotors with given seed
+        generateRotor(VALID_ROT_NAMES.c_str(), std::strtoull(argv[3], nullptr, 10));
+      }
+      else if (argc == 4 && std::strcmp(argv[3], "-r") == 0) {
         // generate rotors using a random seed
-        srand(time(NULL));
-        generateRotor(argv[2], rand());
+        generateRotor(argv[2], generateSeed());
+      }
+      else if (argc == 4) {
+        // generate rotors using a given seed
+        generateRotor(argv[2], std::strtoull(argv[3], nullptr, 10));
       }
       else {
-        // generate rotors using a given seed
-        generateRotor(argv[2], std::atoi(argv[3]));
+        throw InappropriateNumberOfArguments("main", 4, argc);
       }
     }
     // encrypt or decrypt
