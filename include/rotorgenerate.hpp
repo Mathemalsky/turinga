@@ -19,8 +19,10 @@
 
 /*! \file rotorgenerate.hpp */
 
+#include <cstdint>
+
 /*!
  * \brief generateRotor generates new rotors for the names
  * \param rotorsNames all chars corresponding to a rotors name
  */
-void generateRotor(const char* rotorNames, const unsigned long givenSeed = 0);
+void generateRotor(const char* rotorNames, const uint64_t givenSeed = 0);

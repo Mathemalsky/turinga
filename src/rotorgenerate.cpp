@@ -38,7 +38,7 @@ static Byte* order_256() {
   return order;
 }
 
-static Byte* permutaion(Byte* array, const unsigned long givenSeed) {
+static Byte* permutaion(Byte* array, const uint64_t givenSeed) {
   // set up the chacha rng
   uint32_t seed[12];
   expandSeed(&seed[0], givenSeed);
@@ -62,7 +62,8 @@ static Byte* invert(const Byte* perm) {
   return inv_perm;
 }
 
-void generateRotor(const char* rotorNames, const unsigned long givenSeed) {
+void generateRotor(const char* rotorNames, const uint64_t givenSeed) {
+  printf("%zu\n", givenSeed);
   Byte* perm     = permutaion(order_256(), givenSeed);
   Byte* inv_perm = invert(perm);
   std::string str_rotorNames(rotorNames);

@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
       }
       else if (argc == 4 && std::strcmp(argv[2], "-a") == 0) {
         // generate all valid rotors with given seed
-        generateRotor(VALID_ROT_NAMES.c_str(), std::strtoul(argv[3], nullptr, 10));
+        generateRotor(VALID_ROT_NAMES.c_str(), std::strtoull(argv[3], nullptr, 10));
       }
       else if (argc == 4 && std::strcmp(argv[3], "-r") == 0) {
         // generate rotors using a random seed
@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
       }
       else if (argc == 4) {
         // generate rotors using a given seed
-        generateRotor(argv[2], std::strtoul(argv[3], nullptr, 10));
+        generateRotor(argv[2], std::strtoull(argv[3], nullptr, 10));
       }
       else {
         throw InappropriateNumberOfArguments("main", 4, argc);
