@@ -19,7 +19,7 @@ duthomhas::CSPRNG | generating Keys | Michael Thomas Greer | lib/CSPRNG/LICENSE_
 To use turinga you can download binary files for linux and windows from the releases or compile from source. There are versions using `avx2`, `sse4` or none of them.
 
 ### Compiling from source on linux
-You need Cmake. Then you can compile Turinga by entering the following commands in the directoriy of the `CMakeLists.txt` file.
+You need CMake. Then you can compile Turinga by entering the following commands in the directoriy of the `CMakeLists.txt` file.
 ```
 mkdir build && cd build  
 cmake ..
@@ -28,7 +28,7 @@ make
 By default the `-march=native` option is set.
 
 ## Usage
-In order to encrypt or decrypt Turinga need rotors and keys. Both can be generated using the programm
+In order to encrypt or decrypt Turinga need rotors and keys. Both can be generated using the programm.
  purpose                                     | Linux
  --------------------------------------------|---------------------------------------------------------------------------
  get syntax help                             | ./turinga21 help 
@@ -36,8 +36,8 @@ In order to encrypt or decrypt Turinga need rotors and keys. Both can be generat
  generate key                                | ./turinga21 genKey <key_file> <key_length> <name_of_all_possibly_used_rotors>
  generate rotors                             | ./turinga21 genRot <rotor_names> <seed_integer>
 
-For most of these commands there are shortcuts which replace some options by standard values. Use the help command to se them.
+For most of these commands there are shortcuts which replace some options by standard values. Use the help command to see them. For more help have a look in the wiki.
 
 ### On Windows
-To run Turinga on windows you need to replace `./turinga21` by `turinga21.exe` in the commands listed above.
+To run Turinga on windows you need to replace `./turinga21` by `turinga21.exe` in the commands listed above. Of course you need to adjust the command to the actual name of your executable or vice versa.
  
