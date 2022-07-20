@@ -72,16 +72,6 @@ inline size_t file_size(const char* filename) {
 #endif
 
 /*!
- * \brief ignore_byte reads one byte from file an ignores it
- * \details This function is designed to ommit space or enter bytes which separetes data in file.
- * \param myfile determines from which file to read.
- */
-inline void ignore_byte(std::istream& myfile) {
-  Byte bin;
-  myfile.read(reinterpret_cast<char*>(&bin), sizeof(bin));
-}
-
-/*!
  * \brief handleCrypt wraps up several function calls for encryption or decryption
  * \param filename file to be encrypted/ decrypted
  * \param outputfilename file where the output should be saved

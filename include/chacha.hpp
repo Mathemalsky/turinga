@@ -61,7 +61,6 @@ public:
  * \brief expandSeed
  * \param seed pointer of 48 byte length were the expanded seed is written to
  * \param src given seed will be repeated until it's length is 48 byte
- * \param length gives the number of bytes in the seed
  */
 void expandSeed(uint32_t* seed, const uint64_t src);
 
