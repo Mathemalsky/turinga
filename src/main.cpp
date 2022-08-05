@@ -35,6 +35,7 @@
 
 int main(int argc, char** argv) {
   start_time();
+  enable_windows_virtual_terminal_sequence();  // defined in colors.hpp
   try {
     if (argc < 2) {
       throw InappropriateNumberOfArguments("main", 2, argc);

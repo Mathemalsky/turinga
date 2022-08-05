@@ -18,6 +18,19 @@
 #pragma once
 /*! \file colors.hpp */
 
+#ifdef _WIN32
+#include <windows.h>
+void enable_windows_virtual_terminal_sequence() {
+  HANDLE hOut  = GetStdHandle(STD_OUTPUT_HANDLE);
+  DWORD dwMode = 0;
+  GetConsoleMode(hOut, &dwMode);
+  dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+  SetConsoleMode(hOut, dwMode);
+}
+#else
+#define enable_windows_virtual_terminal_sequence()
+#endif /* _WIN32 */
+
 #include <string>
 
 void print_lightgreen(std::string word) noexcept; /**< \brief prints word in light green to console */
