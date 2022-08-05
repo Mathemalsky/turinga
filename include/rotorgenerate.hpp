@@ -23,6 +23,7 @@
 
 /*!
  * \brief generateRotor generates new rotors for the names
- * \param rotorsNames all chars corresponding to a rotors name
+ * \param rotorNames all chars corresponding to a rotors name
+ * \param givenSeed 8 Bytes as initialization for the internal state
  */
 void generateRotor(const char* rotorNames, const uint64_t givenSeed = 0);

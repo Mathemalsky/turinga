@@ -39,7 +39,7 @@
  * If \f$s_0 = 1\f$ shift the i-th rotor by \f$(2i +1) s_i\f$ else shift it by \f$(2i+1) (1-s_i)\f$
  *
  * \authors Max, Jurek
- * \param fileShifts determines the current substitution
+ * \param rotorShifts determines the current substitution
  * \details This function replaces the rotation of wheels in enigma. This part is most critical for
  * security.
  */
